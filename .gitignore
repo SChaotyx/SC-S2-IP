@@ -11,3 +11,4 @@ s2built.prev.bin
 bin/
 .Emu/
 .vscode/
+build.bat

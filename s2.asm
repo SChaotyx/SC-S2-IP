@@ -2800,9 +2800,12 @@ CyclingPal_WFZ2:
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
 ; sub_213E:
+; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
+
+; sub_213E:
 PalCycle_SuperSonic:
 	move.b	(Super_Sonic_palette).w,d0
-	beq.s	++	; rts	; return, if Sonic isn't super
+	beq.s	+	; rts	; return, if Sonic isn't super
 	bmi.w	PalCycle_SuperSonic_normal	; branch, if fade-in is done
 	subq.b	#1,d0
 	bne.s	PalCycle_SuperSonic_revert	; branch for values greater than 1
@@ -2810,7 +2813,7 @@ PalCycle_SuperSonic:
 	; fade from Sonic's to Super Sonic's palette
 	; run frame timer
 	subq.b	#1,(Palette_timer).w
-	bpl.s	++	; rts
+	bpl.s	+	; rts
 	move.b	#3,(Palette_timer).w
 
 	; increment palette frame and update Sonic's palette
@@ -2818,15 +2821,10 @@ PalCycle_SuperSonic:
 	move.w	(Palette_frame).w,d0
 	addq.w	#8,(Palette_frame).w	; 1 palette entry = 1 word, Sonic uses 4 shades of blue
 	cmpi.w	#$30,(Palette_frame).w	; has palette cycle reached the 6th frame?
-	blo.s	+			; if not, branch
+	blo.s	PalCycle_SuperSonic_palettes			; if not, branch
 	move.b	#-1,(Super_Sonic_palette).w	; mark fade-in as done
 	move.b	#0,(MainCharacter+obj_control).w	; restore Sonic's movement
-+
-	lea	(Normal_palette+4).w,a1
-	move.l	(a0,d0.w),(a1)+
-	move.l	4(a0,d0.w),(a1)
-	; note: the fade in for Sonic's underwater palette is missing.
-	; branch to the code below (*) to fix this
+	bra.s		PalCycle_SuperSonic_palettes
 /	rts
 ; ===========================================================================
 ; loc_2188:
@@ -2840,10 +2838,11 @@ PalCycle_SuperSonic_revert:	; runs the fade in transition backwards
 	lea	(CyclingPal_SSTransformation).l,a0
 	move.w	(Palette_frame).w,d0
 	subq.w	#8,(Palette_frame).w	; previous frame
-	bcc.s	+			; branch, if it isn't the first frame
-	move.b	#0,(Palette_frame).w
+	bcc.s	PalCycle_SuperSonic_palettes			; branch, if it isn't the first frame
+	move.w	#0,(Palette_frame).w
 	move.b	#0,(Super_Sonic_palette).w	; stop palette cycle
-+
+
+PalCycle_SuperSonic_palettes:
 	lea	(Normal_palette+4).w,a1
 	move.l	(a0,d0.w),(a1)+
 	move.l	4(a0,d0.w),(a1)
@@ -2871,23 +2870,9 @@ PalCycle_SuperSonic_normal:
 	move.w	(Palette_frame).w,d0
 	addq.w	#8,(Palette_frame).w	; next frame
 	cmpi.w	#$78,(Palette_frame).w	; is it the last frame?
-	blo.s	+			; if not, branch
+	bls.s	PalCycle_SuperSonic_palettes			; if not, branch
 	move.w	#$30,(Palette_frame).w	; reset frame counter (Super Sonic's normal palette cycle starts at $30. Everything before that is for the palette fade)
-+
-	lea	(Normal_palette+4).w,a1
-	move.l	(a0,d0.w),(a1)+
-	move.l	4(a0,d0.w),(a1)
-	; underwater palettes
-	lea	(CyclingPal_CPZUWTransformation).l,a0
-	cmpi.b	#chemical_plant_zone,(Current_Zone).w
-	beq.s	+
-	cmpi.b	#aquatic_ruin_zone,(Current_Zone).w
-	bne.w	-	; rts
-	lea	(CyclingPal_ARZUWTransformation).l,a0
-+	lea	(Underwater_palette+4).w,a1
-	move.l	(a0,d0.w),(a1)+
-	move.l	4(a0,d0.w),(a1)
-	rts
+	bra.s	PalCycle_SuperSonic_palettes
 ; End of function PalCycle_SuperSonic
 
 ; ===========================================================================
@@ -11220,6 +11205,7 @@ MenuScreen:
 	clr.b	(Level_started_flag).w
 	clr.w	(Anim_Counters).w
 	clr.w	(Game_Over_2P).w
+	;clr.b   (Emerald_Count).w
 	lea	(Anim_SonicMilesBG).l,a2
 	jsrto	(Dynamic_Normal).l, JmpTo2_Dynamic_Normal
 	moveq	#PalID_Menu,d0
@@ -33989,8 +33975,7 @@ return_1A7C4:
 Sonic_RollSpeed:
 	move.w	(Sonic_top_speed).w,d6
 	asl.w	#1,d6
-	move.w	(Sonic_acceleration).w,d5
-	asr.w	#1,d5	; natural roll deceleration = 1/2 normal acceleration
+	moveq	#6,d5	; natural roll deceleration = 1/2 normal acceleration
 	move.w	#$20,d4	; controlled roll deceleration... interestingly,
 			; this should be Sonic_deceleration/4 according to Tails_RollSpeed,
 			; which means Sonic is much better than Tails at slowing down his rolling when he's underwater
@@ -34423,16 +34408,14 @@ return_1AB36:
 ; loc_1AB38: test_set_SS:
 Sonic_CheckGoSuper:
 	tst.b	(Super_Sonic_flag).w	; is Sonic already Super?
-	bne.s	return_1ABA4		; if yes, branch
+	bne.w	return_1ABA4		; if yes, branch
 	cmpi.b	#7,(Emerald_count).w	; does Sonic have exactly 7 emeralds?
-	bne.s	return_1ABA4		; if not, branch
+	bne.w	return_1ABA4		; if not, branch
 	cmpi.w	#50,(Ring_count).w	; does Sonic have at least 50 rings?
 	blo.s	return_1ABA4		; if not, branch
-    if gameRevision=2
 	; fixes a bug where the player can get stuck if transforming at the end of a level
 	tst.b	(Update_HUD_timer).w	; has Sonic reached the end of the act?
 	beq.s	return_1ABA4		; if yes, branch
-    endif
 
 	move.b	#1,(Super_Sonic_palette).w
 	move.b	#$F,(Palette_timer).w
@@ -34443,6 +34426,12 @@ Sonic_CheckGoSuper:
 	move.w	#$A00,(Sonic_top_speed).w
 	move.w	#$30,(Sonic_acceleration).w
 	move.w	#$100,(Sonic_deceleration).w
+	btst	#6,status(a0)	; Check if underwater, return if not
+	beq.s	+
+	move.w	#$500,(Sonic_top_speed).w
+	move.w	#$18,(Sonic_acceleration).w
+	move.w	#$80,(Sonic_deceleration).w
++
 	move.w	#0,invincibility_time(a0)
 	bset	#status_sec_isInvincible,status_secondary(a0)	; make Sonic invincible
 	move.w	#SndID_SuperTransform,d0
@@ -34466,10 +34455,12 @@ return_1ABA4:
 Sonic_Super:
 	tst.b	(Super_Sonic_flag).w	; Ignore all this code if not Super Sonic
 	beq.w	return_1AC3C
+	cmpi.b	#1,(Super_Sonic_palette).w	; is Super Sonic's transformation sequence finished?
+	beq.s	return_1ABA4			; if not, branch
 	tst.b	(Update_HUD_timer).w
 	beq.s	Sonic_RevertToNormal ; ?
 	subq.w	#1,(Super_Sonic_frame_count).w
-	bpl.w	return_1AC3C
+	bhi.w	return_1AC3C
 	move.w	#60,(Super_Sonic_frame_count).w	; Reset frame counter to 60
 	tst.w	(Ring_count).w
 	beq.s	Sonic_RevertToNormal
