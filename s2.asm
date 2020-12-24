@@ -5218,7 +5218,7 @@ MoveDemo_On_P1:
 	move.b	(a1),d0	; load button press
 	lea	(Ctrl_1_Held).w,a0
 	move.b	d0,d1
-	moveq	#0,d2 ; this was modified from (a0) to #0 in Rev01 of Sonic 1 to nullify the following line
+	move.b	Ctrl_1_Held_Logical-Ctrl_1_Held(a0),d2 ; fix demon Playback
 	eor.b	d2,d0	; does nothing now (used to let you hold a button to prevent Sonic from jumping in demos)
 	move.b	d1,(a0)+ ; save button press data from demo to Ctrl_1_Held
 	and.b	d1,d0	; does nothing now
@@ -5243,7 +5243,7 @@ MoveDemo_On_P2:
 	move.b	(a1),d0
 	lea	(Ctrl_2_Held).w,a0
 	move.b	d0,d1
-	moveq	#0,d2
+	move.b	Ctrl_2_Held_Logical-Ctrl_2_Held(a0),d2 ; fix demon Playback
 	eor.b	d2,d0
 	move.b	d1,(a0)+
 	and.b	d1,d0
