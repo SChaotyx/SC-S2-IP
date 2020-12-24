@@ -34337,8 +34337,8 @@ Sonic_Jump:
 	clr.b	stick_to_convex(a0)
 	move.w	#SndID_Jump,d0
 	jsr	(PlaySound).l	; play jumping sound
-	move.b	#$13,y_radius(a0)
-	move.b	#9,x_radius(a0)
+	;move.b	#$13,y_radius(a0)
+	;move.b	#9,x_radius(a0)
 	btst	#2,status(a0)
 	bne.s	Sonic_RollJump
 	move.b	#$E,y_radius(a0)
@@ -37251,8 +37251,8 @@ Tails_Jump:
 	clr.b	stick_to_convex(a0)
 	move.w	#SndID_Jump,d0
 	jsr	(PlaySound).l	; play jumping sound
-	move.b	#$F,y_radius(a0)
-	move.b	#9,x_radius(a0)
+	;move.b	#$F,y_radius(a0)
+	;move.b	#9,x_radius(a0)
 	btst	#2,status(a0)
 	bne.s	Tails_RollJump
 	move.b	#$E,y_radius(a0)
