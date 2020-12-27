@@ -23214,6 +23214,8 @@ loc_121B8:
 
 	tst.b	(Ring_spill_anim_counter).w
 	beq.s	Obj37_Delete
+	cmpi.w	#$FF00,($FFFFEECC).w		; is vertical wrapping enabled?
+	beq.w	DisplaySprite			; if so, branch
 	move.w	(Camera_Max_Y_pos_now).w,d0
 	addi.w	#$E0,d0
 	cmp.w	y_pos(a0),d0
