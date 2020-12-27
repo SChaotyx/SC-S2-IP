@@ -18,7 +18,7 @@
 ; ASSEMBLY OPTIONS:
 ;
     ifndef gameRevision
-gameRevision = 1
+gameRevision = 2
     endif
 ;	| If 0, a REV00 ROM is built
 ;	| If 1, a REV01 ROM is built, which contains some fixes
@@ -70977,16 +70977,9 @@ byte_3744E:
 
 ; loc_37454:
 Obj97_InitialWait:
-    if gameRevision<2
-	bsr.w	Obj97_CheckHeadIsAlive
-	subq.b	#1,objoff_2A(a0)
-	bmi.s	Obj97_StartRaise
-    else
-	; fixes an occational crash when defeated
 	subq.b	#1,objoff_2A(a0)
 	bmi.s	Obj97_StartRaise
 	bsr.w	Obj97_CheckHeadIsAlive
-    endif
 	jmpto	(MarkObjGone).l, JmpTo39_MarkObjGone
 ; ===========================================================================
 
@@ -71005,20 +70998,11 @@ Obj97_StartRaise:
 
 ; loc_37488:
 Obj97_RaiseHead:
-    if gameRevision<2
-	bsr.w	Obj97_CheckHeadIsAlive
-	moveq	#$10,d0
-	add.w	d0,x_vel(a0)
-	subq.b	#1,objoff_2A(a0)
-	bmi.s	Obj97_StartNormalState
-    else
-	; fixes an occational crash when defeated
 	moveq	#$10,d0
 	add.w	d0,x_vel(a0)
 	subq.b	#1,objoff_2A(a0)
 	bmi.s	Obj97_StartNormalState
 	bsr.w	Obj97_CheckHeadIsAlive
-    endif
 	jsrto	(ObjectMove).l, JmpTo26_ObjectMove
 	jmpto	(MarkObjGone).l, JmpTo39_MarkObjGone
 ; ===========================================================================
@@ -81893,7 +81877,7 @@ Touch_Monitor:
 	move.w	y_pos(a0),d0
 	subi.w	#$10,d0
 	cmp.w	y_pos(a1),d0
-	blo.s	return_3F78A
+	bcs.s   loc_3F768       ; Changed to loc_3F768 instead of return_3F78A
 	neg.w	y_vel(a0)	; reverse Sonic's y-motion
 	move.w	#-$180,y_vel(a1)
 	tst.b	routine_secondary(a1)
@@ -81910,7 +81894,11 @@ loc_3F768:
 +
 	cmpi.b	#AniIDSonAni_Roll,anim(a0)
 	bne.s	return_3F78A
+	tst.w   y_vel(a0)       ; is Sonic moving upwards?
+    blt.s   +               ; if so, branch, we want Sonic to carry on moving up
+    ; So, Sonic is moving down instead?
 	neg.w	y_vel(a0)	; reverse Sonic's y-motion
++
 	move.b	#4,routine(a1)
 	move.w	a0,parent(a1)
 
