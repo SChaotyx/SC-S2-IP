@@ -23176,6 +23176,9 @@ Obj37_Init:
 	neg.w	d4
 	dbf	d5,-
 +
+	moveq   #-1,d0                          ; Move #-1 to d0
+    move.b  d0,objoff_1F(a0)                ; Move d0 to new timer
+    move.b  d0,(Ring_spill_anim_counter).w  ; Move d0 to old timer (for animated purposes)
 	move.w	#SndID_RingSpill,d0
 	jsr	(PlaySoundStereo).l
 	tst.b	parent+1(a0)
@@ -23212,15 +23215,20 @@ Obj37_Main:
 
 loc_121B8:
 
-	tst.b	(Ring_spill_anim_counter).w
-	beq.s	Obj37_Delete
+	subq.b  #1,objoff_1F(a0)                ; Subtract 1
+    beq.w   DeleteObject                    ; If 0, delete
 	cmpi.w	#$FF00,($FFFFEECC).w		; is vertical wrapping enabled?
 	beq.w	DisplaySprite			; if so, branch
 	move.w	(Camera_Max_Y_pos_now).w,d0
 	addi.w	#$E0,d0
 	cmp.w	y_pos(a0),d0
 	blo.s	Obj37_Delete
-	bra.w	DisplaySprite
+;Mercury Lost Rings Flash
+	btst	#0, objoff_1F(a0) ; Test the first bit of the timer, so rings flash every other frame.
+	beq.w	DisplaySprite      ; If the bit is 0, the ring will appear.
+	cmpi.b	#80,objoff_1F(a0) ; Rings will flash during last 80 steps of their life.
+	bhi.w	DisplaySprite      ; If the timer is higher than 80, obviously the rings will STAY visible.
+	rts
 ; ===========================================================================
 
 loc_121D0:
