@@ -4430,20 +4430,21 @@ Level_TtlCard:
 	moveq	#PalID_BGND,d0
 	bsr.w	PalLoad_ForFade	; load Sonic's palette line
 	bsr.w	LevelSizeLoad
+	bsr.w	InitPlayers
 	jsrto	(DeformBgLayer).l, JmpTo_DeformBgLayer
 	clr.w	(Vscroll_Factor_FG).w
 	move.w	#-$E0,(Vscroll_Factor_P2_FG).w
 
 	clearRAM Horiz_Scroll_Buf,Horiz_Scroll_Buf_End
 
-	bsr.w	LoadZoneTiles
+	bsr.w	LoadZoneTiles 
 	jsrto	(loadZoneBlockMaps).l, JmpTo_loadZoneBlockMaps
 	jsr	(loc_402D4).l
 	jsrto	(DrawInitialBG).l, JmpTo_DrawInitialBG
 	jsr	(ConvertCollisionArray).l
 	bsr.w	LoadCollisionIndexes
 	bsr.w	WaterEffects
-	bsr.w	InitPlayers
+	
 	move.w	#0,(Ctrl_1_Logical).w
 	move.w	#0,(Ctrl_2_Logical).w
 	move.w	#0,(Ctrl_1).w
@@ -4672,6 +4673,7 @@ InitPlayers:
 
 	move.b	#ObjID_Sonic,(MainCharacter+id).w ; load Obj01 Sonic object at $FFFFB000
 	move.b	#ObjID_SpindashDust,(Sonic_Dust+id).w ; load Obj08 Sonic's spindash dust/splash object at $FFFFD100
+	move.b	#$13,(MainCharacter+y_radius).w		; Set Sonic's y-radius
 
 	cmpi.b	#wing_fortress_zone,(Current_Zone).w
 	beq.s	+ ; skip loading Tails if this is WFZ
@@ -4702,6 +4704,7 @@ InitPlayers_Alone: ; either Sonic or Tails but not both
 InitPlayers_TailsAlone:
 	move.b	#ObjID_Tails,(MainCharacter+id).w ; load Obj02 Tails object at $FFFFB000
 	move.b	#ObjID_SpindashDust,(Tails_Dust+id).w ; load Obj08 Tails' spindash dust/splash object at $FFFFD100
+	move.b	#$F,(MainCharacter+y_radius).w		; Set Tails' y-radius
 	addi_.w	#4,(MainCharacter+y_pos).w
 	rts
 ; End of function InitPlayers
@@ -16616,6 +16619,11 @@ ScrollHoriz:
 ScrollVerti:
 	moveq	#0,d1
 	move.w	y_pos(a0),d0
+
+	moveq	#$13,d2		; set default character height
+	sub.b	y_radius(a0),d2
+	sub.w	d2,d0	; get difference to character's actual height
+
 	sub.w	(a1),d0		; subtract camera Y pos
 	cmpi.w	#-$100,(Camera_Min_Y_pos).w ; does the level wrap vertically?
 	bne.s	.noWrap		; if not, branch
@@ -27446,6 +27454,8 @@ RunObjects_End:
 ; this skips certain objects to make enemies and things pause when Sonic dies
 ; loc_15FE6:
 RunObjectsWhenPlayerIsDead:
+	cmpi.b	#$C,(MainCharacter+routine).w	; Has Sonic drowned?
+	beq.s	RunObject			; If so, run objects a little longer
 	moveq	#(Reserved_Object_RAM_End-Reserved_Object_RAM)/object_size-1,d7
 	bsr.s	RunObject	; run the first $10 objects normally
 	moveq	#(Dynamic_Object_RAM_End-Dynamic_Object_RAM)/object_size-1,d7
@@ -33181,6 +33191,7 @@ Obj01_Index:	offsetTable
 		offsetTableEntry.w Obj01_Dead		;  6
 		offsetTableEntry.w Obj01_Gone		;  8
 		offsetTableEntry.w Obj01_Respawning	; $A
+		offsetTableEntry.w Obj01_Drowned	; $C
 ; ===========================================================================
 ; loc_19F76: Obj_01_Sub_0: Obj01_Main:
 Obj01_Init:
@@ -35264,6 +35275,17 @@ Obj01_Respawning:
 ; ===========================================================================
 
 ; ---------------------------------------------------------------------------
+; Sonic when he's drowning
+; ---------------------------------------------------------------------------
+Obj01_Drowned:
+	bsr.w	ObjectMove	; Make Sonic able to move
+	addi.w	#$10,y_vel(a0)	; Apply gravity
+	bsr.w	Sonic_RecordPos	; Record position
+	bsr.w	Sonic_Animate	; Animate Sonic
+	bsr.w	LoadSonicDynPLC	; Load Sonic's DPLCs
+	bra.w	DisplaySprite	; And finally, display Sonic
+
+; ---------------------------------------------------------------------------
 ; Subroutine to animate Sonic's sprites
 ; See also: AnimateSprite
 ; ---------------------------------------------------------------------------
@@ -35799,6 +35821,7 @@ Obj02_Index:	offsetTable
 		offsetTableEntry.w Obj02_Dead		;  6
 		offsetTableEntry.w Obj02_Gone		;  8
 		offsetTableEntry.w Obj02_Respawning	; $A
+		offsetTableEntry.w Obj02_Drowned	; $C
 ; ===========================================================================
 ; loc_1B8D8: Obj02_Main:
 Obj02_Init:
@@ -38058,6 +38081,17 @@ Obj02_Respawning:
 ; ===========================================================================
 
 ; ---------------------------------------------------------------------------
+; Tails when he's drowning
+; ---------------------------------------------------------------------------
+Obj02_Drowned:
+	bsr.w	ObjectMove	; Make Tails able to move
+	addi.w	#$10,y_vel(a0)	; Apply gravity
+	bsr.w	Tails_RecordPos	; Record position
+	bsr.s	Tails_Animate	; Animate Tails
+	bsr.w	LoadTailsDynPLC	; Load Tails's DPLCs
+	bra.w	DisplaySprite	; And finally, display Tails
+
+; ---------------------------------------------------------------------------
 ; Subroutine to animate Tails' sprites
 ; See also: AnimateSprite and Sonic_Animate
 ; ---------------------------------------------------------------------------
@@ -38909,26 +38943,21 @@ Obj0A_ReduceAir:
 	move.w	#0,y_vel(a0)
 	move.w	#0,x_vel(a0)
 	move.w	#0,inertia(a0)
+	move.b	#$C,routine(a0)	; Force the character to drown
 	movea.l	(sp)+,a0 ; load 0bj address ; restore a0 = obj0A
 	cmpa.w	#MainCharacter,a2
 	bne.s	+	; if it isn't player 1, branch
 	move.b	#1,(Deform_lock).w
+	clr.b  (Update_HUD_timer).w	; Stop the timer immediately
 +
 	rts
 ; ===========================================================================
 
 loc_1D708:
 	subq.w	#1,objoff_2C(a0)
-	bne.s	+
+	bne.s	loc_1D72C		; Make it jump straight to this location
 	move.b	#6,routine(a2)
 	rts
-; ---------------------------------------------------------------------------
-+	move.l	a0,-(sp)
-	movea.l	a2,a0
-	jsr	(ObjectMove).l
-	addi.w	#$10,y_vel(a0)
-	movea.l	(sp)+,a0 ; load 0bj address
-	bra.s	loc_1D72C
 ; ===========================================================================
 
 BranchTo_Obj0A_MakeItem
