@@ -26,7 +26,7 @@ gameRevision = 1
 padToPowerOfTwo = 1
 ;	| If 1, pads the end of the ROM to the next power of two bytes (for real hardware)
 ;
-allOptimizations = 0
+allOptimizations = 1
 ;	| If 1, enables all optimizations
 ;
 skipChecksumCheck = 0|allOptimizations
@@ -137,8 +137,8 @@ Vectors:
 Header:
 	dc.b "SEGA GENESIS    " ; Console name
 	dc.b "(C)SEGA 1992.SEP" ; Copyright holder and release date (generally year)
-	dc.b "SONIC THE             HEDGEHOG 2                " ; Domestic name
-	dc.b "SONIC THE             HEDGEHOG 2                " ; International name
+	dc.b "SONIC THE HEDGEHOG 2                            " ; Domestic name
+	dc.b "SONIC THE HEDGEHOG 2                            " ; International name
     if gameRevision=0
 	dc.b "GM 00001051-00"   ; Version (REV00)
     elseif gameRevision=1
