@@ -60138,7 +60138,7 @@ Obj5D_Gunk_States:	offsetTable
 
 Obj5D_Gunk_Init:
 	addq.b	#2,routine_secondary(a0)	; => Obj5D_Gunk_Main
-	move.b	#$20,y_radius(a0)
+	move.b	#$16,y_radius(a0)
 	move.b	#$19,anim(a0)
 	move.w	#0,y_vel(a0)
 	movea.l	Obj5D_parent(a0),a1 ; a1=object
@@ -62217,7 +62217,7 @@ Obj89_Init_RaisePillars:
 	move.l	#Obj89_MapUnc_30D68,mappings(a1)
 	ori.b	#4,render_flags(a1)
 	move.w	#make_art_tile(ArtTile_ArtNem_ARZBoss,0,0),art_tile(a1)
-	move.b	#$10,width_pixels(a1)
+	move.b	#$1E,width_pixels(a1)
 	move.b	#4,priority(a1)
 	move.w	#$2A50,x_pos(a1)
 	move.w	#$510,y_pos(a1)
@@ -62381,6 +62381,8 @@ Obj89_Main_Sub6_Standard:
 ; loc_3075C:
 Obj89_Main_HandleFace:
 	bsr.w	Obj89_Main_HandleHoveringAndHits
+	tst.b	objoff_36(a0)		; Is checker 0?
+	bne.s	Obj89_Main_ChkHurt		; If not, branch and do not check for Sonic/Tails hurt state
 	cmpi.b	#4,(MainCharacter+routine).w	; is Sonic hurt?
 	beq.s	Obj89_Main_Laugh		; if yes, branch
 	cmpi.b	#4,(Sidekick+routine).w		; is Tails hurt?
@@ -62390,6 +62392,7 @@ Obj89_Main_HandleFace:
 Obj89_Main_Laugh:
 	lea	(Boss_AnimationArray).w,a1
 	move.b	#$31,1*2+1(a1)			; use laughing animation
+	move.b	#1,objoff_36(a0)	; move 1 to checker
 
 ; loc_3077A:
 Obj89_Main_ChkHurt:
@@ -62399,6 +62402,10 @@ Obj89_Main_ChkHurt:
 	move.b	#-$40,1*2+1(a1)			; use hurt animation
 
 return_3078C:
+	cmpi.b  #$17,($FFFFF743).w	; Has Eggman stopped laughing?
+	bne.s   .laughing		; If not, branch
+	clr.b   objoff_36(a0)		; If so, clear checker, so Eggman can check to see if Sonic/Tails are hurt again
+.laughing:
 	rts
 ; ===========================================================================
 ; loc_3078E:
@@ -62813,6 +62820,7 @@ Obj89_Arrow_Init:
 	move.w	#make_art_tile(ArtTile_ArtNem_ARZBoss,0,0),art_tile(a0)
 	ori.b	#4,render_flags(a0)
 	move.b	#-$70,mainspr_width(a0)
+	move.b	#$10,width_pixels(a0)
 	move.b	#4,priority(a0)
 	addq.b	#2,obj89_arrow_routine(a0)	; => Obj89_Arrow_Sub2
 	movea.l	obj89_arrow_parent2(a0),a1 ; a1=object
@@ -62902,13 +62910,13 @@ BranchTo_JmpTo55_DeleteObject
 ; ===========================================================================
 ; loc_30CCC:
 Obj89_Arrow_Platform:
-	tst.w	obj89_arrow_timer(a0)		; is timer set?
-	bne.s	Obj89_Arrow_Platform_Decay	; if yes, branch
 	move.w	#$1B,d1
 	move.w	#1,d2
 	move.w	#2,d3
 	move.w	x_pos(a0),d4
 	jsrto	(PlatformObject).l, JmpTo8_PlatformObject
+	tst.w	obj89_arrow_timer(a0)		; is timer set?
+	bne.s	Obj89_Arrow_Platform_Decay	; if yes, branch
 	btst	#3,status(a0)			; is Sonic standing on the arrow?
 	beq.s	return_30D02			; if not, branch
 	move.w	#$1F,obj89_arrow_timer(a0)	; else, set timer
