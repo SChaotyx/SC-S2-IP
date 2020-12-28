@@ -47974,6 +47974,16 @@ off_24F80:	offsetTable
 ; ===========================================================================
 
 loc_24F84:
+	tst.w	(Debug_placement_mode).w
+	bne.w	return_25034
+
+	cmpa.w	#Sidekick,a1
+	bne.s	+
+	cmpi.w	#4,(Tails_CPU_routine).w ; TailsCPU_Flying
+	beq.w	return_25034
++
+	cmpi.b	#4,routine(a1)	; is Sonic hurt or dead?
+	bhs.w	return_25034	; if yes, branch
 	move.w	x_pos(a1),d0
 	sub.w	x_pos(a0),d0
 	addi.w	#$10,d0
@@ -47988,10 +47998,6 @@ loc_24F84:
 loc_24FAA:
 	cmpi.w	#$10,d1
 	bhs.w	return_25034
-	cmpa.w	#Sidekick,a1
-	bne.s	loc_24FC2
-	cmpi.w	#4,(Tails_CPU_routine).w ; TailsCPU_Flying
-	beq.w	return_25034
 
 loc_24FC2:
 	addq.b	#2,(a4)
@@ -48206,6 +48212,15 @@ Obj48_Modes:	offsetTable
 loc_252F0:
 	tst.w	(Debug_placement_mode).w
 	bne.w	return_253C4
+
+	cmpa.w	#Sidekick,a1
+	bne.s	+
+	cmpi.w	#4,(Tails_CPU_routine).w	; TailsCPU_Flying
+	beq.w	return_253C4
++
+	cmpi.b	#4,routine(a1)	; is Sonic hurt or dead?
+	bhs.w	return_253C4
+
 	move.w	x_pos(a1),d0
 	sub.w	x_pos(a0),d0
 	addi.w	#$10,d0
@@ -48216,15 +48231,8 @@ loc_252F0:
 	addi.w	#$10,d1
 	cmpi.w	#$20,d1
 	bhs.w	return_253C4
-	cmpa.w	#Sidekick,a1
-	bne.s	+
-	cmpi.w	#4,(Tails_CPU_routine).w	; TailsCPU_Flying
-	beq.w	return_253C4
-+
-	cmpi.b	#6,routine(a1)
-	bhs.w	return_253C4
-	tst.w	(Debug_placement_mode).w
-	bne.w	return_253C4
+	;tst.w	(Debug_placement_mode).w
+	;bne.w	return_253C4
 	btst	#3,status(a1)
 	beq.s	+
 	moveq	#0,d0
@@ -62479,6 +62487,10 @@ Obj89_Main_DropHammer:
 	cmpi.w	#$78,(Boss_Countdown).w
 	bgt.s	return_3088A			; wait until timer is below $78
 	subi_.w	#1,sub3_x_pos(a0)		; make hammer move left
+	btst	#0,render_flags(a0)	; Is Eggman facing left?
+	beq.s	+			; Yes?  Branch and continue
+	addi.w	#2,y_radius(a0)		; So he's facing right?  Make hammer fall to the right instead
++
 	move.l	obj89_hammer_y_pos(a0),d0
 	move.w	obj89_hammer_y_vel(a0),d1
 	addi.w	#$38,obj89_hammer_y_vel(a0)	; add gravity
@@ -63334,8 +63346,12 @@ Obj57_TransferPositions:
 ;loc_31358:
 Obj57_FallApart:	; make the digger thingies fall down
 	cmpi.w	#$78,(Boss_Countdown).w
-	bgt.s	return_313C4
+	bgt.w	return_313C4
 	subi_.w	#1,sub5_x_pos(a0)
+	btst	#0,render_flags(a0)	; Is Eggman facing left?
+	beq.s	+			; Yes?  Branch and continue
+	addi.w	#2,status(a0)		; So he's facing right?  Make drill face to the right instead
++
 	move.l	obj57_sub5_y_pos2(a0),d0
 	move.w	obj57_sub5_y_vel(a0),d1
 	addi.w	#$38,obj57_sub5_y_vel(a0)
@@ -63349,6 +63365,10 @@ Obj57_FallApart:	; make the digger thingies fall down
 	move.w	#0,obj57_sub5_y_vel(a0)
 +			; second one
 	addi_.w	#1,sub2_x_pos(a0)
+	btst	#0,render_flags(a0)	; Is Eggman facing left?
+	beq.s	+			; Yes?  Branch and continue
+	addi.w	#2,status(a0)		; So he's facing right?  Make drill face to the right instead
++
 	move.l	obj57_sub2_y_pos2(a0),d0
 	move.w	obj57_sub2_y_vel(a0),d1
 	addi.w	#$38,obj57_sub2_y_vel(a0)
@@ -63677,7 +63697,7 @@ Obj51_Init:
 	move.w	#$654,y_pos(a0)
 	move.b	#0,mainspr_mapframe(a0)
 	move.b	#$20,mainspr_width(a0)
-	move.b	#$80,mainspr_height(a0)
+	;move.b	#$80,mainspr_height(a0)
 	addq.b	#2,boss_subtype(a0)
 	move.b	#0,angle(a0)
 	bset	#6,render_flags(a0)
@@ -64126,8 +64146,12 @@ loc_31E76:
 
 loc_31EAE:
 	cmpi.w	#$78,(Boss_Countdown).w
-	bgt.s	return_31F22
+	bgt.w	return_31F22
 	subi_.w	#1,sub5_x_pos(a0)
+	btst	#0,render_flags(a0)	; Is Eggman facing left?
+	beq.s	+			; Yes?  Branch and continue
+	addi.w	#2,status(a0)		; So he's facing right?  Make catcher face to the right instead
++
 	move.l	objoff_3A(a0),d0
 	move.w	objoff_2E(a0),d1
 	addi.w	#$38,objoff_2E(a0)
@@ -64144,6 +64168,10 @@ loc_31EE8:
 	cmpi.w	#$3C,(Boss_Countdown).w
 	bgt.s	return_31F22
 	addi_.w	#1,sub2_x_pos(a0)
+	btst	#0,render_flags(a0)	; Is Eggman facing left?
+	beq.s	+			; Yes?  Branch and continue
+	addi.w	#2,status(a0)		; So he's facing right?  Make catcher face to the right instead
++
 	move.l	objoff_34(a0),d0
 	move.w	objoff_30(a0),d1
 	addi.w	#$38,objoff_30(a0)
@@ -80325,6 +80353,8 @@ ObjC7_CheckHit:
 	subq.b	#1,collision_property(a0)
 	beq.s	ObjC7_Beaten
 +
+	movea.w    objoff_36(a0),a1 ; a1=Eggrobo's head
+ 	clr.b    collision_flags(a1)	; Remove collision from head
 	move.b	#$3C,objoff_2A(a0)
 	move.w	#SndID_BossHit,d0
 	jsr	(PlaySound).l
@@ -82665,8 +82695,13 @@ Dynamic_HTZ:
 	neg.w	d1
 	asr.w	#3,d1
 	move.w	(Camera_X_pos).w,d0
+	move.w	d0,d2	; Copy to d2
+	andi.w	#$F,d2	; Is the lower nibble zero?
+	seq.b	d2	; If yes, set low byte of d2 to $FF
+	ext.w	d2	; Low word of d2 = -1
 	lsr.w	#4,d0
-	add.w	d1,d0
+	add.w	d1,d0	; (*) See notes
+	add.w	d2,d0	; Shift the parallax to the correct value
 	subi.w	#$10,d0
 	divu.w	#$30,d0
 	swap	d0
