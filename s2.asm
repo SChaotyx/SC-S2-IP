@@ -62763,11 +62763,38 @@ Obj89_Arrow_Offsets:
 ; ===========================================================================
 ; loc_30B4A:
 Obj89_Pillar_Sub4:
-	move.b	#1,(Screen_Shaking_Flag).w	; make screen shake
-	addi_.w	#1,y_pos(a0)			; lower pillar
-	cmpi.w	#$510,y_pos(a0)			; has pillar lowered into the ground?
-	blt.s	BranchTo2_JmpTo37_DisplaySprite	; if not, branch
-	move.b	#0,(Screen_Shaking_Flag).w	; else, stop shaking the screen
+	move.w  #$23,d1
+    move.w  #$44,d2
+    move.w  #$45,d3
+    move.w  x_pos(a0),d4
+    move.w  y_pos(a0),-(sp)
+    addi.w  #4,y_pos(a0)
+    bsr.w   JmpTo26_SolidObject
+    move.w  (sp)+,y_pos(a0)
+
+    move.b  #1,(Screen_Shaking_Flag).w
+    addi.w  #1,y_pos(a0)
+    cmpi.w  #$510,y_pos(a0)
+    blt.s   BranchTo2_JmpTo37_DisplaySprite
+
+    move.b  status(a0),d0
+    andi.b  #standing_mask|pushing_mask,d0  ; is someone touching the pillar?
+    beq.s   Pillar_Lower                    ; if not, branch
+    move.b  d0,d1
+    andi.b  #p1_standing|p1_pushing,d1      ; is it the main character?
+    beq.s   +                               ; if not, branch
+	andi.b	#~(p1_standing|p1_pushing),status(a0)
+    andi.b  #$D7,(MainCharacter+status).w
+    ori.b   #2,(MainCharacter+status).w     ; prevent Sonic from walking in the air
++
+    andi.b  #p2_standing|p2_pushing,d0      ; is it the sidekick?
+    beq.s   Pillar_Lower                    ; if not, branch
+	andi.b	#~(p2_standing|p2_pushing),status(a0)
+    andi.b  #$D7,(Sidekick+status).w
+    ori.b   #2,(Sidekick+status).w          ; prevent Tails from walking in the air
+
+Pillar_Lower:
+    move.b  #0,(Screen_Shaking_Flag).w
 	jmpto	(DeleteObject).l, JmpTo55_DeleteObject
 ; ===========================================================================
 
