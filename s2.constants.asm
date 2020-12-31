@@ -1586,8 +1586,10 @@ SlotMachine_Slot3Pos:	ds.w	1
 SlotMachine_Slot3Speed:	ds.b	1
 SlotMachine_Slot3Rout:	ds.b	1
 
-				ds.b	$10	; $FFFFFF60-$FFFFFF6F ; seems unused
-
+						ds.b	$D	; $FFFFFF60-$FFFFFF6F ; seems unused
+Play_mode:				ds.b	1
+Sec_player:				ds.b	1
+Main_player:			ds.b	1
 Player_mode:			ds.w	1	; 0 = Sonic and Tails, 1 = Sonic, 2 = Tails
 Player_option:			ds.w	1	; 0 = Sonic and Tails, 1 = Sonic, 2 = Tails
 
@@ -2373,6 +2375,7 @@ ArtTile_ArtNem_Ring                   = $06BC
 ArtTile_ArtNem_HUD                    = ArtTile_ArtNem_Powerups + $4A
 ArtTile_ArtUnc_Sonic                  = $0780
 ArtTile_ArtUnc_Tails                  = $07A0
+;ArtTile_ArtUnc_Tails_Tails            = $03BE
 ArtTile_ArtUnc_Tails_Tails            = $07B0
 
 ; ---------------------------------------------------------------------------
