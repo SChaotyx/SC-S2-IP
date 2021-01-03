@@ -407,6 +407,9 @@ PalID_SS3_2p =	id(PalPtr_SS3_2p) ; 24
 PalID_OOZ_B =	id(PalPtr_OOZ_B) ; 25
 PalID_Menu =	id(PalPtr_Menu) ; 26
 PalID_Result =	id(PalPtr_Result) ; 27
+PalID_Knux =	id(PalPtr_Knux) ; 28
+PalID_CPZ_K_U =	id(PalPtr_CPZ_K_U) ; 29
+PalID_ARZ_K_U =	id(PalPtr_ARZ_K_U) ; 30
 
 ; PLC IDs
 offset :=	ArtLoadCues
@@ -480,6 +483,10 @@ PLCID_Tornado =		id(PLCptr_Tornado) ; 3F
 PLCID_Capsule =		id(PLCptr_Capsule) ; 40
 PLCID_Explosion =	id(PLCptr_Explosion) ; 41
 PLCID_ResultsTails =	id(PLCptr_ResultsTails) ; 42
+PLCID_KnucklesLife =	id(PLCptr_KnucklesLife)
+PLCID_Std2Knuckles =	id(PLCptr_Std2Knuckles)
+PLCID_ResultsKnuckles =	id(PLCptr_ResultsKnuckles)
+PLCID_SignpostKnuckles =	id(PLCptr_SignpostKnuckles)
 
 ; Object IDs
 offset :=	Obj_Index
