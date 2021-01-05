@@ -129,16 +129,12 @@ TAnim_WalkRunZoom: ; a0=character
 	cmpi.w	#$600,d2		; is Tails going pretty fast?
 	blo.s	TAnim_SpeedSelected	; if not, branch
 	lea	(TailsAni_Run).l,a1
-	move.b	d0,d1
-	lsr.b	#1,d1
-	add.b	d1,d0
-	add.b	d0,d0
 	move.b	d0,d3
-
+	add.b	d3,d3
 	cmpi.w	#$700,d2		; is Tails going really fast?
 	blo.s	TAnim_SpeedSelected	; if not, branch
 	lea	(TailsAni_HaulAss).l,a1
-
+	move.b	d0,d3
 ; loc_1CEEE:
 TAnim_SpeedSelected:
 	neg.w	d2
@@ -162,7 +158,7 @@ TAnim_Tumble:
 	andi.b	#$FC,render_flags(a0)
 	addi.b	#$B,d0
 	divu.w	#$16,d0
-	addi.b	#$75,d0
+	addi.b	#$31,d0
 	move.b	d0,mapping_frame(a0)
 	move.b	#0,anim_frame_duration(a0)
 	rts
@@ -182,7 +178,7 @@ TAnim_Tumble_Left:
 	addi.b	#$8F,d0
 +
 	divu.w	#$16,d0
-	addi.b	#$75,d0
+	addi.b	#$31,d0
 	move.b	d0,mapping_frame(a0)
 	move.b	#0,anim_frame_duration(a0)
 	rts
@@ -304,29 +300,29 @@ TailsAni_Dummy5_ptr:	offsetTableEntry.w TailsAni_Dummy5	; 30 ; $1E
 TailsAni_HaulAss_ptr:	offsetTableEntry.w TailsAni_HaulAss	; 31 ; $1F
 TailsAni_Fly_ptr:	offsetTableEntry.w TailsAni_Fly		; 32 ; $20
 
-TailsAni_Walk:	dc.b $FF,$10,$11,$12,$13,$14,$15, $E, $F,$FF
+TailsAni_Walk:	dc.b  $FF,   7,   8,   1,   2,   3,   4,   5,   6, $FF
 	rev02even
-TailsAni_Run:	dc.b $FF,$2E,$2F,$30,$31,$FF,$FF,$FF,$FF,$FF
+TailsAni_Run:	dc.b  $FF, $21, $22, $23, $24, $FF, $FF, $FF, $FF, $FF
 	rev02even
-TailsAni_Roll:	dc.b   1,$48,$47,$46,$FF
+TailsAni_Roll:	dc.b    1, $96, $97, $98, $FF
 	rev02even
-TailsAni_Roll2:	dc.b   1,$48,$47,$46,$FF
+TailsAni_Roll2:	dc.b    0, $96, $97, $98, $FF
 	rev02even
-TailsAni_Push:	dc.b $FD,$63,$64,$65,$66,$FF,$FF,$FF,$FF,$FF
+TailsAni_Push:	dc.b  $FD, $A9, $AA, $AB, $AC, $FF, $FF, $FF, $FF, $FF
 	rev02even
-TailsAni_Wait:	dc.b   7,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  3,  2,  1,  1,  1
-		dc.b   1,  1,  1,  1,  1,  3,  2,  1,  1,  1,  1,  1,  1,  1,  1,  1
-		dc.b   5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5
-		dc.b   6,  7,  8,  7,  8,  7,  8,  7,  8,  7,  8,  6,$FE,$1C
+TailsAni_Wait:	dc.b    7, $AD, $AD, $AD, $AD, $AD, $AD, $AD, $AD, $AD, $AD, $AF, $AE, $AD, $AD, $AD
+				dc.b  $AD, $AD, $AD, $AD, $AD, $AF, $AE, $AD, $AD, $AD, $AD, $AD, $AD, $AD, $AD, $AD
+				dc.b  $B1, $B1, $B1, $B1, $B1, $B1, $B1, $B1, $B1, $B1, $B1, $B1, $B1, $B1, $B1, $B1
+				dc.b  $B2, $B3, $B4, $B3, $B4, $B3, $B4, $B3, $B4, $B3, $B4, $B2, $FE, $1C
 	rev02even
-TailsAni_Balance:	dc.b   9,$69,$69,$6A,$6A,$69,$69,$6A,$6A,$69,$69,$6A,$6A,$69,$69,$6A
-			dc.b $6A,$69,$69,$6A,$6A,$69,$6A,$FF
+TailsAni_Balance:	dc.b    9, $9A, $9A, $9B, $9B, $9A, $9A, $9B, $9B, $9A, $9A, $9B, $9B, $9A, $9A, $9B
+					dc.b  $9B, $9A, $9A, $9B, $9B, $9A, $9B, $FF
 	rev02even
-TailsAni_LookUp:	dc.b $3F,  4,$FF
+TailsAni_LookUp:	dc.b  $3F, $B0, $FF
 	rev02even
-TailsAni_Duck:		dc.b $3F,$5B,$FF
+TailsAni_Duck:		dc.b  $3F, $99, $FF
 	rev02even
-TailsAni_Spindash:	dc.b   0,$60,$61,$62,$FF
+TailsAni_Spindash:	dc.b    0, $86, $87, $88, $FF
 	rev02even
 TailsAni_Dummy1:	dc.b $3F,$82,$FF
 	rev02even
@@ -334,35 +330,35 @@ TailsAni_Dummy2:	dc.b   7,  8,  8,  9,$FD,  5
 	rev02even
 TailsAni_Dummy3:	dc.b   7,  9,$FD,  5
 	rev02even
-TailsAni_Stop:		dc.b   7,$67,$68,$67,$68,$FD,  0
+TailsAni_Stop:		dc.b    3, $8E, $8F, $8E, $8F, $FD,   0
 	rev02even
-TailsAni_Float:		dc.b   9,$6E,$73,$FF
+TailsAni_Float:		dc.b    9, $B5, $FF
 	rev02even
-TailsAni_Float2:	dc.b   9,$6E,$6F,$70,$71,$72,$FF
+TailsAni_Float2:	dc.b    9, $B5, $B6, $B7, $B8, $B9, $BA, $BB, $BC, $FF
 	rev02even
-TailsAni_Spring:	dc.b   3,$59,$5A,$59,$5A,$59,$5A,$59,$5A,$59,$5A,$59,$5A,$FD,  0
+TailsAni_Spring:	dc.b    3, $8B, $8C, $8B, $8C, $8B, $8C, $8B, $8C, $8B, $8C, $8B, $8C, $FD,   0
 	rev02even
-TailsAni_Hang:		dc.b   5,$6C,$6D,$FF
+TailsAni_Hang:		dc.b    1, $9D, $9E, $FF
 	rev02even
-TailsAni_Blink:		dc.b  $F,  1,  2,  3,$FE,  1
+TailsAni_Blink:		dc.b   $F,   1,   2,   3, $FE,   1
 	rev02even
-TailsAni_Blink2:	dc.b  $F,  1,  2,$FE,  1
+TailsAni_Blink2:	dc.b   $F, $A5, $A6, $FE,   1
 	rev02even
-TailsAni_Hang2:		dc.b $13,$85,$86,$FF
+TailsAni_Hang2:		dc.b  $13, $91, $FF
 	rev02even
-TailsAni_Bubble:	dc.b  $B,$74,$74,$12,$13,$FD,  0
+TailsAni_Bubble:	dc.b   $B, $9F, $9F,   3,   4, $FD,   0
 	rev02even
-TailsAni_DeathBW:	dc.b $20,$5D,$FF
+TailsAni_DeathBW:	dc.b  $20, $9C, $FF
 	rev02even
-TailsAni_Drown:		dc.b $2F,$5D,$FF
+TailsAni_Drown:		dc.b  $2F, $9C, $FF
 	rev02even
-TailsAni_Death:		dc.b   3,$5D,$FF
+TailsAni_Death:		dc.b    3, $9C, $FF
 	rev02even
-TailsAni_Hurt:		dc.b   3,$5D,$FF
+TailsAni_Hurt:		dc.b  $40, $8A, $FF
 	rev02even
-TailsAni_Hurt2:		dc.b   3,$5C,$FF
+TailsAni_Hurt2:		dc.b    9, $89, $8A, $FF
 	rev02even
-TailsAni_Slide:		dc.b   9,$6B,$5C,$FF
+TailsAni_Slide:		dc.b    9, $CB, $CC, $FF
 	rev02even
 TailsAni_Blank:		dc.b $77,  0,$FD,  0
 	rev02even
@@ -370,10 +366,9 @@ TailsAni_Dummy4:	dc.b   3,  1,  2,  3,  4,  5,  6,  7,  8,$FF
 	rev02even
 TailsAni_Dummy5:	dc.b   3,  1,  2,  3,  4,  5,  6,  7,  8,$FF
 	rev02even
-TailsAni_HaulAss:	dc.b $FF,$32,$33,$FF
-			dc.b $FF,$FF,$FF,$FF,$FF,$FF
+TailsAni_HaulAss:	dc.b  $FF, $C3, $C4, $FF, $FF, $FF, $FF, $FF, $FF, $FF
 	rev02even
-TailsAni_Fly:		dc.b   1,$5E,$5F,$FF
+TailsAni_Fly:		dc.b  $1F, $A0, $FF
 	even
 
 ; ===========================================================================

@@ -211,7 +211,7 @@ SAnim_Tumble:
 	andi.b	#$FC,render_flags(a0)
 	addi.b	#$B,d0
 	divu.w	#$16,d0
-	addi.b	#$5F,d0
+	addi.b	#$31,d0
 	move.b	d0,mapping_frame(a0)
 	move.b	#0,anim_frame_duration(a0)
 	rts
@@ -233,7 +233,7 @@ loc_1B566:
 
 loc_1B572:
 	divu.w	#$16,d0
-	addi.b	#$5F,d0
+	addi.b	#$31,d0
 	move.b	d0,mapping_frame(a0)
 	move.b	#0,anim_frame_duration(a0)
 	rts
@@ -329,77 +329,73 @@ SupSonAni_Transform_ptr:	offsetTableEntry.w SupSonAni_Transform	; 31 ; $1F
 SonAni_Lying_ptr:		offsetTableEntry.w SonAni_Lying		; 32 ; $20
 SonAni_LieDown_ptr:		offsetTableEntry.w SonAni_LieDown	; 33 ; $21
 
-SonAni_Walk:	dc.b $FF, $F,$10,$11,$12,$13,$14, $D, $E,$FF
+SonAni_Walk:	dc.b $FF,   1,   2,   3,   4,   5,   6,   7,   8, $FF
 	rev02even
-SonAni_Run:	dc.b $FF,$2D,$2E,$2F,$30,$FF,$FF,$FF,$FF,$FF
+SonAni_Run:		dc.b $FF, $21, $22, $23, $24, $FF, $FF, $FF, $FF, $FF
 	rev02even
-SonAni_Roll:	dc.b $FE,$3D,$41,$3E,$41,$3F,$41,$40,$41,$FF
+SonAni_Roll:	dc.b $FE, $96, $97, $96, $98, $96, $99, $96, $9A, $FF
 	rev02even
-SonAni_Roll2:	dc.b $FE,$3D,$41,$3E,$41,$3F,$41,$40,$41,$FF
+SonAni_Roll2:	dc.b  $FE, $96, $97, $96, $98, $96, $99, $96, $9A, $FF
 	rev02even
-SonAni_Push:	dc.b $FD,$48,$49,$4A,$4B,$FF,$FF,$FF,$FF,$FF
+SonAni_Push:	dc.b  $FD, $B6, $B7, $B8, $B9, $FF, $FF, $FF, $FF, $FF
 	rev02even
 SonAni_Wait:
-	dc.b   5,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1
-	dc.b   1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  1,  2
-	dc.b   3,  3,  3,  3,  3,  4,  4,  4,  5,  5,  5,  4,  4,  4,  5,  5
-	dc.b   5,  4,  4,  4,  5,  5,  5,  4,  4,  4,  5,  5,  5,  6,  6,  6
-	dc.b   6,  6,  6,  6,  6,  6,  6,  4,  4,  4,  5,  5,  5,  4,  4,  4
-	dc.b   5,  5,  5,  4,  4,  4,  5,  5,  5,  4,  4,  4,  5,  5,  5,  6
-	dc.b   6,  6,  6,  6,  6,  6,  6,  6,  6,  4,  4,  4,  5,  5,  5,  4
-	dc.b   4,  4,  5,  5,  5,  4,  4,  4,  5,  5,  5,  4,  4,  4,  5,  5
-	dc.b   5,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  4,  4,  4,  5,  5
-	dc.b   5,  4,  4,  4,  5,  5,  5,  4,  4,  4,  5,  5,  5,  4,  4,  4
-	dc.b   5,  5,  5,  6,  6,  6,  6,  6,  6,  6,  6,  6,  6,  7,  8,  8
-	dc.b   8,  9,  9,  9,$FE,  6
+		dc.b    5, $BA, $BA, $BA, $BA, $BA, $BA, $BA, $BA, $BA, $BA, $BA, $BA, $BA, $BA, $BA
+		dc.b  $BA, $BA, $BA, $BA, $BA, $BA, $BA, $BA, $BA, $BA, $BA, $BA, $BA, $BA, $BA, $BA
+		dc.b  $BA, $BA, $BA, $BA, $BA, $BA, $BA, $BA, $BA, $BA, $BA, $BA, $BA, $BA, $BA, $BA
+		dc.b  $BA, $BA, $BA, $BB, $BC, $BC, $BD, $BD, $BE, $BE, $BD, $BD, $BE, $BE, $BD, $BD
+		dc.b  $BE, $BE, $BD, $BD, $BE, $BE, $BD, $BD, $BE, $BE, $BD, $BD, $BE, $BE, $BD, $BD
+		dc.b  $BE, $BE, $BD, $BD, $BE, $BE, $AD, $AD, $AD, $AD, $AD, $AD, $AE, $AE, $AE, $AE
+		dc.b  $AE, $AE, $AF, $D9, $D9, $D9, $D9, $D9, $D9, $AF, $AF, $FE, $35
 	rev02even
-SonAni_Balance:	dc.b   9,$CC,$CD,$CE,$CD,$FF
+SonAni_Balance:	dc.b    7, $A4, $A5, $A6, $FF
 	rev02even
-SonAni_LookUp:	dc.b   5, $B, $C,$FE,  1
+SonAni_LookUp:	dc.b    5, $C3, $C4, $FE,   1
 	rev02even
-SonAni_Duck:	dc.b   5,$4C,$4D,$FE,  1
+SonAni_Duck:	dc.b    5, $9B, $9C, $FE,   1
 	rev02even
-SonAni_Spindash:dc.b   0,$42,$43,$42,$44,$42,$45,$42,$46,$42,$47,$FF
+SonAni_Spindash:
+				dc.b    0, $86, $87, $86, $88, $86, $89, $86, $8A, $86, $8B, $FF
 	rev02even
 SonAni_Blink:	dc.b   1,  2,$FD,  0
 	rev02even
 SonAni_GetUp:	dc.b   3, $A,$FD,  0
 	rev02even
-SonAni_Balance2:dc.b   3,$C8,$C9,$CA,$CB,$FF
+SonAni_Balance2:dc.b    5, $A1, $A2, $A3, $FF
 	rev02even
-SonAni_Stop:	dc.b   5,$D2,$D3,$D4,$D5,$FD,  0 ; halt/skidding animation
+SonAni_Stop:	dc.b    3, $9D, $9E, $9F, $A0, $FD,   0 ; halt/skidding animation
 	rev02even
-SonAni_Float:	dc.b   7,$54,$59,$FF
+SonAni_Float:	dc.b    7, $C8, $FF
 	rev02even
-SonAni_Float2:	dc.b   7,$54,$55,$56,$57,$58,$FF
+SonAni_Float2:	dc.b    7, $C8, $C9, $CA, $CB, $CC, $CD, $CE, $CF, $FF
 	rev02even
-SonAni_Spring:	dc.b $2F,$5B,$FD,  0
+SonAni_Spring:	dc.b  $2F, $8E, $FD,   0
 	rev02even
-SonAni_Hang:	dc.b   1,$50,$51,$FF
+SonAni_Hang:	dc.b    1, $AA, $AB, $FF
 	rev02even
-SonAni_Dash2:	dc.b  $F,$43,$43,$43,$FE,  1
+SonAni_Dash2:	dc.b   $F, $43, $43, $43, $FE,   1
 	rev02even
 SonAni_Dash3:	dc.b  $F,$43,$44,$FE,  1
 	rev02even
-SonAni_Hang2:	dc.b $13,$6B,$6C,$FF
+SonAni_Hang2:	dc.b  $13, $91, $FF
 	rev02even
-SonAni_Bubble:	dc.b  $B,$5A,$5A,$11,$12,$FD,  0 ; breathe
+SonAni_Bubble:	dc.b   $B, $AC, $AC,   3,   4, $FD,   0 ; breathe
 	rev02even
-SonAni_DeathBW:	dc.b $20,$5E,$FF
+SonAni_DeathBW:	dc.b  $20, $A8, $FF
 	rev02even
-SonAni_Drown:	dc.b $20,$5D,$FF
+SonAni_Drown:	dc.b  $20, $A9, $FF
 	rev02even
-SonAni_Death:	dc.b $20,$5C,$FF
+SonAni_Death:	dc.b  $20, $A7, $FF
 	rev02even
-SonAni_Hurt:	dc.b $40,$4E,$FF
+SonAni_Hurt:	dc.b  $40, $8D, $FF
 	rev02even
-SonAni_Slide:	dc.b   9,$4E,$4F,$FF
+SonAni_Slide:	dc.b  $40, $8D, $FF
 	rev02even
-SonAni_Blank:	dc.b $77,  0,$FD,  0
+SonAni_Blank:	dc.b  $77,   0, $FF
 	rev02even
-SonAni_Balance3:dc.b $13,$D0,$D1,$FF
+SonAni_Balance3:dc.b  $13, $D0, $D1, $FF
 	rev02even
-SonAni_Balance4:dc.b   3,$CF,$C8,$C9,$CA,$CB,$FE,  4
+SonAni_Balance4:dc.b    3, $CF, $C8, $C9, $CA, $CB, $FE,   4
 	rev02even
 SonAni_Lying:	dc.b   9,  8,  9,$FF
 	rev02even
@@ -444,17 +440,17 @@ SuperSonicAniData: offsetTable
 	offsetTableEntry.w SonAni_Balance4	; 30 ; $1E
 	offsetTableEntry.w SupSonAni_Transform	; 31 ; $1F
 
-SupSonAni_Walk:		dc.b $FF,$77,$78,$79,$7A,$7B,$7C,$75,$76,$FF
+SupSonAni_Walk:		dc.b	$FF,   1,   2,   3,   4,   5,   6,   7,   8, $FF
 	rev02even
-SupSonAni_Run:		dc.b $FF,$B5,$B9,$FF,$FF,$FF,$FF,$FF,$FF,$FF
+SupSonAni_Run:		dc.b	$FF, $21, $22, $FF, $FF, $FF, $FF, $FF, $FF, $FF
 	rev02even
-SupSonAni_Push:		dc.b $FD,$BD,$BE,$BF,$C0,$FF,$FF,$FF,$FF,$FF
+SupSonAni_Push:		dc.b 	$FD, $B6, $B7, $B8, $B9, $FF, $FF, $FF, $FF, $FF
 	rev02even
-SupSonAni_Stand:	dc.b   7,$72,$73,$74,$73,$FF
+SupSonAni_Stand:	dc.b   7, $BA, $BB, $FF
 	rev02even
-SupSonAni_Balance:	dc.b   9,$C2,$C3,$C4,$C3,$C5,$C6,$C7,$C6,$FF
+SupSonAni_Balance:	dc.b   9, $A1, $A2, $A3, $FF
 	rev02even
-SupSonAni_Duck:		dc.b   5,$C1,$FF
+SupSonAni_Duck:		dc.b   5, $9B, $FF
 	rev02even
-SupSonAni_Transform:	dc.b   2,$6D,$6D,$6E,$6E,$6F,$70,$71,$70,$71,$70,$71,$70,$71,$FD,  0
+SupSonAni_Transform:	dc.b   2, $D2, $D2, $D3, $D3, $D4, $D5, $D6, $D5, $D6, $D5, $D6, $D5, $D6, $FD,   0
 	even

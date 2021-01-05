@@ -713,7 +713,14 @@ Knuckles_CheckGlide:				  ; ...
 		bne.w	return_3165D2
 		tst.b	$21(a0)
 		bne.w	return_3165D2
-		move.b	($FFFFF603).w,d0
+		cmpi.b	#3,(Main_player).w
+		bne.s	+
+		move.b	(Ctrl_1_Press_Logical).w,d0
++
+		cmpi.b	#3,(Sec_player).w
+		bne.s	+
+		move.b	(Ctrl_2_Press_Logical).w,d0
++
 		and.b	#$70,d0
 		beq.w	return_3165D2
 		tst.b	($FFFFFE19).w

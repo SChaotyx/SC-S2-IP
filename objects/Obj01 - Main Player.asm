@@ -162,7 +162,7 @@ Obj01_Control:
 ; secondary states under state Obj01_Control
 ; off_1A0BE:
 Obj01_Modes:	offsetTable
-		offsetTableEntry.w Obj01_MdNormal_Checks	; 0 - not airborne or rolling
+		offsetTableEntry.w Obj01_MdNormal	; 0 - not airborne or rolling
 		offsetTableEntry.w Obj01_MdAir			; 2 - airborne
 		offsetTableEntry.w Obj01_MdRoll			; 4 - rolling
 		offsetTableEntry.w Obj01_MdJump			; 6 - jumping

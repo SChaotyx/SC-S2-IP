@@ -4397,10 +4397,6 @@ Level_InitWater:
 ; loc_407C:
 Level_LoadPal:
 	moveq	#PalID_BGND,d0
-	cmpi.b	#3,(Main_player).w	; are you playing as Knuckles?
-	bne.s	+	; if not, branch
-	moveq	#PalID_Knux,d0	; load Knuckles' palette index
-+	
 	bsr.w	PalLoad_Now	; load Sonic's palette line
 	tst.b	(Water_flag).w	; does level have water?
 	beq.s	Level_GetBgm	; if not, branch
@@ -4409,16 +4405,8 @@ Level_LoadPal:
 	beq.s	Level_WaterPal ; branch if level is HPZ
 	moveq	#PalID_CPZ_U,d0	; palette number $16
 	cmpi.b	#chemical_plant_zone,(Current_Zone).w
-	bne.s	Level_PalNotCPZ ; branch if level is not CPZ
-	cmpi.b	#3,(Main_player).w	; are you playing as Knuckles?
-	bne.s	Level_WaterPal	; if not, branch
-	moveq	#PalID_CPZ_K_U,d0
-	bra.s	Level_WaterPal	; branch
-Level_PalNotCPZ:
+	beq.s	Level_WaterPal ; branch if level is CPZ
 	moveq	#PalID_ARZ_U,d0	; palette number $17
-	cmpi.b	#3,(Main_player).w	; are you playing as Knuckles?
-	bne.s	Level_WaterPal	; if not, branch
-	moveq	#PalID_ARZ_K_U,d0
 ; loc_409E:
 Level_WaterPal:
 	bsr.w	PalLoad_Water_Now	; load underwater palette (with d0)
@@ -5670,9 +5658,9 @@ CheckLoadSignpostArt:
 	move.w	d1,(Camera_Min_X_pos).w ; prevent camera from scrolling back to the left
 	tst.w	(Two_player_mode).w
 	bne.w	++	; rts
-	moveq	#PLCID_Signpost,d0 ; <== PLC_1F
-	cmpi.b	#3,(Main_player).w
-	bne.w	LoadPLC2		; load signpost art
+	;moveq	#PLCID_Signpost,d0 ; <== PLC_1F
+	;cmpi.b	#3,(Main_player).w
+	;bne.w	LoadPLC2		; load signpost art
 	moveq	#PLCID_SignpostKnuckles,d0
 	bra.w	LoadPLC2		; load signpost art
 ; ---------------------------------------------------------------------------
@@ -27051,19 +27039,9 @@ LoadTitleCardSS:
 
 ; sub_157B0:
 LoadTitleCard0:
-	jsr	Level_SetPlayerMode
 	move.l	#vdpComm(tiles_to_bytes(ArtTile_ArtNem_TitleCard),VRAM,WRITE),(VDP_control_port).l
 	lea	(ArtNem_TitleCard).l,a0
 	jsrto	(NemDec).l, JmpTo2_NemDec
-	cmpi.b	#3,(Main_player).w
-	bne.s	LoadTitleCard_Art2
-	move.l	#vdpComm(tiles_to_bytes(ArtTile_ArtNem_TitleCard+$5A),VRAM,WRITE),(VDP_control_port).l
-	moveq	#$F,d0
-
-loc_312364:
-	move.l	#$44444444,(VDP_data_port).l
-	dbf	d0,loc_312364
-LoadTitleCard_Art2:
 	lea	(Level_Layout).w,a4
 	lea	(ArtNem_TitleCard2).l,a0
 	jmpto	(NemDecToRAM).l, JmpTo_NemDecToRAM
@@ -33435,169 +33413,13 @@ loc_19F4C:
 	include "characters/speedtable.asm"
 	include "objects/Obj01 - Main Player.asm"
 	include "objects/Obj02 - Sidekick.asm"
+	include "objects/Obj05 - Tails Tails.asm"
 	
 	include "objects/characters/Sonic/Main.asm"
 	include "objects/characters/Tails/Main.asm"
 	include "objects/characters/Knuckles/Main.asm"
 ; ===========================================================================
 ; ===========================================================================
-
-
-
-
-; ===========================================================================
-; ----------------------------------------------------------------------------
-; Object 05 - Tails' tails
-; ----------------------------------------------------------------------------
-; Sprite_1D200:
-Obj05:
-	moveq	#0,d0
-	move.b	routine(a0),d0
-	move.w	Obj05_Index(pc,d0.w),d1
-	jmp	Obj05_Index(pc,d1.w)
-; ===========================================================================
-; off_1D20E: Obj05_States:
-Obj05_Index:	offsetTable
-		offsetTableEntry.w Obj05_Init	; 0
-		offsetTableEntry.w Obj05_Main	; 2
-; ===========================================================================
-
-Obj05_parent_prev_anim = objoff_30
-
-; loc_1D212
-Obj05_Init:
-	addq.b	#2,routine(a0) ; => Obj05_Main
-	move.l	#MapUnc_Tails,mappings(a0)
-	move.w	#make_art_tile(ArtTile_ArtUnc_Tails_Tails,0,0),art_tile(a0)
-	bsr.w	Adjust2PArtPointer
-	move.b	#2,priority(a0)
-	move.b	#$18,width_pixels(a0)
-	move.b	#4,render_flags(a0)
-
-; loc_1D23A:
-Obj05_Main:
-	movea.w	parent(a0),a2 ; a2=character
-	move.b	angle(a2),angle(a0)
-	move.b	status(a2),status(a0)
-	move.w	x_pos(a2),x_pos(a0)
-	move.w	y_pos(a2),y_pos(a0)
-	andi.w	#drawing_mask,art_tile(a0)
-	tst.w	art_tile(a2)
-	bpl.s	+
-	ori.w	#high_priority,art_tile(a0)
-+
-	moveq	#0,d0
-	move.b	anim(a2),d0
-	btst	#5,status(a2)		; is Tails about to push against something?
-	beq.s	+			; if not, branch
-	cmpi.b	#$63,mapping_frame(a2)	; Is Tails in his pushing animation yet?
-	blo.s	+			; If not yet, branch, and do not set tails' tail pushing animation
-	cmpi.b	#$66,mapping_frame(a2)	; ''
-	bhi.s	+			; ''
-	moveq	#4,d0
-+
-	; This is here so Obj05Ani_Flick works
-	; It changes anim(a0) itself, so we don't want the below code changing it as well
-	cmp.b	Obj05_parent_prev_anim(a0),d0	; Did Tails' animation change?
-	beq.s	.display
-	move.b	d0,Obj05_parent_prev_anim(a0)
-	move.b	Obj05AniSelection(pc,d0.w),anim(a0)	; If so, update Tails' tails' animation
-; loc_1D288:
-.display:
-	lea	(Obj05AniData).l,a1
-	bsr.w	Tails_Animate_Part2
-	bsr.w	LoadTailsTailsDynPLC
-	movea.w	parent(a0),a1			; Move Tails' register to a1
-	move.w	invulnerable_time(a1),d0	; Move Tails' invulnerable time to d0
-	beq.s	.displaytailstails		; Is invulnerable_time 0?  If so, always display his tails
-	addq.w	#1,d0				; Make d0 the same as old invulnerable_time's d0
-	lsr.w	#3,d0				; Shift bits to the right 3 times
-	bcc.s	.return				; If the Carry bit is not set, branch and do not display Tails' tails
-
-.displaytailstails:
-	jmp	(DisplaySprite).l               ; Display Tails' tails
-
-.return:
-	rts
-; ===========================================================================
-; animation master script table for the tails
-; chooses which animation script to run depending on what Tails is doing
-; byte_1D29E:
-Obj05AniSelection:
-	dc.b	0,0	; TailsAni_Walk,Run	->
-	dc.b	3	; TailsAni_Roll		-> Directional
-	dc.b	3	; TailsAni_Roll2	-> Directional
-	dc.b	9	; TailsAni_Push		-> Pushing
-	dc.b	1	; TailsAni_Wait		-> Swish
-	dc.b	$A	; TailsAni_Balance	-> Blank
-	dc.b	1	; TailsAni_LookUp	-> Flick
-	dc.b	1	; TailsAni_Duck		-> Swish
-	dc.b	7	; TailsAni_Spindash	-> Spindash
-	dc.b	0,0,0	; TailsAni_Dummy1,2,3	->
-	dc.b	8	; TailsAni_Stop		-> Skidding
-	dc.b	0,0	; TailsAni_Float,2	->
-	dc.b	0	; TailsAni_Spring	->
-	dc.b	0	; TailsAni_Hang		->
-	dc.b	0,0	; TailsAni_Blink,2	->
-	dc.b	$A	; TailsAni_Hang2	-> Hanging
-	dc.b	0	; TailsAni_Bubble	->
-	dc.b	0,0,0,0	; TailsAni_Death,2,3,4	->
-	dc.b	0,0	; TailsAni_Hurt,Slide	->
-	dc.b	0	; TailsAni_Blank	->
-	dc.b	0,0	; TailsAni_Dummy4,5	->
-	dc.b	0	; TailsAni_HaulAss	->
-	dc.b	0	; TailsAni_Fly		->
-	even
-
-; ---------------------------------------------------------------------------
-; Animation script - Tails' tails
-; ---------------------------------------------------------------------------
-; off_1D2C0:
-Obj05AniData:	offsetTable
-		offsetTableEntry.w Obj05Ani_Blank	;  0
-		offsetTableEntry.w Obj05Ani_Swish	;  1
-		offsetTableEntry.w Obj05Ani_Flick	;  2
-		offsetTableEntry.w Obj05Ani_Directional	;  3
-		offsetTableEntry.w Obj05Ani_DownLeft	;  4
-		offsetTableEntry.w Obj05Ani_Down	;  5
-		offsetTableEntry.w Obj05Ani_DownRight	;  6
-		offsetTableEntry.w Obj05Ani_Spindash	;  7
-		offsetTableEntry.w Obj05Ani_Skidding	;  8
-		offsetTableEntry.w Obj05Ani_Pushing	;  9
-		offsetTableEntry.w Obj05Ani_Hanging	; $A
-
-Obj05Ani_Blank:		dc.b $20,  0,$FF
-	rev02even
-Obj05Ani_Swish:		dc.b   7,  9, $A, $B, $C, $D,$FF
-	rev02even
-Obj05Ani_Flick:		dc.b   3,  9, $A, $B, $C, $D,$FD,  1
-	rev02even
-Obj05Ani_Directional:	dc.b $FC,$49,$4A,$4B,$4C,$FF ; Tails is moving right
-	rev02even
-Obj05Ani_DownLeft:	dc.b   3,$4D,$4E,$4F,$50,$FF ; Tails is moving up-right
-	rev02even
-Obj05Ani_Down:		dc.b   3,$51,$52,$53,$54,$FF ; Tails is moving up
-	rev02even
-Obj05Ani_DownRight:	dc.b   3,$55,$56,$57,$58,$FF ; Tails is moving up-left
-	rev02even
-Obj05Ani_Spindash:	dc.b   2,$81,$82,$83,$84,$FF
-	rev02even
-Obj05Ani_Skidding:	dc.b   2,$87,$88,$89,$8A,$FF
-	rev02even
-Obj05Ani_Pushing:	dc.b   9,$87,$88,$89,$8A,$FF
-	rev02even
-Obj05Ani_Hanging:	dc.b   9,$81,$82,$83,$84,$FF
-	even
-
-; ===========================================================================
-
-JmpTo2_KillCharacter
-	jmp	(KillCharacter).l
-; ===========================================================================
-	align 4
-
-
-
 
 ; ===========================================================================
 ; ----------------------------------------------------------------------------
@@ -34145,7 +33967,7 @@ loc_1D9A4:
 	move.b	#4,objoff_A(a1)		; => loc_1DA80
 	move.l	#Obj35_MapUnc_1DCBC,mappings(a1)
 	move.w	#make_art_tile(ArtTile_ArtNem_Invincible_stars,0,0),art_tile(a1)
-	bsr.w	Adjust2PArtPointer2
+	jsr		Adjust2PArtPointer2
 	move.b	#4,render_flags(a1)
 	bset	#6,render_flags(a1)
 	move.b	#$10,mainspr_width(a1)
@@ -80863,8 +80685,9 @@ PlrList_Std1_End
 PlrList_Std2: plrlistheader
 	plreq ArtTile_ArtNem_Checkpoint, ArtNem_Checkpoint
 	plreq ArtTile_ArtNem_Powerups, ArtNem_Powerups
-	plreq ArtTile_ArtNem_Shield, ArtNem_Shield
-	plreq ArtTile_ArtNem_Invincible_stars, ArtNem_Invincible_stars
+	plreq ArtTile_ArtNem_Shield, ArtNem_InvincibilityShield
+	;plreq ArtTile_ArtNem_Invincible_stars, ArtNem_InvincibilityShield
+	;plreq ArtTile_ArtNem_Shield, ArtNem_InvincibilityShield
 PlrList_Std2_End
 ;---------------------------------------------------------------------------------------
 ; PATTERN LOAD REQUEST LIST
@@ -82094,19 +81917,29 @@ ArtUnc_Waterfall3:	BINCLUDE	"art/uncompressed/ARZ waterfall patterns - 3.bin"
 ; Patterns for Sonic  ; ArtUnc_50000:
 ;---------------------------------------------------------------------------------------
 	align $20
-ArtUnc_Sonic:	BINCLUDE	"art/uncompressed/Sonic's art.bin"
+;ArtUnc_Sonic:	BINCLUDE	"art/uncompressed/Sonic's art.bin"
+ArtUnc_Sonic:	BINCLUDE	"objects/characters/Sonic/Sonic Art.bin"
 ;---------------------------------------------------------------------------------------
 ; Uncompressed art
 ; Patterns for Tails  ; ArtUnc_64320:
 ;---------------------------------------------------------------------------------------
 	align $20
-ArtUnc_Tails:	BINCLUDE	"art/uncompressed/Tails's art.bin"
+;ArtUnc_Tails:	BINCLUDE	"art/uncompressed/Tails's art.bin"
+ArtUnc_Tails:	BINCLUDE	"objects/characters/Tails/Tails Art.bin"
+;---------------------------------------------------------------------------------------
+; Uncompressed art
+; Patterns for Tails  ; ArtUnc_64320:
+;---------------------------------------------------------------------------------------
+	align $20
+;ArtUnc_Tails:	BINCLUDE	"art/uncompressed/Tails's art.bin"
+ArtUnc_TailsTails:	BINCLUDE	"objects/characters/Tails/Tails Tails Art.bin"
 ;--------------------------------------------------------------------------------------
 ; Uncompressed art
 ; Patterns for Knuckles
 ;---------------------------------------------------------------------------------------
 	align $20
-ArtUnc_Knuckles:	BINCLUDE	"art/uncompressed/Knuckles's art.bin"
+;ArtUnc_Knuckles:	BINCLUDE	"art/uncompressed/Knuckles's art.bin"
+ArtUnc_Knuckles:	BINCLUDE	"objects/characters/Knuckles/Knuckles Art.bin"
 ;---------------------------------------------------------------------------------------
 ; Sprite Mappings
 ; Sonic			; MapUnc_6FBE0: SprTbl_Sonic:
@@ -82143,11 +81976,13 @@ ArtNem_SuperSonic_stars:	BINCLUDE	"art/nemesis/Super Sonic stars.bin"
 ; Tails			; MapUnc_739E2:
 ;--------------------------------------------------------------------------------------
 MapUnc_Tails:	BINCLUDE	"mappings/sprite/Tails.bin"
+MapUnc_TailsTails:	BINCLUDE	"mappings/sprite/Tails Tails.bin"
 ;--------------------------------------------------------------------------------------
 ; Sprite Dynamic Pattern Reloading
 ; Tails DPLCs	; MapRUnc_7446C:
 ;--------------------------------------------------------------------------------------
 MapRUnc_Tails:	BINCLUDE	"mappings/spriteDPLC/Tails.bin"
+MapRUnc_TailsTails:	BINCLUDE	"mappings/spriteDPLC/Tails Tails.bin"
 ;-------------------------------------------------------------------------------------
 ; Sprite Mappings
 ; Knuckles		

@@ -821,6 +821,11 @@ return_mdnormal:
 ; Called if Tails is airborne, but not in a ball (thus, probably not jumping)
 ; loc_1C032: Obj02_MdJump
 Obj02_MdAir:
+	cmpi.b	#3,(Sec_player).w
+	bne.s	+
+	tst.b	$21(a0)
+	bne.w	Obj01_MdAir_Gliding
++
 	bsr.w	Tails_JumpHeight
 	bsr.w	Tails_ChgJumpDir
 	bsr.w	Tails_LevelBound
@@ -1739,6 +1744,11 @@ Tails_JumpHeight:
 	btst	#6,status(a0)	; is Tails underwater?
 	beq.s	+		; if not, branch
 	move.w	#-$200,d1
++
+	cmpi.b	#3,(Sec_player).w
+	bne.s	+
+	cmp.w	$12(a0),d1
+	ble.w	Knuckles_CheckGlide	  ; Check if Knuckles should begin a glide
 +
 	cmp.w	y_vel(a0),d1	; is Tails going up faster than d1?
 	ble.s	+		; if not, branch
