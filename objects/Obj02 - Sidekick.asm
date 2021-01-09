@@ -62,8 +62,8 @@ Obj02_Init:
 	bsr.w	ApplySpeedSettings	; Fetch Speed settings
 	;cmpi.b	#2,(Main_player).w
 	;bne.s	Obj02_Init_2Pmode
-	tst.b	(Last_star_pole_hit).w
-	bne.w	Obj02_Init_Continued
+	;tst.b	(Last_star_pole_hit).w
+	;bne.w	Obj02_Init_Continued
 	; only happens when not starting at a checkpoint:
 ; ===========================================================================
     cmpi.b  #2,(Sec_player).w
@@ -93,12 +93,18 @@ Obj02_Init:
 ; loc_1B952:
 Obj02_Init_2Pmode:
 ; ===========================================================================
-    cmpi.b  #1,(Sec_player).w
+    cmpi.b  #2,(Sec_player).w
     bne.s   +
-	move.w	#make_art_tile(ArtTile_ArtUnc_Sonic,0,0),art_tile(a0)
+	move.w	#make_art_tile(ArtTile_ArtUnc_Tails,0,0),art_tile(a0)
 +
 	cmpi.b  #2,(Sec_player).w
-    bne.s   +
+    beq.s   +
+	move.w	#make_art_tile(ArtTile_ArtUnc_Sonic,0,0),art_tile(a0)
++
+	cmpi.b	#3,(Sec_player).w
+	bne.s	+
+	cmpi.b	#1,(Main_player).w
+	bne.s	+
 	move.w	#make_art_tile(ArtTile_ArtUnc_Tails,0,0),art_tile(a0)
 +
 ; ===========================================================================
@@ -1695,6 +1701,10 @@ Tails_Jump:
 	beq.s	+
 	move.w	#$380,d2	; set lower jump speed if underwater
 +
+	cmpi.b	#3,(Sec_player).w
+	bne.s	+
+	subi.w	#$80,d2
++
 	moveq	#0,d0
 	move.b	angle(a0),d0
 	subi.b	#$40,d0
@@ -2328,7 +2338,7 @@ Tails_ResetOnFloor_Part3:
 	move.b	#0,flip_turned(a0)
 	move.b	#0,flips_remaining(a0)
 	move.w	#0,(Tails_Look_delay_counter).w
-	cmpi.b	#3,(Main_player).w
+	cmpi.b	#3,(Sec_player).w
 	bne.s	+
 	move.b	#0,$21(a0)
 +

@@ -60,8 +60,8 @@ Obj01_Init:
 	move.b	#4,render_flags(a0)
 	lea	(Sonic_top_speed).w,a2	; Load Sonic_top_speed into a2
 	bsr.w	ApplySpeedSettings	; Fetch Speed settings
-	tst.b	(Last_star_pole_hit).w
-	bne.s	Obj01_Init_Continued
+	;tst.b	(Last_star_pole_hit).w
+	;bne.s	Obj01_Init_Continued
 	; only happens when not starting at a checkpoint:
 ; ===========================================================================
 	cmpi.b  #2,(Main_player).w
@@ -1236,6 +1236,10 @@ Sonic_Jump:
 	beq.s	+
 	move.w	#$380,d2	; set lower jump speed if under
 +
+	cmpi.b	#3,(Main_player).w
+	bne.s	+
+	subi.w	#$80,d2
++
 	moveq	#0,d0
 	move.b	angle(a0),d0
 	subi.b	#$40,d0
@@ -1973,10 +1977,10 @@ Sonic_ResetOnFloor_Part3:
 	move.b	#0,flip_turned(a0)
 	move.b	#0,flips_remaining(a0)
 	move.w	#0,(Sonic_Look_delay_counter).w
-	cmpi.b	#3,(Main_player).w
-	bne.s	+
+	;cmpi.b	#3,(Main_player).w
+	;bne.s	+
 	move.b	#0,$21(a0)
-+
+;+
 	cmpi.b	#AniIDSonAni_Hang2,anim(a0)
 	bne.s	return_1B11E
 	move.b	#AniIDSonAni_Walk,anim(a0)

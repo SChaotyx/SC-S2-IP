@@ -39,7 +39,14 @@ Knuckles_NormalGlide:
 		move.b	#9,$17(a0)
 		btst	#1,($FFFFF7AC).w
 		beq.s	Knuckles_BeginSlide
-		move.b	($FFFFF602).w,d0
+		cmpi.b	#3,(Main_player).w
+		bne.s	+
+		move.b	(Ctrl_1_Held_Logical).w,d0
++
+		cmpi.b	#3,(Sec_player).w
+		bne.s	+
+		move.b	(Ctrl_2_Held_Logical).w,d0
++
 		and.b	#$70,d0
 		bne.s	loc_31574C
 		move.b	#2,$21(a0)
@@ -206,7 +213,14 @@ return_315900:					  ; ...
 ; ---------------------------------------------------------------------------
 
 Knuckles_Sliding:				  ; ...
-		move.b	($FFFFF602).w,d0
+		cmpi.b	#3,(Main_player).w
+		bne.s	+
+		move.b	(Ctrl_1_Held_Logical).w,d0
++
+		cmpi.b	#3,(Sec_player).w
+		bne.s	+
+		move.b	(Ctrl_2_Held_Logical).w,d0
++
 		and.b	#$70,d0
 		beq.s	loc_315926
 		tst.w	$10(a0)
@@ -282,8 +296,16 @@ loc_3159F0:					  ; ...
 		move.b	#$A,$16(a0)
 		move.b	#$A,$17(a0)
 		moveq	#0,d1
-		btst	#0,($FFFFF602).w
+		cmpi.b	#3,(Main_player).w
+		bne.s	+
+		btst	#0,(Ctrl_1_Held_Logical).w
 		beq.w	loc_315A76
++
+		cmpi.b	#3,(Sec_player).w
+		bne.s	+
+		btst	#0,(Ctrl_2_Held_Logical).w
+		beq.w	loc_315A76
++
 		move.w	$C(a0),d2
 		sub.w	#$B,d2
 		bsr.w	sub_315C22
@@ -322,8 +344,16 @@ loc_315A54:					  ; ...
 ; ---------------------------------------------------------------------------
 
 loc_315A76:					  ; ...
-		btst	#1,($FFFFF602).w
+		cmpi.b	#3,(Main_player).w
+		bne.s	+
+		btst	#1,(Ctrl_1_Held_Logical).w
 		beq.w	loc_315B04
++
+		cmpi.b	#3,(Sec_player).w
+		bne.s	+
+		btst	#1,(Ctrl_2_Held_Logical).w
+		beq.w	loc_315B04
++
 		cmp.b	#$BD,$1A(a0)
 		bne.s	loc_315AA2
 		move.b	#$B7,$1A(a0)
@@ -389,7 +419,14 @@ loc_315B30:					  ; ...
 		move.b	#0,$1B(a0)
 		move.b	#$13,$16(a0)
 		move.b	#9,$17(a0)
-		move.w	($FFFFF602).w,d0
+		cmpi.b	#3,(Main_player).w
+		bne.s	+
+		move.w	(Ctrl_1_Held_Logical).w,d0
++
+		cmpi.b	#3,(Sec_player).w
+		bne.s	+
+		move.w	(Ctrl_2_Held_Logical).w,d0
++
 		and.w	#$70,d0
 		beq.s	return_315B94
 		move.w	#$FC80,$12(a0)
@@ -561,8 +598,16 @@ loc_315CE2:					  ; ...
 loc_315CFC:					  ; ...
 		move.w	d0,$14(a0)
 		move.b	$1F(a0),d0
-		btst	#2,($FFFFF602).w
+		cmpi.b	#3,(Main_player).w
+		bne.s	+
+		btst	#2,(Ctrl_1_Held_Logical).w
 		beq.s	loc_315D1C
++
+		cmpi.b	#3,(Sec_player).w
+		bne.s	+
+		btst	#2,(Ctrl_2_Held_Logical).w
+		beq.s	loc_315D1C
++
 		cmp.b	#$80,d0
 		beq.s	loc_315D1C
 		tst.b	d0
@@ -575,8 +620,16 @@ loc_315D18:					  ; ...
 ; ---------------------------------------------------------------------------
 
 loc_315D1C:					  ; ...
-		btst	#3,($FFFFF602).w
+		cmpi.b	#3,(Main_player).w
+		bne.s	+
+		btst	#3,(Ctrl_1_Held_Logical).w
 		beq.s	loc_315D30
++
+		cmpi.b	#3,(Sec_player).w
+		bne.s	+
+		btst	#3,(Ctrl_2_Held_Logical).w
+		beq.s	loc_315D30
++
 		tst.b	d0
 		beq.s	loc_315D30
 		bmi.s	loc_315D2C

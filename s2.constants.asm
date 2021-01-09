@@ -410,6 +410,12 @@ PalID_Result =	id(PalPtr_Result) ; 27
 PalID_Knux =	id(PalPtr_Knux) ; 28
 PalID_CPZ_K_U =	id(PalPtr_CPZ_K_U) ; 29
 PalID_ARZ_K_U =	id(PalPtr_ARZ_K_U) ; 30
+PalID_SonicSS =	id(PalPtr_SonicSS) ; 31
+PalID_TailsSS =	id(PalPtr_TailsSS) ; 32
+PalID_KnucklesSS =	id(PalPtr_KnucklesSS) ; 33
+PalID_SonicSS2 =	id(PalPtr_SonicSS2) ; 31
+PalID_TailsSS2 =	id(PalPtr_TailsSS2) ; 32
+PalID_KnucklesSS2 =	id(PalPtr_KnucklesSS2) ; 33
 
 ; PLC IDs
 offset :=	ArtLoadCues
@@ -714,6 +720,7 @@ ObjID_ContinueText =		id(ObjPtr_ContinueText)		; DA
 ObjID_ContinueIcons =		id(ObjPtr_ContinueIcons)	; DA
 ObjID_ContinueChars =		id(ObjPtr_ContinueChars)	; DB
 ObjID_RingPrize =		id(ObjPtr_RingPrize)		; DC
+ObjID_KnucklesSS =		id(ObjPtr_KnucklesSS)		; DD
 
 ; Music IDs
 offset :=	zMasterPlaylist
@@ -1727,6 +1734,7 @@ TtlScr_Object_RAM_End:
 ; RAM variables - Special stage
 	phase	RAM_Start	; Move back to start of RAM
 SSRAM_ArtNem_SpecialSonicAndTails:
+SSRAM_ArtNem_SpecialKnuckles:
 				ds.b	$353*$20	; $353 art blocks
 SSRAM_MiscKoz_SpecialPerspective:
 				ds.b	$1AFC
