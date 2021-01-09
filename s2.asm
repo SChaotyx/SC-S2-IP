@@ -9050,29 +9050,24 @@ Obj5E:
 	move.b	#1,routine(a0)
 	bset	#6,render_flags(a0)
 	moveq	#0,d1
-	tst.b	(SS_2p_Flag).w
-	beq.s	+
-	addq.w	#6,d1
-	tst.b	(Graphics_Flags).w
-	bpl.s	++
-	addq.w	#1,d1
-	bra.s	++
-; ---------------------------------------------------------------------------
-+	
-	move.b	(Main_player).w,d1
-	cmpi.b	#1,(Play_mode).w
-	bne.s	+
-	move.b	#0,d1
-+
-	andi.w	#3,d1
-	tst.b	(Graphics_Flags).w
-	bpl.s	+
-	addq.w	#3,d1 ; set special stage tails name to "TAILS" instead of MILES
-+
-	add.w	d1,d1
+	moveq	#0,d1
 	moveq	#0,d2
 	moveq	#0,d3
-	lea	(SSHUDLayout).l,a1
+
+	cmpi.b	#1,(Play_mode).w
+	beq.s	player2hud
+	move.b	(Main_player).w,d1
+	add.b	d1,d1
+	lea	(SSHUDLayoutAlone).l,a1
+	bra.s	loadhud
+player2hud:
+	move.w	(Player_option).w,d1
+	sub.w	#3,d1
+	add.w	d1,d1
+	lea	(SSHUDLayoutNotAlone).l,a1
+
+
+loadhud:
 	lea	sub2_x_pos(a0),a2
 	adda.w	(a1,d1.w),a1
 	move.b	(a1)+,d3
@@ -9088,48 +9083,63 @@ Obj5E:
 
 	rts
 ; ===========================================================================
-; off_7042:
-SSHUDLayout:	offsetTable
-		offsetTableEntry.w SSHUD_SonicMilesTotal	; 0
-		offsetTableEntry.w SSHUD_Sonic			; 1
-		offsetTableEntry.w SSHUD_Miles			; 2
-		offsetTableEntry.w SSHUD_SonicTailsTotal	; 3
-		offsetTableEntry.w SSHUD_Sonic			; 4
-		offsetTableEntry.w SSHUD_Tails			; 5
-		offsetTableEntry.w SSHUD_SonicMiles		; 6
-		offsetTableEntry.w SSHUD_SonicTails		; 7
 
-; byte_7052:
-SSHUD_SonicMilesTotal:
-	dc.b   3		; Sprite count
-	dc.b   $80		; X-pos
-	dc.b   0,  1,  3	; Sprite 1 frame, Sprite 2 frame, etc
-; byte_7057:
+SSHUDLayoutAlone:	offsetTable
+		offsetTableEntry.w SSHUD_Blank		;0
+		offsetTableEntry.w SSHUD_Sonic		;1
+		offsetTableEntry.w SSHUD_Tails		;2
+		offsetTableEntry.w SSHUD_Knuckles		;3
+SSHUDLayoutNotAlone:	offsetTable
+		offsetTableEntry.w SSHUD_SonicTailsTotal
+		offsetTableEntry.w SSHUD_SonicKnuxTotal
+		offsetTableEntry.w SSHUD_TailsSonicTotal
+		offsetTableEntry.w SSHUD_TailsKnuxTotal
+		offsetTableEntry.w SSHUD_KnuxSonicTotal
+		offsetTableEntry.w SSHUD_KnuxTailsTotal
+
+
+SSHUD_Blank:
+
 SSHUD_Sonic:
-	dc.b   1
-	dc.b   $D4
-	dc.b   0
-; byte_705A:
-SSHUD_Miles:
-	dc.b   1
-	dc.b   $38
-	dc.b   1
-
-; byte_705D:
-SSHUD_SonicTailsTotal:
-	dc.b   3
-	dc.b   $80
-	dc.b   0,  2,  3
-; byte_7062:
-SSHUD_Sonic_2:
-	dc.b   1
-	dc.b   $D4
-	dc.b   0
-; byte_7065:
+	dc.b   1	; Sprite count
+	dc.b   $D4	; X-pos
+	dc.b   0	; Sprite 1 frame, Sprite 2 frame, etc
 SSHUD_Tails:
 	dc.b   1
-	dc.b   $38
+	dc.b   $D4
+	dc.b   1
+SSHUD_Knuckles:
+	dc.b   1
+	dc.b   $D4
 	dc.b   2
+SSHUD_Miles:
+	dc.b   1
+	dc.b   $D4
+	dc.b   3
+SSHUD_SonicTailsTotal:
+	dc.b   3		; Sprite count
+	dc.b   $80		; X-pos
+	dc.b   0,  5,  8	; Sprite 1 frame, Sprite 2 frame, etc
+SSHUD_SonicKnuxTotal:
+	dc.b   3		
+	dc.b   $80		
+	dc.b   0,  6,  8
+SSHUD_TailsSonicTotal:
+	dc.b   3		
+	dc.b   $80		
+	dc.b   1,  4,  8
+SSHUD_TailsKnuxTotal:
+	dc.b   3		
+	dc.b   $80		
+	dc.b   1,  6,  8
+SSHUD_KnuxSonicTotal:
+	dc.b   3		
+	dc.b   $80		
+	dc.b   2,  4,  8
+SSHUD_KnuxTailsTotal:
+	dc.b   3		
+	dc.b   $80		
+	dc.b   2,  5,  8
 
 ; 2 player
 ; byte_7068:
@@ -11944,7 +11954,7 @@ MenuScreen_LevelSelect:
 	lea	(Chunk_Table+$8C0).l,a1
 	lea	(MapEng_LevSelIcon).l,a0
 	move.w	#make_art_tile(ArtTile_ArtNem_LevelSelectPics,0,0),d0
-	bsr.w	EniDec
+	jsr	EniDec
 
 	bsr.w	LevelSelect_DrawIcon
 
@@ -12662,7 +12672,7 @@ EndingSequence:
 EndgameCredits:
 	tst.b	(Credits_Trigger).w
 	beq.w	+++	; rts
-	bsr.w	Pal_FadeToBlack
+	jsr	Pal_FadeToBlack
 	lea	(VDP_control_port).l,a6
 	move.w	#$8004,(a6)		; H-INT disabled
 	move.w	#$8200|(VRAM_EndSeq_Plane_A_Name_Table/$400),(a6)	; PNT A base: $C000
@@ -81418,6 +81428,7 @@ PlrList_SpecialStage: plrlistheader
 	plreq ArtTile_ArtNem_SpecialEmerald, ArtNem_SpecialEmerald
 	plreq ArtTile_ArtNem_SpecialMessages, ArtNem_SpecialMessages
 	plreq ArtTile_ArtNem_SpecialHUD, ArtNem_SpecialHUD
+	;plreq ArtTile_ArtNem_SpecialTailsText,	blank
 	plreq ArtTile_ArtNem_SpecialFlatShadow, ArtNem_SpecialFlatShadow
 	plreq ArtTile_ArtNem_SpecialDiagShadow, ArtNem_SpecialDiagShadow
 	plreq ArtTile_ArtNem_SpecialSideShadow, ArtNem_SpecialSideShadow
@@ -81427,7 +81438,6 @@ PlrList_SpecialStage: plrlistheader
 	plreq ArtTile_ArtNem_SpecialPlayerVSPlayer, ArtNem_SpecialPlayerVSPlayer
 	plreq ArtTile_ArtNem_SpecialBack, ArtNem_SpecialBack
 	plreq ArtTile_ArtNem_SpecialStars, ArtNem_SpecialStars
-	plreq ArtTile_ArtNem_SpecialTailsText, ArtNem_SpecialTailsText
 PlrList_SpecialStage_End
 ;---------------------------------------------------------------------------------------
 ; Pattern load queue
@@ -81754,6 +81764,7 @@ PlrList_SpecialStage_Dup: plrlistheader
 	plreq ArtTile_ArtNem_SpecialEmerald, ArtNem_SpecialEmerald
 	plreq ArtTile_ArtNem_SpecialMessages, ArtNem_SpecialMessages
 	plreq ArtTile_ArtNem_SpecialHUD, ArtNem_SpecialHUD
+	;plreq ArtTile_ArtNem_SpecialTailsText, blank
 	plreq ArtTile_ArtNem_SpecialFlatShadow, ArtNem_SpecialFlatShadow
 	plreq ArtTile_ArtNem_SpecialDiagShadow, ArtNem_SpecialDiagShadow
 	plreq ArtTile_ArtNem_SpecialSideShadow, ArtNem_SpecialSideShadow
@@ -81763,8 +81774,8 @@ PlrList_SpecialStage_Dup: plrlistheader
 	plreq ArtTile_ArtNem_SpecialPlayerVSPlayer, ArtNem_SpecialPlayerVSPlayer
 	plreq ArtTile_ArtNem_SpecialBack, ArtNem_SpecialBack
 	plreq ArtTile_ArtNem_SpecialStars, ArtNem_SpecialStars
-	plreq ArtTile_ArtNem_SpecialTailsText, ArtNem_SpecialTailsText
 PlrList_SpecialStage_Dup_End
+
 ;---------------------------------------------------------------------------------------
 ; Pattern load queue (duplicate)
 ; Special Stage Bombs
