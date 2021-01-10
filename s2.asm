@@ -6154,11 +6154,11 @@ SpecialStage:
 	move.l	#0,(Camera_Y_pos).w
 	move.l	#0,(Camera_X_pos_copy).w
 	move.l	#0,(Camera_Y_pos_copy).w
-	move.b	#ObjID_SonicSS,(MainCharacter+id).w ; load Obj09 (special stage Sonic)
+	move.b	#ObjID_SonicSS,(MainCharacter+id).w ; load Obj09 (special stage Main Player)
 ; SIDEKICK LOAD
 	cmpi.b	#1,(Play_mode).w	; is a sidekick game
 	bne.s	SkipSidekick					; if not branch
-		move.b	#ObjID_TailsSS,(Sidekick+id).w ; load Obj09 (special stage Sonic)
+		move.b	#ObjID_TailsSS,(Sidekick+id).w ; load Obj10 (special stage Sidekick)
 +
 SkipSidekick:
 	move.b	#ObjID_SSHUD,(SpecialStageHUD+id).w ; load Obj5E (special stage HUD)
@@ -6301,8 +6301,12 @@ SkipSidekick:
 	move.l	#vdpComm(tiles_to_bytes(ArtTile_ArtNem_SpecialStageResults),VRAM,WRITE),(VDP_control_port).l
 	lea	(ArtNem_SpecialStageResults).l,a0
 	bsr.w	NemDec
-	move.b	(Main_player).w,d0
-	beq.s	++
+	move.b	#1,d0
+	cmpi.b	#1,(Play_mode).w
+	bne.s	+
+	move.b	#0,d0
+	bra.s	+++
++	
 	subq.w	#1,d0
 	beq.s	+
 	clr.w	(Ring_count).w
@@ -9404,8 +9408,8 @@ loc_7480:
 	lea	sub2_x_pos(a0),a1
 	movea.l	a1,a2
 	addq.w	#5,a2	; a2 = sub2_mapframe(a0)
-	cmpi.b	#2,(Main_player).w
-	beq.s	loc_74EA
+	;cmpi.b	#2,(Main_player).w
+	;beq.s	loc_74EA
 	move.b	(MainCharacter+ss_rings_hundreds).w,d0
 	beq.s	+
 	addq.w	#1,d3
@@ -9452,7 +9456,8 @@ loc_74EA:
 	addq.w	#1,d4
 	move.b	d0,(a2)
 	lea	next_subspr(a2),a2
-+	move.b	(Sidekick+ss_rings_units).w,(a2)
++	
+	move.b	(Sidekick+ss_rings_units).w,(a2)
 	addq.w	#1,d4
 	add.w	d4,d3
 	subq.w	#1,d4
@@ -9650,6 +9655,7 @@ SSStartNewAct:
 +
 	move.b	SpecialStage_RingReq_Alone(pc,d0.w),d1
 +
+; ===========================================================================
 	move.w	d1,(SS_Ring_Requirement).w
 	moveq	#0,d0
 	cmpi.w	#100,d1
@@ -26234,6 +26240,10 @@ Obj6F_InitResultTitle:
 	beq.s	+
 	addq.w	#1,d0		; "Tails got a" or "Tails has all the"
 +
+;	cmpi.b	#3,(Main_player).w
+;	bne.s	+
+;	addq.w	#2,d0	
+;+
 	move.b	d0,mapping_frame(a0)
 	bra.w	Obj34_MoveTowardsTargetPosition
 ; ===========================================================================
@@ -26294,12 +26304,12 @@ Obj6F_P1Rings:
 	bra.w	Obj6F_PerfectBonus
 ; ===========================================================================
 +
-	move.b	(Main_player).w,d0
+	move.b	#1,d0
 	cmpi.b	#1,(Play_mode).w
 	bne.s	+
 	move.w	#0,d0
+	bra.s	+++
 +
-	beq.s	++
 	move.w	#$120,y_pixel(a0)
 	subq.w	#1,d0
 	beq.s	++
@@ -62425,7 +62435,7 @@ loc_34FF0:
 
 loc_35010:
 	move.b	#$A,anim(a0)
-	move.w	#make_art_tile(ArtTile_ArtNem_SpecialStars,2,0),art_tile(a0)
+	move.w	#make_art_tile(ArtTile_ArtNem_SpecialStars,3,0),art_tile(a0)
 	bsr.w	loc_34F90
 	bsr.w	loc_3512A
 	bsr.w	loc_351A0
@@ -63187,9 +63197,9 @@ Obj5A_RingsNeeded:
 ; ===========================================================================
 +
 	move.w	(Ring_count).w,d0
-	cmpi.b	#0,(Play_mode).w
+	cmpi.b	#1,(Play_mode).w
 	beq.s	+
-	beq.s	++
+	bne.s	++
 	move.w	(Ring_count_2P).w,d0
 	bra.s	++
 ; ===========================================================================
@@ -63790,10 +63800,6 @@ Obj5A_CreateRingReqMessage:
 Obj5A_PrintCheckpointMessage:
 	move.w	#$80,d3				; x
 	bsr.w	Obj5A_CreateCheckpointWingedHand
-	cmpi.b	#1,(Main_player).w
-	beq.s	loc_35D6E
-	addi.w	#palette_line_1,art_tile(a1)
-	addi.w	#palette_line_1,art_tile(a2)
 
 loc_35D6E:
 	move.w	#$74,d1				; x
