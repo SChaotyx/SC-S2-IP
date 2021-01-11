@@ -783,7 +783,7 @@ Knuckles_CheckGlide:				  ; ...
 		cmp.b	#7,($FFFFFFB1).w
 		bcs.s	Knuckles_BeginGlide
 		cmp.w	#50,($FFFFFE20).w
-		bcs.s	Knuckles_BeginGlide
+		bcs.w	Knuckles_BeginGlide
 		;tst.b	($FFFFFE1E).w
 		;bne.s	Knuckles_TurnSuper
 
