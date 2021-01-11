@@ -450,6 +450,8 @@ return_315B94:					  ; ...
 
 Knuckles_ClimbUp:				  ; ...
 		move.b	#5,$21(a0)		  ; Climb up to	the floor above	you
+		move.b	#9,x_radius(a0)
+		move.b	#$13,y_radius(a0)
 		cmp.b	#$BD,$1A(a0)
 		beq.s	return_315BAC
 		move.b	#0,$1F(a0)

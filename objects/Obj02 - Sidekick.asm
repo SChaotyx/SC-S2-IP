@@ -409,10 +409,16 @@ loc_1BC68:
 	lea	(Sonic_Stat_Record_Buf).w,a2
 	move.b	2(a2,d3.w),d2
 	andi.b	#$D2,d2
-	bne.s	return_1BCDE
+	bne.w	return_1BCDE
 	or.w	d0,d1
-	bne.s	return_1BCDE
+	bne.w	return_1BCDE
 	move.l	a1,-(sp)		; Backup a1
+	move.b	#9,x_radius(a0)
+	move.b	#$13,y_radius(a0) ; this sets Sonic's collision height (2*pixels)
+    cmpi.b  #2,(Sec_player).w
+    bne.s   +
+	move.b	#$F,y_radius(a0) ; this sets Sonic's collision height (2*pixels)
++
 	lea	(Tails_top_speed).w,a2	; Load Tails_top_speed into a2
 	bsr.w	ApplySpeedSettings	; Fetch Speed settings
 	move.l	(sp)+,a1		; Restore a1
@@ -1763,6 +1769,8 @@ Tails_JumpHeight:
 +
 	cmpi.b	#3,(Sec_player).w
 	bne.s	+
+	tst.w	(Tails_control_counter).w	; if CPU has control
+	beq.w	+		; (if yes, branch)
 	cmp.w	$12(a0),d1
 	ble.w	Knuckles_CheckGlide	  ; Check if Knuckles should begin a glide
 +
