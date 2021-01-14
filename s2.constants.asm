@@ -1600,7 +1600,8 @@ SlotMachine_Slot3Pos:	ds.w	1
 SlotMachine_Slot3Speed:	ds.b	1
 SlotMachine_Slot3Rout:	ds.b	1
 
-						ds.b	$D	; $FFFFFF60-$FFFFFF6F ; seems unused
+						ds.b	$C	; $FFFFFF60-$FFFFFF6F ; seems unused
+CutSceneFlag:		ds.b	1	; for WFZ cutscene
 Play_mode:				ds.b	1
 Sec_player:				ds.b	1
 Main_player:			ds.b	1
@@ -2068,6 +2069,7 @@ ArtTile_EndingCharacter               = $0019
 ArtTile_ArtNem_EndingFinalTornado     = $0156
 ArtTile_ArtNem_EndingPics             = $0328
 ArtTile_ArtNem_EndingMiniTornado      = $0493
+ArtTile_ArtNem_EndingMiniTornadok     = $05B0
 
 ; S1 Ending
 ArtTile_ArtNem_S1EndFlicky            = $05A5

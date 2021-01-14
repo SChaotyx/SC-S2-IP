@@ -568,8 +568,8 @@ Sonic_Balance:
 	blt.w	MainPlayer_Lookup
 	tst.b	(Super_Sonic_flag).w
 	bne.w	SuperSonic_Balance2
-	cmpi.b	#3,next_tilt(a0)
-	bne.s	Sonic_BalanceLeft
+	;cmpi.b	#3,next_tilt(a0)
+	;bne.s	Sonic_BalanceLeft
 	btst	#0,status(a0)
 	bne.s	+
 	move.b	#AniIDSonAni_Balance,anim(a0)

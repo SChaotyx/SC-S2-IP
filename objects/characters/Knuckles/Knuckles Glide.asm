@@ -766,6 +766,8 @@ return_318FF4:					  ; ...
 Knuckles_CheckGlide:				  ; ...
 		tst.w	($FFFFFFD0).w		  ; Don't glide on demos
 		bne.w	return_3165D2
+		tst.b	(CutSceneFlag).w
+		bne.w	return_3165D2
 		tst.b	$21(a0)
 		bne.w	return_3165D2
 		cmpi.b	#3,(Main_player).w

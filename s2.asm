@@ -11672,6 +11672,7 @@ OptionScreen_Select:
 	tst.b	(Level_select_flag).w	; has level select cheat been entered?
 	beq.s	+
 	endif
+	jsr	Level_SetPlayerMode
 	move.b	#GameModeID_LevelSelect,(Game_Mode).w ; => LevelSelectMenu
 	rts
 +
@@ -12558,39 +12559,61 @@ EndingSequence:
 	move.w	#$8ADF,(Hint_counter_reserve).w	; H-INT every 224th scanline
 	move.w	(Hint_counter_reserve).w,(a6)
 	clr.b	(Super_Sonic_flag).w
-	cmpi.b	#7,(Emerald_count).w
-	bne.s	+
-	cmpi.b	#2,(Main_player).w
-	beq.s	+
-	st	(Super_Sonic_flag).w
-	move.b	#-1,(Super_Sonic_palette).w
-	move.b	#$F,(Palette_timer).w
-	move.w	#$30,(Palette_frame).w
-+
-	moveq	#0,d0
-	cmpi.b	#2,(Main_player).w
-	beq.s	+
-	tst.b	(Super_Sonic_flag).w
-	bne.s	++
-	bra.w	+++
+	
+; ending routines variable
+; 0 = Sonic
+; 2 = Super Sonic
+; 4 = Tails
+; 6 = Super Tails
+; 8 = Knuckles
+; A = Super Knuckles
 
+	moveq	#0,d0						; d0 defines the variable (ending_routine)
 ; ===========================================================================
+	cmpi.b	#1,(Main_player).w			; is a Sonic Game?
+	bne.s	+							; if not branch
+	bra.s	EmeraldCountCheck	
 +
-	addq.w	#2,d0
+; ===========================================================================
+	cmpi.b	#2,(Main_player).w			; is a Tails Game?
+	bne.s	+							; if not branch
+	addq.w	#4,d0
+	bra.s	EmeraldCountCheck
 +
-	addq.w	#2,d0
+; ===========================================================================
+	cmpi.b	#3,(Main_player).w			; is a Knuckles Game?
+	bne.s	+							; if not branch
+	addq.w	#8,d0						
 +
+; ===========================================================================
+EmeraldCountCheck:
+	cmpi.b	#7,(Emerald_count).w		; got all the emeralds?
+	bne.s	+							; if not branch
+	;addq.w	#2,d0						; Temp disableeeeeeeee
+	;st	(Super_Sonic_flag).w
+	;move.b	#-1,(Super_Sonic_palette).w
+	;move.b	#$F,(Palette_timer).w
+	;move.w	#$30,(Palette_frame).w
++
+; ===========================================================================
 	move.w	d0,(Ending_Routine).w
 	bsr.w	EndingSequence_LoadCharacterArt
 	bsr.w	EndingSequence_LoadFlickyArt
 	move.l	#vdpComm(tiles_to_bytes(ArtTile_ArtNem_EndingFinalTornado),VRAM,WRITE),(VDP_control_port).l
 	lea	(ArtNem_EndingFinalTornado).l,a0
+	cmpi.b	#3,(Sec_player).w
+	bne.s	+
+	lea	(ArtNem_EndingFinalTornadoKnuckles).l,a0
++
 	jsrto	(NemDec).l, JmpTo_NemDec
 	move.l	#vdpComm(tiles_to_bytes(ArtTile_ArtNem_EndingPics),VRAM,WRITE),(VDP_control_port).l
 	lea	(ArtNem_EndingPics).l,a0
 	jsrto	(NemDec).l, JmpTo_NemDec
 	move.l	#vdpComm(tiles_to_bytes(ArtTile_ArtNem_EndingMiniTornado),VRAM,WRITE),(VDP_control_port).l
 	lea	(ArtNem_EndingMiniTornado).l,a0
+	jsrto	(NemDec).l, JmpTo_NemDec
+	move.l	#vdpComm(tiles_to_bytes(ArtTile_ArtNem_EndingMiniTornadok),VRAM,WRITE),(VDP_control_port).l
+	lea	(ArtNem_EndingMiniTornadok).l,a0
 	jsrto	(NemDec).l, JmpTo_NemDec
 	move.l	#vdpComm(tiles_to_bytes(ArtTile_ArtNem_Tornado),VRAM,WRITE),(VDP_control_port).l
 	lea	(ArtNem_Tornado).l,a0
@@ -12634,7 +12657,7 @@ EndingSequence:
 	move.w	d0,(Credits_Trigger).w
 
 	; Bug: The '+4' shouldn't be here; clearRAM accidentally clears an additional 4 bytes
-	clearRAM Horiz_Scroll_Buf,Horiz_Scroll_Buf_End+4
+	clearRAM Horiz_Scroll_Buf,Horiz_Scroll_Buf_End;+4
 
 	move.w	#$7FFF,(PalCycle_Timer).w
 	lea	(CutScene).w,a1
@@ -12642,9 +12665,9 @@ EndingSequence:
 	move.b	#6,routine(a1)
 	move.w	#$60,objoff_3C(a1)
 	move.w	#1,objoff_30(a1)
-	cmpi.w	#4,(Ending_Routine).w
-	bne.s	+
-	move.w	#$10,objoff_2E(a1)
+	cmpi.b	#2,(Sec_player).w		; is Tails Sidekick?
+	beq.s	+						; if yes, branch
+	move.w	#$10,objoff_2E(a1)		; skip vint ending
 	move.w	#$100,objoff_3C(a1)
 +
 	move.b	#VintID_Ending,(Vint_routine).w
@@ -12946,37 +12969,44 @@ off_A29C:
 	move.w	(Ending_Routine).w,d0
 	move.w	ObjCA_State5_States(pc,d0.w),d0
 	jsr	ObjCA_State5_States(pc,d0.w)
+	move.b	#ObjID_Sonic,id(a1) ; load main player object
+	move.b	#$81,obj_control(a1)
 	move.w	#$80,d1
 	bsr.w	sub_A22A
 	move.w	#$40,objoff_3C(a0)
 	rts
 ; ===========================================================================
 ObjCA_State5_States:	offsetTable
-	offsetTableEntry.w loc_A2E0	; 0
-	offsetTableEntry.w loc_A2EE	; 2
-	offsetTableEntry.w loc_A2F2	; 4
+	offsetTableEntry.w EndPal_Sonic			; 0
+	offsetTableEntry.w EndPal_SuperSonic	; 2
+	offsetTableEntry.w EndPal_Tails			; 4
+	offsetTableEntry.w EndPal_Tails			; 6
+	offsetTableEntry.w EndPal_Knuckles		; 8
+	offsetTableEntry.w Endpal_SuperKnuckles	; A
 ; ===========================================================================
 
-loc_A2E0:
+EndPal_Sonic:
 	moveq	#8,d0
--
-	move.b	#ObjID_Sonic,id(a1) ; load Sonic object
-	move.b	#$81,obj_control(a1)
 	rts
-; ===========================================================================
-
-loc_A2EE:
+; ----------------------------------------------------------------------------
+EndPal_SuperSonic:
 	moveq	#$C,d0
-	bra.s	-
-; ===========================================================================
-
-loc_A2F2:
+	rts
+; ----------------------------------------------------------------------------
+EndPal_Tails:
 	moveq	#$E,d0
-	move.b	#ObjID_Sonic,id(a1) ; load Tails object
-	move.b	#$81,obj_control(a1)
 	move.b	#ObjID_TailsTails,(Tails_Tails_Cutscene+id).w ; load Obj05 (Tails' tails) at $FFFFB080
 	move.w	a1,(Tails_Tails_Cutscene+parent).w
 	rts
+; ----------------------------------------------------------------------------
+EndPal_Knuckles:
+	moveq	#$10,d0
+	rts
+; ----------------------------------------------------------------------------
+Endpal_SuperKnuckles:
+	moveq	#$12,d0
+	rts
+
 ; ===========================================================================
 
 loc_A30A:
@@ -13011,8 +13041,8 @@ loc_A34C:
 +
 	addq.b	#2,routine(a0)
 	move.w	#$100,objoff_3C(a0)
-	cmpi.w	#4,(Ending_Routine).w
-	bne.s	return_A38C
+	cmpi.b	#2,(Sec_player).w
+	beq.s	return_A38C
 	move.w	#$880,objoff_3C(a0)
 	btst	#6,(Graphics_Flags).w
 	beq.s	return_A38C
@@ -13066,9 +13096,21 @@ ObjCC_Index:	offsetTable
 ObjCC_Init:
 	lea	(ObjB2_SubObjData).l,a1
 	jsrto	(LoadSubObject_Part3).l, JmpTo_LoadSubObject_Part3
+	move.b	#4,mapping_frame(a0)
 	cmpi.b	#2,(Main_player).w
 	bne.s	+
-	move.b	#4,mapping_frame(a0)
+	move.b	#1,anim(a0)
++
+	cmpi.b	#3,(Sec_player).w
+	bne.s	+
+	cmpi.b	#1,(Main_player).w
+	bne.s	+
+	move.b	#2,anim(a0)
++
+	cmpi.b	#1,(Sec_player).w
+	bne.s	+
+	cmpi.b	#3,(Main_player).w
+	bne.s	+
 	move.b	#1,anim(a0)
 +
 	move.w	#-$10,x_pos(a0)
@@ -13079,10 +13121,10 @@ ObjCC_Init:
 	move.b	#3,priority(a0)
 	move.w	#4,(Ending_VInt_Subrout).w
 	move.l	a0,-(sp)
-	lea	(MapEng_EndingTailsPlane).l,a0
-	cmpi.w	#4,(Ending_Routine).w
-	bne.s	+
 	lea	(MapEng_EndingSonicPlane).l,a0
+	cmpi.b	#2,(Sec_player).w
+	bne.s	+
+	lea	(MapEng_EndingTailsPlane).l,a0
 +
 	lea	(Chunk_Table).l,a1
 	move.w	#make_art_tile(ArtTile_ArtNem_EndingFinalTornado,0,1),d0
@@ -13142,12 +13184,17 @@ loc_A4B6:
 	move.w	#2,objoff_3C(a0)
 	clr.w	objoff_32(a0)
 	clr.b	mapping_frame(a0)
-	cmpi.w	#2,(Ending_Routine).w
-	beq.s	+
-	move.b	#7,mapping_frame(a0)
-	cmpi.w	#4,(Ending_Routine).w
+	cmpi.b	#1,(Sec_player).w
 	bne.s	+
 	move.b	#$18,mapping_frame(a0)
++
+	cmpi.b	#2,(Sec_player).w
+	bne.s	+
+	move.b	#$7,mapping_frame(a0)
++
+	cmpi.b	#3,(Sec_player).w
+	bne.s	+
+	move.b	#$22,mapping_frame(a0)
 +
 	clr.b	anim(a0)
 	clr.b	anim_frame(a0)
@@ -13174,6 +13221,9 @@ off_A534:	offsetTable
 		offsetTableEntry.w loc_A53A	; 0
 		offsetTableEntry.w loc_A55C	; 2
 		offsetTableEntry.w loc_A582	; 4
+		offsetTableEntry.w loc_A582	; 6
+		offsetTableEntry.w loc_A53A	; 8
+		offsetTableEntry.w loc_A55C	; A
 ; ===========================================================================
 
 loc_A53A:
@@ -13182,7 +13232,7 @@ loc_A53A:
 -
 	move.w	d0,y_pos(a1)
 	move.w	x_pos(a0),x_pos(a1)
-	move.l	#$1000505,mapping_frame(a1)
+	move.w	#$500,anim(a1)
 	move.w	#$100,anim_frame_duration(a1)
 	rts
 ; ===========================================================================
@@ -13225,14 +13275,40 @@ loc_A594:
 loc_A5A6:
 	bsr.s	sub_A58C
 	subq.w	#1,objoff_3C(a0)
-	bpl.s	+	; rts
+	bpl.s	loc_A5A6_return	; rts
 	move.w	#2,objoff_3C(a0)
 	move.w	objoff_32(a0),d0
 	cmpi.w	#$1C,d0
-	bhs.s	++
+	bhs.s	loc_A5A6_Part2
 	addq.w	#1,objoff_32(a0)
-	move.w	(Ending_Routine).w,d1
-	move.w	off_A5FC(pc,d1.w),d1
+	;move.w	(Ending_Routine).w,d1  
+
+
+	cmpi.b	#1,(Main_player).w
+	bne.s	+
+	move.w	#6,d1
+	cmpi.b	#3,(Sec_player).w
+	beq.s	loc_A5A6_plus2
++
+	cmpi.b	#2,(Main_player).w
+	bne.s	+
+	move.w	#$A,d1
+	cmpi.b	#3,(Sec_player).w
+	beq.s	loc_A5A6_plus2
++
+	cmpi.b	#3,(Main_player).w
+	bne.s	+
+	move.w	#$E,d1
+	cmpi.b	#2,(Sec_player).w
+	beq.s	loc_A5A6_plus2
++
+	bra.s	loc_A5A6_Continue
+
+loc_A5A6_plus2:
+	add.w	#2,d1
+
+loc_A5A6_Continue:
+	move.w	off_A5FC(pc,d1.w),d1 ; frames of the animation before sonic jumps out of the tornado for the final pose
 	lea	off_A5FC(pc,d1.w),a1
 	move.b	(a1,d0.w),mapping_frame(a0)
 	add.w	d0,d0
@@ -13241,29 +13317,30 @@ loc_A5A6:
 	move.w	d1,y_pos(a0)
 	swap	d1
 	move.w	d1,x_pos(a0)
-+
+loc_A5A6_return:
 	rts
 ; ===========================================================================
-+
+loc_A5A6_Part2:
 	addq.b	#2,routine_secondary(a0)
 	move.w	#$60,objoff_3C(a0)
 	clr.b	objoff_31(a0)
 	clr.w	objoff_32(a0)
 	rts
 ; ===========================================================================
+
 off_A5FC:	offsetTable
-		offsetTableEntry.w byte_A602	; 0
-		offsetTableEntry.w byte_A61E	; 2
-		offsetTableEntry.w byte_A63A	; 4
-byte_A602:
-	dc.b   7,  7,  7,  7,  8,  8,  8,  8,  8,  8,  8,  9,  9,  9, $A, $A
-	dc.b  $A, $B, $B, $B, $B, $B, $B, $B, $B, $B, $B, $B; 16
-byte_A61E:
-	dc.b   0,  0,  0,  0,  1,  1,  1,  1,  1,  1,  1,  2,  2,  2,  3,  3
-	dc.b   3,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4; 16
-byte_A63A:
-	dc.b $18,$18,$18,$18,$19,$19,$19,$19,$19,$19,$19,  9,  9,  9, $A, $A
-	dc.b  $A, $B, $B, $B, $B, $B, $B, $B, $B, $B, $B, $B; 16
+		offsetTableEntry.w NoneSonic	; 0
+		offsetTableEntry.w NoneTails	; 2
+		offsetTableEntry.w NoneKnux		; 4
+		offsetTableEntry.w SonicTails	; 6
+		offsetTableEntry.w SonicKnux	; 8
+		offsetTableEntry.w TailsSonic	; A
+		offsetTableEntry.w TailsKnux	; C
+		offsetTableEntry.w KnuxSonic	; E
+		offsetTableEntry.w KnuxTails	; 10
+
+
+
 word_A656:
 	dc.w   $A0,  $70,  $B0,  $70,  $B6,  $71,  $BC,  $72
 	dc.w   $C4,  $74,  $C8,  $75,  $CA,  $76,  $CC,  $77; 8
@@ -13272,6 +13349,34 @@ word_A656:
 	dc.w   $E1,  $87,  $E4,  $8B,  $E7,  $8F,  $EC,  $94; 32
 	dc.w   $F0,  $99,  $F5,  $9D,  $F9,  $A4, $100,  $AC; 40
 	dc.w  $108,  $B8, $112,  $C4, $11F,  $D3, $12C,  $FA; 48
+
+NoneTails:		; Alone Tails
+	dc.b   0,  0,  0,  0,  1,  1,  1,  1,  1,  1,  1,  2,  2,  2,  3,  3
+	dc.b   3,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4; 16
+NoneSonic:		; Alone Sonic
+	dc.b   $26,$26,$26,$26,$27,$27,$27,$27,$27,$27,$27,  2,  2,  2,  3,  3
+	dc.b   3,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4; 16
+NoneKnux:		; Alone Knuckles
+	dc.b   $20,$20,$20,$20,$21,$21,$21,$21,$21,$21,$21,  2,  2,  2,  3,  3
+	dc.b   3,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4; 16
+SonicTails:		; Sonic Tails
+	dc.b   7,  7,  7,  7,  8,  8,  8,  8,  8,  8,  8,  9,  9,  9, $A, $A
+	dc.b  $A, $B, $B, $B, $B, $B, $B, $B, $B, $B, $B, $B; 16
+SonicKnux:		; Sonic Knuckles
+	dc.b   $22,$22,$22,$22,$23,$23,$23,$23,$23,$23,$23,  9,  9,  9, $A, $A
+	dc.b  $A, $B, $B, $B, $B, $B, $B, $B, $B, $B, $B, $B; 16
+TailsSonic:		; Tails Sonic
+	dc.b  $18,$18,$18,$18,$19,$19,$19,$19,$19,$19,$19,  9,  9,  9, $A, $A
+	dc.b  $A, $B, $B, $B, $B, $B, $B, $B, $B, $B, $B, $B; 16
+TailsKnux:		; Tails Knuckles
+	dc.b $22,$22,$22,$22,$23,$23,$23,$23,$23,$23,$23,  9,  9,  9, $A, $A
+	dc.b  $A, $B, $B, $B, $B, $B, $B, $B, $B, $B, $B, $B; 16
+KnuxSonic:	; Knuckles Sonic
+	dc.b   $18,$18,$18,$18,$19,$19,$19,$19,$19,$19,$19,  $1D,  $1D,  $1D, $1E, $1E
+	dc.b  $1E, $1F, $1F, $1F, $1F, $1F, $1F, $1F, $1F, $1F, $1F, $1F; 16
+KnuxTails:		; Knuckles Tails
+	dc.b   7,  7,  7,  7,  8,  8,  8,  8,  8,  8,  8,  $1D,  $1D,  $1D, $1E, $1E
+	dc.b  $1E, $1F, $1F, $1F, $1F, $1F, $1F, $1F, $1F, $1F, $1F, $1F; 16
 ; ===========================================================================
 
 loc_A6C6:
@@ -13446,14 +13551,20 @@ ObjCE_Init:
 	lea	(ObjB3_SubObjData).l,a1
 	jsrto	(LoadSubObject_Part3).l, JmpTo_LoadSubObject_Part3
 	move.l	#ObjCF_MapUnc_ADA2,mappings(a0)
-	move.w	#make_art_tile(ArtTile_ArtKos_LevelArt,0,1),art_tile(a0)
+	move.w	#make_art_tile(ArtTile_ArtKos_LevelArt,1,1),art_tile(a0)
 	move.b	#1,priority(a0)
 	jsr	(Adjust2PArtPointer).l
+	cmpi.b	#1,(Main_player).w
+	bne.s	+
 	move.b	#$C,mapping_frame(a0)
-	cmpi.w	#4,(Ending_Routine).w
++
+	cmpi.b	#2,(Main_player).w
 	bne.s	+
 	move.b	#$F,mapping_frame(a0)
-	move.w	#make_art_tile(ArtTile_ArtKos_LevelArt,1,1),art_tile(a0)
++
+	cmpi.b	#3,(Main_player).w
+	bne.s	+
+	move.b	#$1A,mapping_frame(a0)
 +
 	move.w	#$E8,d0
 	move.w	d0,x_pos(a0)
@@ -13792,6 +13903,9 @@ EndingSequence_LoadCharacterArt_Characters: offsetTable
 	offsetTableEntry.w EndingSequence_LoadCharacterArt_Sonic	; 0
 	offsetTableEntry.w EndingSequence_LoadCharacterArt_SuperSonic	; 2
 	offsetTableEntry.w EndingSequence_LoadCharacterArt_Tails	; 4
+	offsetTableEntry.w EndingSequence_LoadCharacterArt_Tails	; 6
+	offsetTableEntry.w EndingSequence_LoadCharacterArt_Knuckles	; 8
+	offsetTableEntry.w EndingSequence_LoadCharacterArt_Knuckles	; A
 ; ===========================================================================
 ; loc_ABF4:
 EndingSequence_LoadCharacterArt_Sonic:
@@ -13810,6 +13924,12 @@ EndingSequence_LoadCharacterArt_Tails:
 	move.l	#vdpComm(tiles_to_bytes(ArtTile_EndingCharacter),VRAM,WRITE),(VDP_control_port).l
 	lea	(ArtNem_EndingTails).l,a0
 	jmpto	(NemDec).l, JmpTo_NemDec
+; ===========================================================================
+
+EndingSequence_LoadCharacterArt_Knuckles:
+	move.l	#vdpComm(tiles_to_bytes(ArtTile_EndingCharacter),VRAM,WRITE),(VDP_control_port).l
+	lea	(ArtNem_EndingKnuckles).l,a0
+	jmpto	(NemDec).l, JmpTo_NemDec
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
@@ -13826,6 +13946,10 @@ EndingSequence_LoadFlickyArt_Flickies: offsetTable
 	offsetTableEntry.w EndingSequence_LoadFlickyArt_Bird	; 0
 	offsetTableEntry.w EndingSequence_LoadFlickyArt_Eagle	; 2
 	offsetTableEntry.w EndingSequence_LoadFlickyArt_Chicken	; 4
+	offsetTableEntry.w EndingSequence_LoadFlickyArt_Eagle	; 6
+	offsetTableEntry.w EndingSequence_LoadFlickyArt_Bird	; 8
+	offsetTableEntry.w EndingSequence_LoadFlickyArt_Eagle	; A
+
 ; ===========================================================================
 ; loc_AC42:
 EndingSequence_LoadFlickyArt_Bird:
@@ -13850,7 +13974,7 @@ Pal_AC9E:	BINCLUDE	"art/palettes/Ending Sonic Far.bin"
 Pal_ACDE:	BINCLUDE	"art/palettes/Ending Background.bin"
 Pal_AD1E:	BINCLUDE	"art/palettes/Ending Photos.bin"
 Pal_AD3E:	BINCLUDE	"art/palettes/Ending Super Sonic.bin"
-
+Pal_3090BC:	BINCLUDE	"art/palettes/Ending Knuckles.bin"
 word_AD5E:
 	dc.w objoff_3E
 	dc.b ObjID_EndingSeqClouds
@@ -13874,7 +13998,7 @@ word_AD6E:
 
 ; off_AD72:
 Obj28_SubObjData:
-	subObjData Obj28_MapUnc_11E1C,make_art_tile(ArtTile_ArtNem_Animal_2,0,0),4,2,8,0
+	subObjData Obj28_MapUnc_11E1C,make_art_tile(ArtTile_ArtNem_Animal_2,1,0),4,2,8,0
 
 ; animation script
 ; byte_AD7C
@@ -24999,6 +25123,8 @@ PaletteChangerDataIndex: offsetTable
 	offsetTableEntry.w off_133C8	; $A
 	offsetTableEntry.w off_133D4	; $C
 	offsetTableEntry.w off_133E0	; $E
+	offsetTableEntry.w off_310678	;$10
+	offsetTableEntry.w off_310690	;$12
 
 C9PalInfo macro codeptr,dataptr,loadtoOffset,length,fadeinTime,fadeinAmount
 	dc.l codeptr, dataptr
@@ -25013,6 +25139,8 @@ off_133BC:	C9PalInfo                      loc_1344C,  Pal_AC7E,   0,$1F,4,7
 off_133C8:	C9PalInfo                      loc_1344C,  Pal_ACDE, $40,$1F,4,7
 off_133D4:	C9PalInfo                      loc_1344C,  Pal_AD3E,   0, $F,4,7
 off_133E0:	C9PalInfo                      loc_1344C,  Pal_AC9E,   0,$1F,4,7
+off_310678:	C9PalInfo    				   loc_1344C,Pal_3090BC,   0,$1F,4,7
+off_310690:	C9PalInfo   				   loc_1344C,Pal_3090BC+$C0,0,$F,4,7
 
 Pal_133EC:	BINCLUDE "art/palettes/Title Sonic.bin"
 Pal_1340C:	BINCLUDE "art/palettes/Title Background.bin"
@@ -70322,6 +70450,7 @@ ObjB2_Init:
 	cmpi.b	#3,(Sec_player).w
 	bne.s	+
 	cmpi.b	#1,(Main_player).w
+	bne.s	+
 	move.b	#4,mapping_frame(a0)
 	move.b	#2,anim(a0)
 	bra.s	++
@@ -70543,8 +70672,12 @@ ObjB2_Move_Leader_edge:
 	; no cambies esto!!!!!!!!!!!!!!
 	;------------------------------
 	move.w	#$600,(Sonic_top_speed).w
-	move.w	#$C,(Sonic_acceleration).w
+	move.w	#$D,(Sonic_acceleration).w
 	move.w	#$80,(Sonic_deceleration).w
+	cmpi.b	#3,(Main_player).w
+	bne.s	+
+	move.w	#$F,(Sonic_acceleration).w
++
 	;------------------------------
 	bra.w	ObjB2_Waiting_animation
 ; ===========================================================================
@@ -70580,6 +70713,7 @@ ObjB2_Prepare_to_jump:
 ; ===========================================================================
 ; loc_3AAA8:
 ObjB2_Jump_to_plane:
+	move.b	#1,(CutSceneFlag).w
 	clr.w	(Ctrl_1_Logical).w
 	addq.w	#1,objoff_2A(a0)
 	subq.w	#1,objoff_2E(a0)
@@ -70620,7 +70754,7 @@ loc_3AB18:
 	clr.w	inertia(a1)
 	bclr	#1,status(a1)
 	bclr	#2,status(a1)
-	move.l	#(1<<24)|(0<<16)|(AniIDSonAni_Wait<<8)|AniIDSonAni_Wait,mapping_frame(a1)
+	move.b	#AniIDSonAni_Wait,anim(a1)
 	move.w	#$100,anim_frame_duration(a1)
 	move.b	#$13,y_radius(a1)
 	cmpi.b	#2,(Main_player).w
@@ -70718,6 +70852,7 @@ byte_3AC2A:
 ; ===========================================================================
 ; loc_3AC40:
 ObjB2_Start_DEZ:
+	move.b	#0,(CutSceneFlag).w
 	move.w	#death_egg_zone_act_1,(Current_ZoneAndAct).w
 ; loc_3AC46:
 ObjB2_Deactivate_level:
@@ -70729,7 +70864,8 @@ ObjB2_Deactivate_level:
 ; loc_3AC56:
 ObjB2_Waiting_animation:
 	lea	(MainCharacter).w,a1 ; a1=character
-	move.l	#(1<<24)|(0<<16)|(AniIDSonAni_Wait<<8)|AniIDSonAni_Wait,mapping_frame(a1)
+	move.b	#AniIDSonAni_Wait,anim(a1)
+	;move.l	#(1<<24)|(0<<16)|(AniIDSonAni_Wait<<8)|AniIDSonAni_Wait,mapping_frame(a1)
 	move.w	#$100,anim_frame_duration(a1)
 	rts
 ; ===========================================================================
@@ -76899,7 +77035,7 @@ Touch_Monitor:
 	move.w	y_pos(a0),d0
 	subi.w	#$10,d0
 	cmp.w	y_pos(a1),d0
-	bcs.s   loc_3F768      ; Changed to loc_3F768 instead of return_3F78A
+	bcs.s   return_3F78A     ; Changed to loc_3F768 instead of return_3F78A
 	neg.w	y_vel(a0)	; reverse Sonic's y-motion
 	move.w	#-$180,y_vel(a1)
 	tst.b	routine_secondary(a1)
@@ -80390,7 +80526,15 @@ dbglistobj macro   obj, mapaddr, subtype, frame, vram
 
 DbgObjList_Def: dbglistheader
 	dbglistobj ObjID_Ring,		Obj25_MapUnc_12382,   0,   0, make_art_tile(ArtTile_ArtNem_Ring,1,0) ; obj25 = ring
-	dbglistobj ObjID_Monitor,	Obj26_MapUnc_12D36,   8,   0, make_art_tile(ArtTile_ArtNem_Powerups,0,0) ; obj26 = monitor
+	dbglistobj ObjID_Monitor,	Obj26_MapUnc_12D36,   1,   2, make_art_tile(ArtTile_ArtNem_Powerups,0,0) ; obj26 = monitor
+	dbglistobj ObjID_Monitor,	Obj26_MapUnc_12D36,   2,   3, make_art_tile(ArtTile_ArtNem_Powerups,0,0) ; obj26 = monitor
+	dbglistobj ObjID_Monitor,	Obj26_MapUnc_12D36,   3,   4, make_art_tile(ArtTile_ArtNem_Powerups,0,0) ; obj26 = monitor
+	dbglistobj ObjID_Monitor,	Obj26_MapUnc_12D36,   4,   5, make_art_tile(ArtTile_ArtNem_Powerups,0,0) ; obj26 = monitor
+	dbglistobj ObjID_Monitor,	Obj26_MapUnc_12D36,   5,   6, make_art_tile(ArtTile_ArtNem_Powerups,0,0) ; obj26 = monitor
+	dbglistobj ObjID_Monitor,	Obj26_MapUnc_12D36,   6,   7, make_art_tile(ArtTile_ArtNem_Powerups,0,0) ; obj26 = monitor
+	dbglistobj ObjID_Monitor,	Obj26_MapUnc_12D36,   7,   8, make_art_tile(ArtTile_ArtNem_Powerups,0,0) ; obj26 = monitor
+	dbglistobj ObjID_Monitor,	Obj26_MapUnc_12D36,   8,   9, make_art_tile(ArtTile_ArtNem_Powerups,0,0) ; obj26 = monitor
+
 DbgObjList_Def_End
 
 DbgObjList_EHZ: dbglistheader
@@ -83186,11 +83330,17 @@ ArtNem_EndingPics:	BINCLUDE	"art/nemesis/Movie sequence at end of game.bin"
 ; Final image of Tornado with it and Sonic facing screen	; ArtNem_91F3C:
 	even
 ArtNem_EndingFinalTornado:	BINCLUDE	"art/nemesis/Final image of Tornado with it and Sonic facing screen.bin"
+	even
+ArtNem_EndingFinalTornadoKnuckles:	BINCLUDE	"art/nemesis/Final image of Tornado with it and Knuckles facing screen.bin"
+
 ;--------------------------------------------------------------------------------------
 ; Nemesis compressed art (109 blocks)
 ; Mini pictures of Tornado in final ending sequence	; ArtNem_927E0:
 	even
 ArtNem_EndingMiniTornado:	BINCLUDE	"art/nemesis/Small pictures of Tornado in final ending sequence.bin"
+	even
+ArtNem_EndingMiniTornadok:	BINCLUDE	"art/nemesis/Small pictures of Tornado Knuckles pilot in final ending sequence.bin"
+
 ;--------------------------------------------------------------------------------------
 ; Nemesis compressed art (135 blocks)
 ; Mini pictures of Sonic and final image of Sonic
@@ -83211,7 +83361,8 @@ ArtNem_EndingTails:	BINCLUDE	"art/nemesis/Final image of Tails.bin"
 ; Sonic the Hedgehog 2 image at end of credits	; ArtNem_94B28:
 	even
 ArtNem_EndingTitle:	BINCLUDE	"art/nemesis/Sonic the Hedgehog 2 image at end of credits.bin"
-
+	even
+ArtNem_EndingKnuckles:	BINCLUDE	"art/nemesis/Small pictures of Knuckles and final image of Knuckles.bin"
 
 ; >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 ; LEVEL ART AND BLOCK MAPPINGS (16x16 and 128x128)
