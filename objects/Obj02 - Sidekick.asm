@@ -299,6 +299,8 @@ TailsCPU_Spawning:
 	bne.s	return_1BB88
 	tst.b	obj_control(a1)
 	bne.s	return_1BB88
+	cmpi.b	#2,(Sec_player).w
+	beq.s	TailsCPU_Respawn
 	move.b	status(a1),d0
 	andi.b	#$D2,d0
 	bne.s	return_1BB88
@@ -352,8 +354,16 @@ TailsCPU_Flying_Part2:
 	move.w	(a2,d3.w),(Tails_CPU_target_x).w
 	move.w	2(a2,d3.w),(Tails_CPU_target_y).w
 	tst.b	(Water_flag).w
-	beq.s	+
+	beq.s	++
 	move.w	(Water_Level_1).w,d0
+	cmpi.b	#2,(Sec_player).w
+	bne.s	+
+	move.b	#AniIDTailsAni_Fly,anim(a0)
+	cmp.w	y_pos(a0),d0
+	bge.s	++
+	move.b	#AniIDTailsAni_Swim,anim(a0)
+	bra.s	++
++
 	subi.w	#$10,d0
 	cmp.w	(Tails_CPU_target_y).w,d0
 	bge.s	+
@@ -408,8 +418,8 @@ loc_1BC64:
 loc_1BC68:
 	lea	(Sonic_Stat_Record_Buf).w,a2
 	move.b	2(a2,d3.w),d2
-	andi.b	#$D2,d2
-	bne.w	return_1BCDE
+	;andi.b	#$D2,d2
+	;bne.w	return_1BCDE
 	or.w	d0,d1
 	bne.w	return_1BCDE
 	move.l	a1,-(sp)		; Backup a1
@@ -424,7 +434,7 @@ loc_1BC68:
 	move.l	(sp)+,a1		; Restore a1
 	move.w	#6,(Tails_CPU_routine).w	; => TailsCPU_Normal
 	move.b	#0,obj_control(a0)
-	move.b	#AniIDTailsAni_Walk,anim(a0)
+	move.b	#AniIDTailsAni_Roll,anim(a0)
 	move.w	#0,x_vel(a0)
 	move.w	#0,y_vel(a0)
 	move.w	#0,inertia(a0)
