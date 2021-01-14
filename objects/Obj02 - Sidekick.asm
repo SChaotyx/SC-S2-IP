@@ -958,33 +958,61 @@ Sidekick_Balance:
 	blt.w	Sidekick_Lookup
 	cmpi.b	#3,next_tilt(a0)
 	bne.s	Sidekick_BalanceLeft
+	bclr	#0,status(a0)
+	bra.s	Sidekick_BalanceDone
 
 Sidekick_BalanceOnObjRight:
 	bclr	#0,status(a0)
-	bra.s	Sidekick_BalanceDone
+	bra.s	Sidekick_BalanceonObjDone
 ; ---------------------------------------------------------------------------
 
 Sidekick_BalanceLeft:
 	cmpi.b	#3,tilt(a0)
 	bne.w	Sidekick_Lookup
+	bset	#0,status(a0)
+	bra.s	Sidekick_BalanceDone
 
 Sidekick_BalanceOnObjLeft:
 	bset	#0,status(a0)
+	bra.s	Sidekick_BalanceonObjDone
+; ---------------------------------------------------------------------------
 
 Sidekick_BalanceDone:
-	move.b	#AniIDTailsAni_Balance,anim(a0)
+	move.b	#AniIDSonAni_Balance,anim(a0)
 	cmpi.b	#1,(Sec_player).w
 	bne.w	Obj02_ResetScr
 	move.w	x_pos(a0),d3
-	subq.w	#6,d3
 	btst	#0,status(a0)
-	beq.s	+
-	addq.w	#6,d3
+	bne.s	+
+	subq.w	#6,d3
+	bra.s	++
++
 	addq.w	#6,d3
 +
 	jsr	(ChkFloorEdge_Part2).l
 	cmpi.w	#$C,d1
 	blt.w	Obj02_ResetScr
+	move.b	#AniIDSonAni_Balance2,anim(a0)
+	btst	#0,status(a0)
+	bne.w	Obj02_ResetScr
+	bclr	#0,status(a0)
+	bra.w	Obj02_ResetScr
+; ---------------------------------------------------------------------------
+
+Sidekick_BalanceonObjDone:
+	move.b	#AniIDSonAni_Balance,anim(a0)
+	cmpi.b	#1,(Sec_player).w
+	bne.w	Obj02_ResetScr
+	btst	#0,status(a0)
+	bne.s	+
+	addq.w	#6,d2
+	cmp.w	d2,d1
+	blt.w	Obj02_ResetScr
+	bra.s	++
++
+	cmpi.w	#-4,d1
+	bge.w	Obj02_ResetScr
++
 	move.b	#AniIDSonAni_Balance2,anim(a0)
 	btst	#0,status(a0)
 	bne.w	Obj02_ResetScr
