@@ -925,21 +925,8 @@ Obj02_NotRight:
 	bne.w	Obj02_ResetScr	; if yes, branch
 	bclr	#5,status(a0)
 	move.b	#AniIDTailsAni_Wait,anim(a0)	; use "standing" animation
-	cmpi.b	#3,(Sec_player).w
-	bne.s	+
 	btst	#3,status(a0)
-	beq.w	SkTails_Balance
-+
-	cmpi.b	#2,(Sec_player).w
-	bne.s	+
-	btst	#3,status(a0)
-	beq.w	SkTails_Balance
-+
-	cmpi.b	#1,(Sec_player).w
-	bne.s	+
-	btst	#3,status(a0)
-	beq.w	SkSonic_Balance
-+
+	beq.w	Sidekick_Balance
 	moveq	#0,d0
 	move.b	interact(a0),d0
     if object_size=$40
@@ -959,158 +946,52 @@ Obj02_NotRight:
 	add.w	x_pos(a0),d1
 	sub.w	x_pos(a1),d1
 	cmpi.w	#4,d1
-	blt.s	SkTails_BalanceOnObjLeft
+	blt.s	Sidekick_BalanceOnObjLeft
 	cmp.w	d2,d1
-	bge.s	SkTails_BalanceOnObjRight
+	bge.s	Sidekick_BalanceOnObjRight
 	bra.w	Sidekick_Lookup
 ; ---------------------------------------------------------------------------
-; balancing checks for Tails
-; loc_1C142:
-SkTails_Balance:
+
+Sidekick_Balance:
 	jsr	(ChkFloorEdge).l
 	cmpi.w	#$C,d1
 	blt.w	Sidekick_Lookup
 	cmpi.b	#3,next_tilt(a0)
-	bne.s	SkTails_BalanceLeft
-; loc_1C156:
-SkTails_BalanceOnObjRight:
+	bne.s	Sidekick_BalanceLeft
+
+Sidekick_BalanceOnObjRight:
 	bclr	#0,status(a0)
-	bra.s	SkTails_BalanceDone
+	bra.s	Sidekick_BalanceDone
 ; ---------------------------------------------------------------------------
-; loc_1C15E:
-SkTails_BalanceLeft:
+
+Sidekick_BalanceLeft:
 	cmpi.b	#3,tilt(a0)
 	bne.w	Sidekick_Lookup
-; loc_1C166:
-SkTails_BalanceOnObjLeft:
+
+Sidekick_BalanceOnObjLeft:
 	bset	#0,status(a0)
-; loc_1C16C:
-SkTails_BalanceDone:
+
+Sidekick_BalanceDone:
 	move.b	#AniIDTailsAni_Balance,anim(a0)
-	bra.w	Obj02_ResetScr
-; ---------------------------------------------------------------------------
-; loc_1A3FE:
-SkSuperSonic_Balance:
-	cmpi.w	#2,d1
-	blt.w	SkSuperSonic_BalanceOnObjLeft
-	cmp.w	d2,d1
-	bge.w	SkSuperSonic_BalanceOnObjRight
-	bra.w	Sidekick_Lookup
-; ---------------------------------------------------------------------------
-; balancing checks for when you're on the right edge of an object
-; loc_1A410:
-SkSonic_BalanceOnObjRight:
-	btst	#0,status(a0)
-	bne.s	+
-	move.b	#AniIDSonAni_Balance,anim(a0)
-	addq.w	#6,d2
-	cmp.w	d2,d1
-	blt.w	Obj02_ResetScr
-	move.b	#AniIDSonAni_Balance2,anim(a0)
-	bra.w	Obj02_ResetScr
-	; on right edge of object but facing left:
-+	move.b	#AniIDSonAni_Balance3,anim(a0)
-	addq.w	#6,d2
-	cmp.w	d2,d1
-	blt.w	Obj02_ResetScr
-	move.b	#AniIDSonAni_Balance4,anim(a0)
-	bclr	#0,status(a0)
-	bra.w	Obj02_ResetScr
-; ---------------------------------------------------------------------------
-; balancing checks for when you're on the left edge of an object
-; loc_1A44E:
-SkSonic_BalanceOnObjLeft:
-	btst	#0,status(a0)
-	beq.s	+
-	move.b	#AniIDSonAni_Balance,anim(a0)
-	cmpi.w	#-4,d1
-	bge.w	Obj02_ResetScr
-	move.b	#AniIDSonAni_Balance2,anim(a0)
-	bra.w	Obj02_ResetScr
-	; on left edge of object but facing right:
-+	move.b	#AniIDSonAni_Balance3,anim(a0)
-	cmpi.w	#-4,d1
-	bge.w	Obj02_ResetScr
-	move.b	#AniIDSonAni_Balance4,anim(a0)
-	bset	#0,status(a0)
-	bra.w	Obj02_ResetScr
-; ---------------------------------------------------------------------------
-; balancing checks for when you're on the edge of part of the level
-; loc_1A48C:
-SkSonic_Balance:
-	jsr	(ChkFloorEdge).l
-	cmpi.w	#$C,d1
-	blt.w	Sidekick_Lookup
-	tst.b	(Super_Sonic_flag).w
-	bne.w	SkSuperSonic_Balance2
-	cmpi.b	#3,next_tilt(a0)
-	bne.s	SkSonic_BalanceLeft
-	btst	#0,status(a0)
-	bne.s	+
-	move.b	#AniIDSonAni_Balance,anim(a0)
+	cmpi.b	#1,(Sec_player).w
+	bne.w	Obj02_ResetScr
 	move.w	x_pos(a0),d3
 	subq.w	#6,d3
-	jsr	(ChkFloorEdge_Part2).l
-	cmpi.w	#$C,d1
-	blt.w	Obj02_ResetScr
-	move.b	#AniIDSonAni_Balance2,anim(a0)
-	bra.w	Obj02_ResetScr
-	; on right edge but facing left:
-+	move.b	#AniIDSonAni_Balance3,anim(a0)
-	move.w	x_pos(a0),d3
-	subq.w	#6,d3
-	jsr	(ChkFloorEdge_Part2).l
-	cmpi.w	#$C,d1
-	blt.w	Obj02_ResetScr
-	move.b	#AniIDSonAni_Balance4,anim(a0)
-	bclr	#0,status(a0)
-	bra.w	Obj02_ResetScr
-; ---------------------------------------------------------------------------
-SkSonic_BalanceLeft:
-	cmpi.b	#3,tilt(a0)
-	bne.w	Sidekick_Lookup
 	btst	#0,status(a0)
 	beq.s	+
-	move.b	#AniIDSonAni_Balance,anim(a0)
-	move.w	x_pos(a0),d3
 	addq.w	#6,d3
+	addq.w	#6,d3
++
 	jsr	(ChkFloorEdge_Part2).l
 	cmpi.w	#$C,d1
 	blt.w	Obj02_ResetScr
 	move.b	#AniIDSonAni_Balance2,anim(a0)
-	bra.w	Obj02_ResetScr
-	; on left edge but facing right:
-+	move.b	#AniIDSonAni_Balance3,anim(a0)
-	move.w	x_pos(a0),d3
-	addq.w	#6,d3
-	jsr	(ChkFloorEdge_Part2).l
-	cmpi.w	#$C,d1
-	blt.w	Obj02_ResetScr
-	move.b	#AniIDSonAni_Balance4,anim(a0)
-	bset	#0,status(a0)
-	bra.w	Obj02_ResetScr
-; ---------------------------------------------------------------------------
-; loc_1A55E:
-SkSuperSonic_Balance2:
-	cmpi.b	#3,next_tilt(a0)
-	bne.s	Skloc_1A56E
-
-; loc_1A566:
-SkSuperSonic_BalanceOnObjRight:
+	btst	#0,status(a0)
+	bne.w	Obj02_ResetScr
 	bclr	#0,status(a0)
-	bra.s	Skloc_1A57C
-; ---------------------------------------------------------------------------
-Skloc_1A56E:
-	cmpi.b	#3,tilt(a0)
-	bne.s	Sidekick_Lookup
+	bra.w	Obj02_ResetScr
 
-; loc_1A576:
-SkSuperSonic_BalanceOnObjLeft:
-	bset	#0,status(a0)
 
-Skloc_1A57C:
-	move.b	#AniIDSonAni_Balance,anim(a0)
-	bra.s	Obj02_ResetScr
 ; ---------------------------------------------------------------------------
 
 ; loc_1C174:
