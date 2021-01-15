@@ -721,6 +721,7 @@ ObjID_ContinueIcons =		id(ObjPtr_ContinueIcons)	; DA
 ObjID_ContinueChars =		id(ObjPtr_ContinueChars)	; DB
 ObjID_RingPrize =		id(ObjPtr_RingPrize)		; DC
 ObjID_KnucklesSS =		id(ObjPtr_KnucklesSS)		; DD
+ObjID_MonitorDebug =			id(ObjPtr_MonitorDebug)		; DE
 
 ; Music IDs
 offset :=	zMasterPlaylist
