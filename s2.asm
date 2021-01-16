@@ -3776,7 +3776,7 @@ SegaScreen:
 	lea	(ArtNem_IntroTrails).l,a0
 	bsr.w	NemDec
 	move.l	#vdpComm(tiles_to_bytes(ArtTile_ArtUnc_Giant_Sonic),VRAM,WRITE),(VDP_control_port).l
-	lea	(ArtNem_SilverSonic).l,a0 ; ?? seems unused here
+	lea	(ArtNem_GiantSonic).l,a0 ; ?? seems unused here ----> no longer
 	bsr.w	NemDec
 	lea	(Chunk_Table).l,a1
 	lea	(MapEng_SEGA).l,a0
@@ -70027,6 +70027,7 @@ ObjB0_Init:
 	move.w	#2,(SegaScr_VInt_Subrout).w
 	bset	#0,render_flags(a0)
 	bset	#0,status(a0)
+	rts	; I can't get it to work so I opted to load it as nemesis compressed art already rescaled
 
 	; Initialize streak horizontal offsets for Sonic going left.
 	; 9 full lines (8 pixels) + 6 pixels, 2-byte interleaved entries for PNT A and PNT B
@@ -70352,7 +70353,7 @@ word_3A514:
 
 ; off_3A58A:
 ObjB0_SubObjData:
-	subObjData ObjB1_MapUnc_3A5A6,make_art_tile(ArtTile_ArtUnc_Giant_Sonic,2,1),0,1,$10,0
+	subObjData ObjB1_MapUnc_GiantSonic,make_art_tile(ArtTile_ArtUnc_Giant_Sonic,2,1),0,1,$10,0
 
 ; off_3A594:
 ObjB1_SubObjData:
@@ -70371,6 +70372,7 @@ Ani_objB0:	offsetTable
 ; also has the "trademark hider" mappings
 ; ------------------------------------------------------------------------------
 ObjB1_MapUnc_3A5A6:	BINCLUDE "mappings/sprite/objB1.bin"
+ObjB1_MapUnc_GiantSonic:	BINCLUDE "mappings/sprite/Giant Sonic.bin"
 ; ===========================================================================
 ;loc_3A68A
 SegaScr_VInt:
@@ -70386,8 +70388,8 @@ off_3A69E:	offsetTable
 ; ===========================================================================
 
 loc_3A6A2:
-	dma68kToVDP SegaScreenScaledSpriteDataStart,tiles_to_bytes(ArtTile_ArtUnc_Giant_Sonic),\
-	            SegaScreenScaledSpriteDataEnd-SegaScreenScaledSpriteDataStart,VRAM
+	;dma68kToVDP SegaScreenScaledSpriteDataStart,tiles_to_bytes(ArtTile_ArtUnc_Giant_Sonic),\
+	;            SegaScreenScaledSpriteDataEnd-SegaScreenScaledSpriteDataStart,VRAM
 
 	lea	ObjB1_Streak_fade_to_right(pc),a1
 	; 9 full lines ($100 bytes each) plus $28 8-pixel cells
@@ -84564,6 +84566,12 @@ ArtNem_VinePulley:	BINCLUDE	"art/nemesis/Vine that lowers from MCZ.bin"
 ; Log viewed from the end for folding gates in MCZ (start of MCZ2)	; ArtNem_F1E06:
 	even
 ArtNem_MCZGateLog:	BINCLUDE	"art/nemesis/Drawbridge logs from MCZ.bin"
+; --------------------------------------------------------------------
+; Nemesis compressed art (319 blocks)
+; Giant Sonic in SEGA splash screen
+	even
+ArtNem_GiantSonic:	BINCLUDE	"art/nemesis/Giant Sonic.bin"
+
 
 ; ----------------------------------------------------------------------------------
 ; Filler (free space)
