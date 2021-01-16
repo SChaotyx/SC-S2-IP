@@ -71327,8 +71327,8 @@ ObjB2_Animate_Pilot:
 ; ===========================================================================
 ; byte_3AF9C:
 Sonic_pilot_frames:
-	dc.b $21
-	dc.b $24	; 1
+	dc.b $3D
+	dc.b $3E	; 1
 Sonic_pilot_frames_end:
 
 ; byte_3AFA0:

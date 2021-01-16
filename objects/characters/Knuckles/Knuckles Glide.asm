@@ -788,6 +788,7 @@ Knuckles_CheckGlide:				  ; ...
 		bcs.w	Knuckles_BeginGlide
 		;tst.b	($FFFFFE1E).w
 		;bne.s	Knuckles_TurnSuper
+		rts
 
 Knuckles_BeginGlide:				  ; ...
 		bclr	#2,$22(a0)

@@ -11,15 +11,15 @@ LoadKnucklesDynPLC:
 ; loc_1B84E:
 LoadKnucklesDynPLC_Part2:
 	cmpi.b	#1,(Main_player).w
-	beq.s	loadonsec
+	beq.s	+
 	cmpi.b	#1,(Sec_player).w
-	beq.s	loadonsec
-loadonmain:
+	beq.s	+
+
 	cmp.b	(Sonic_LastLoadedDPLC).w,d0
 	beq.s	return_LKDPLC
 	move.b	d0,(Sonic_LastLoadedDPLC).w
 	bra.s	LoadKnucklesDynPLC_Continue
-loadonsec:
++
 	cmp.b	(Tails_LastLoadedDPLC).w,d0
 	beq.s	return_LKDPLC
 	move.b	d0,(Tails_LastLoadedDPLC).w
@@ -31,16 +31,16 @@ LoadKnucklesDynPLC_Continue:
 	move.w	(a2)+,d5
 	subq.w	#1,d5
 	bmi.s	return_LKDPLC
-	move.w	#tiles_to_bytes(ArtTile_ArtUnc_Sonic),d4
 	cmpi.b	#1,(Main_player).w
-	bne.s	+
-	move.w	#tiles_to_bytes(ArtTile_ArtUnc_Tails),d4
-+
+	beq.s	+
 	cmpi.b	#1,(Sec_player).w
-	bne.s	+
-	move.w	#tiles_to_bytes(ArtTile_ArtUnc_Tails),d4
+	beq.s	+
+
+	move.w	#tiles_to_bytes(ArtTile_ArtUnc_Sonic),d4
+	bra.s	KPLC_ReadEntry
 +
-; loc_1B86E:
+	move.w	#tiles_to_bytes(ArtTile_ArtUnc_Tails),d4
+
 KPLC_ReadEntry:
 	moveq	#0,d1
 	move.w	(a2)+,d1
