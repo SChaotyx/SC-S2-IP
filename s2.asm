@@ -23413,6 +23413,29 @@ JmpTo2_PlaySoundStereo
 ; End of function CollectRing
 
 ; ===========================================================================
+; ---------------------------------------------------------------------------
+; Ring Spawn Array
+; ---------------------------------------------------------------------------
+
+SpillRingData:  dc.w    $00C4,$FC14, $FF3C,$FC14, $0238,$FCB0, $FDC8,$FCB0 ; 4
+                dc.w    $0350,$FDC8, $FCB0,$FDC8, $03EC,$FF3C, $FC14,$FF3C ; 8
+                dc.w    $03EC,$00C4, $FC14,$00C4, $0350,$0238, $FCB0,$0238 ; 12
+                dc.w    $0238,$0350, $FDC8,$0350, $00C4,$03EC, $FF3C,$03EC ; 16
+                dc.w    $0062,$FE0A, $FF9E,$FE0A, $011C,$FE58, $FEE4,$FE58 ; 20
+                even
+; ===========================================================================
+; ===========================================================================
+; ---------------------------------------------------------------------------
+; Ring Spawn Array Underwater
+; ---------------------------------------------------------------------------
+
+SpillRingDataU: dc.w    $0064,$FE08, $FF9C,$FE08, $011C,$FE58, $FEE4,$FE58 ; 4
+                dc.w    $01A8,$FEE4, $FE58,$FEE4, $01F8,$FF9C, $FE08,$FF9C ; 8
+                even
+; ===========================================================================
+; ===========================================================================
+
+; ===========================================================================
 ; ----------------------------------------------------------------------------
 ; Object 37 - Scattering rings (generated when Sonic is hurt and has rings)
 ; ----------------------------------------------------------------------------
@@ -23440,14 +23463,23 @@ Obj37_Init:
 	beq.s	+
 	move.w	(Ring_count_2P).w,d5
 +
-	moveq	#$20,d0
+	lea     SpillRingData,a3        ; load the address of the array in a3
+	moveq	#20,d0
+	lea     (MainCharacter).w,a2    ; a2=character
+    btst    #6,status(a2)           ; is Sonic underwater?
+    beq.s   +                       ; if not, branch
+	lea    SpillRingDataU,a3        ; load the UNDERWATER address of the array in a3
+    moveq   #10,d0                   ; lose a max of 8 rings when underwater
++
+    cmp.w   d0,d5
+    bcs.s   +
+    move.w  d0,d5
 	cmp.w	d0,d5
 	blo.s	+
 	move.w	d0,d5
 +
-	subq.w	#1,d5
-	move.w	#$288,d4
-	bra.s	+
+	subq.w  #1,d5
+    bra.s   +
 ; ===========================================================================
 
 -	bsr.w	SingleObjLoad
@@ -23467,26 +23499,17 @@ Obj37_Init:
 	move.b	#$47,collision_flags(a1)
 	move.b	#8,width_pixels(a1)
 	move.b	#-1,(Ring_spill_anim_counter).w
-	tst.w	d4
-	bmi.s	+
-	move.w	d4,d0
-	jsrto	(CalcSine).l, JmpTo4_CalcSine
-	move.w	d4,d2
-	lsr.w	#8,d2
-	asl.w	d2,d0
-	asl.w	d2,d1
-	move.w	d0,d2
-	move.w	d1,d3
-	addi.b	#$10,d4
-	bcc.s	+
-	subi.w	#$80,d4
-	bcc.s	+
-	move.w	#$288,d4
-+
-	move.w	d2,x_vel(a1)
-	move.w	d3,y_vel(a1)
-	neg.w	d2
-	neg.w	d4
+
+	tst.b	(Water_flag).w		; Does the level have water?
+	beq.s	.skiphalvingvel		; If not, branch and skip underwater checks
+	move.w	(Water_Level_2).w,d6	; Move water level to d6
+	cmp.w	y_pos(a0),d6		; Is the ring object underneath the water level?
+	bgt.s	.skiphalvingvel		; If not, branch and skip underwater commands
+	asr.w	d0			; Half d0. Makes the ring's x_vel bounce to the left/right slower
+	asr.w	d1			; Half d1. Makes the ring's y_vel bounce up/down slower
+.skiphalvingvel:
+	move.w  (a3)+,x_vel(a1)         ; move the data contained in the array to the x velocity and increment the address in a3
+    move.w  (a3)+,y_vel(a1)         ; move the data contained in the array to the y velocity and increment the address in a3
 	dbf	d5,-
 +
 	moveq   #-1,d0                          ; Move #-1 to d0
@@ -23510,6 +23533,15 @@ Obj37_Main:
 	move.b	(Ring_spill_anim_frame).w,mapping_frame(a0)
 	bsr.w	ObjectMove
 	addi.w	#$18,y_vel(a0)
+
+	tst.b	(Water_flag).w		; Does the level have water?
+	beq.s	.skipbounceslow		; If not, branch and skip underwater checks
+	move.w	(Water_Level_2).w,d6	; Move water level to d6
+	cmp.w	y_pos(a0),d6		; Is the ring object underneath the water level?
+	bgt.s	.skipbounceslow		; If not, branch and skip underwater commands
+	subi.w	#$E,y_vel(a0)		; Reduce gravity by $E ($18-$E=$A), giving the underwater effect for the rings
+.skipbounceslow:
+
 	bmi.s	loc_121B8
 	move.b	(Vint_runcount+3).w,d0
 	add.b	d7,d0
