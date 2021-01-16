@@ -12587,8 +12587,8 @@ EndingSequence:
 +
 ; ===========================================================================
 EmeraldCountCheck:
-	cmpi.b	#7,(Emerald_count).w		; got all the emeralds?
-	bne.s	+							; if not branch
+	;cmpi.b	#7,(Emerald_count).w		; got all the emeralds?
+	;bne.s	+							; if not branch
 	;addq.w	#2,d0						; Temp disableeeeeeeee
 	;st	(Super_Sonic_flag).w
 	;move.b	#-1,(Super_Sonic_palette).w
