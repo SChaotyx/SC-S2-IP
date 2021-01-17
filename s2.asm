@@ -12099,7 +12099,8 @@ LevelSelect_StartZone:
 	if devmode=1
 	btst	#button_A,(Ctrl_1_Held).w ; is A held down?
 	beq.s	+	 		; if not, branch
-	move.b	#1,(Debug_mode_flag).w			; if not, branch
+	move.b	#1,(Debug_mode_flag).w
+	move.b	#7,(Emerald_count).w
 +
 	endif
 	andi.w	#$3FFF,d0
@@ -71359,8 +71360,8 @@ ObjB2_Animate_Pilot:
 ; ===========================================================================
 ; byte_3AF9C:
 Sonic_pilot_frames:
-	dc.b $3D
-	dc.b $3E	; 1
+	dc.b $D7
+	dc.b $D8	; 1
 Sonic_pilot_frames_end:
 
 ; byte_3AFA0:
@@ -80518,8 +80519,12 @@ Debug_ExitDebugMode:
 	move.w	d0,(Debug_placement_mode).w
 	lea	(MainCharacter).w,a1 ; a1=character
 	cmpi.b	#1,(Main_player).w
-	bne.s	+
+	bne.s	++
 	move.l	#Mapunc_Sonic,mappings(a1)
+	tst.b	(Super_Sonic_flag).w	; Ignore this code if not Super Sonic
+	beq.w	+
+	move.l	#Mapunc_SuperSonic,mappings(a1)
++
 	move.w	#make_art_tile(ArtTile_ArtUnc_Sonic,0,0),art_tile(a1)
 +
 	cmpi.b	#2,(Main_player).w
@@ -82515,6 +82520,7 @@ ArtUnc_Knuckles:	BINCLUDE	"objects/characters/Knuckles/Knuckles Art.bin"
 ; Sonic			; MapUnc_6FBE0: SprTbl_Sonic:
 ;--------------------------------------------------------------------------------------
 Mapunc_Sonic:	BINCLUDE	"mappings/sprite/Sonic.bin"
+Mapunc_SuperSonic:	BINCLUDE	"mappings/sprite/SonicSuper.bin"
 ;--------------------------------------------------------------------------------------
 ; Sprite Dynamic Pattern Reloading
 ; Sonic DPLCs   		; MapRUnc_714E0:
@@ -82522,6 +82528,7 @@ Mapunc_Sonic:	BINCLUDE	"mappings/sprite/Sonic.bin"
 ; WARNING: the build script needs editing if you rename this label
 ;          or if you move Sonic's running frame to somewhere else than frame $2D
 MapRUnc_Sonic:	BINCLUDE	"mappings/spriteDPLC/Sonic.bin"
+MapRUnc_SuperSonic:	BINCLUDE	"mappings/spriteDPLC/SonicSuper.bin"
 ;--------------------------------------------------------------------------------------
 ; Sonic Art and Mappings for Special Stage
 MapUnc_SonicSS:			BINCLUDE "mappings/sprite/SonicSS.bin"

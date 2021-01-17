@@ -165,7 +165,7 @@ SAnim_Super:
 ; ---------------------------------------------------------------------------
 ; loc_1B4C6:
 SAnim_SuperRun:
-	lsr.b	#1,d0
+	add.b	d0,d0
 ; loc_1B4C8:
 SAnim_SuperWalk:
 	move.b	d0,d3
@@ -176,22 +176,17 @@ SAnim_SuperWalk:
 	bne.s	+
 	move.b	#0,anim_frame(a0)
 	move.b	1(a1),d0
+
 +
 	move.b	d0,mapping_frame(a0)
 	add.b	d3,mapping_frame(a0)
-	move.b	(Timer_frames+1).w,d1
-	andi.b	#3,d1
-	bne.s	+
-	cmpi.b	#$B5,mapping_frame(a0)
-	bhs.s	+
-	addi.b	#$20,mapping_frame(a0)
-+
 	subq.b	#1,anim_frame_duration(a0)
 	bpl.s	return_1B51E
 	neg.w	d2
 	addi.w	#$800,d2
 	bpl.s	+
 	moveq	#0,d2
+	
 +
 	lsr.w	#8,d2
 	move.b	d2,anim_frame_duration(a0)

@@ -18,7 +18,15 @@ LoadSonicDynPLC_Part2:
 	cmp.b	(Sonic_LastLoadedDPLC).w,d0
 	beq.s	return_1B89A
 	move.b	d0,(Sonic_LastLoadedDPLC).w
-	lea	(MapRUnc_Sonic).l,a2
+
+	tst.b	(Super_Sonic_flag).w	; super Sonic?
+	bne.s	+						; if yer, branch
+	lea	(MapRUnc_Sonic).l,a2		; if not load plc for sonic normal
+	bra.s	++						; continue normally
++
+	lea	(MapRUnc_SuperSonic).l,a2	; if yes, load plc for super Sonic
++
+
 	add.w	d0,d0
 	adda.w	(a2,d0.w),a2
 	move.w	(a2)+,d5

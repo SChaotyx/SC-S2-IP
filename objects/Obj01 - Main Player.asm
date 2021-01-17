@@ -1262,6 +1262,10 @@ Sonic_CheckGoSuper:
 	move.b	#1,(Super_Sonic_palette).w
 	move.b	#$F,(Palette_timer).w
 	move.b	#1,(Super_Sonic_flag).w
+	cmpi.b  #1,(Main_player).w
+    bne.s   +
+	move.l	#Mapunc_SuperSonic,mappings(a0)
++
 	move.b	#$81,obj_control(a0)
 	move.b	#AniIDSupSonAni_Transform,anim(a0)			; use transformation animation
 	move.b	#ObjID_SuperSonicStars,(SuperSonicStars+id).w ; load Obj7E (super sonic stars object) at $FFFFD040
@@ -1320,6 +1324,10 @@ Sonic_RevertToNormal:
 	move.w	#1,invincibility_time(a0)	; Remove invincibility
 	lea	(Sonic_top_speed).w,a2	; Load Sonic_top_speed into a2
 	bsr.w	ApplySpeedSettings	; Fetch Speed settings
+	cmpi.b  #1,(Main_player).w
+    bne.s   +
+	move.l	#Mapunc_Sonic,mappings(a0)
++
 
 return_1AC3C:
 	rts
