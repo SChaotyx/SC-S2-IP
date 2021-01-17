@@ -2846,7 +2846,7 @@ PalCycle_SuperSonic_revert:	; runs the fade in transition backwards
 PalCycle_SuperSonic_palettes:
 	lea	(Normal_palette+4).w,a1
 	move.l	(a0,d0.w),(a1)+
-	move.l	4(a0,d0.w),(a1)
+	move.w	4(a0,d0.w),(a1)
 	; underwater palettes (*)
 	lea	(CyclingPal_CPZUWTransformation).l,a0
 	cmpi.b	#chemical_plant_zone,(Current_Zone).w
@@ -2856,7 +2856,7 @@ PalCycle_SuperSonic_palettes:
 	lea	(CyclingPal_ARZUWTransformation).l,a0
 +	lea	(Underwater_palette+4).w,a1
 	move.l	(a0,d0.w),(a1)+
-	move.l	4(a0,d0.w),(a1)
+	move.w	4(a0,d0.w),(a1)
 	rts
 ; ===========================================================================
 ; loc_21E6:
