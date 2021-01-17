@@ -43,6 +43,9 @@ Obj01_Init:
 	cmpi.b  #1,(Main_player).w
     bne.s   +
 	move.l	#Mapunc_Sonic,mappings(a0)
+	tst.b	(Super_Sonic_flag).w
+	beq.s	+
+	move.l	#Mapunc_SuperSonic,mappings(a0)
 +
     ;Tails
     cmpi.b  #2,(Main_player).w

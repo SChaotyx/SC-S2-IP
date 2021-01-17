@@ -12579,22 +12579,23 @@ EndingSequence:
 	cmpi.b	#2,(Main_player).w			; is a Tails Game?
 	bne.s	+							; if not branch
 	addq.w	#4,d0
-	bra.s	EmeraldCountCheck
+	;bra.s	EmeraldCountCheck
 +
 ; ===========================================================================
 	cmpi.b	#3,(Main_player).w			; is a Knuckles Game?
 	bne.s	+							; if not branch
 	addq.w	#8,d0						
 +
+	bra.s	+
 ; ===========================================================================
 EmeraldCountCheck:
-	;cmpi.b	#7,(Emerald_count).w		; got all the emeralds?
-	;bne.s	+							; if not branch
-	;addq.w	#2,d0						; Temp disableeeeeeeee
-	;st	(Super_Sonic_flag).w
-	;move.b	#-1,(Super_Sonic_palette).w
-	;move.b	#$F,(Palette_timer).w
-	;move.w	#$30,(Palette_frame).w
+	cmpi.b	#7,(Emerald_count).w		; got all the emeralds?
+	bne.s	+							; if not branch
+	addq.w	#2,d0						; Temp disableeeeeeeee
+	st	(Super_Sonic_flag).w
+	move.b	#-1,(Super_Sonic_palette).w
+	move.b	#$F,(Palette_timer).w
+	move.w	#$30,(Palette_frame).w
 +
 ; ===========================================================================
 	move.w	d0,(Ending_Routine).w
@@ -12979,7 +12980,7 @@ off_A29C:
 ; ===========================================================================
 ObjCA_State5_States:	offsetTable
 	offsetTableEntry.w EndPal_Sonic			; 0
-	offsetTableEntry.w EndPal_SuperSonic	; 2
+	offsetTableEntry.w EndPal_Sonic	; 2
 	offsetTableEntry.w EndPal_Tails			; 4
 	offsetTableEntry.w EndPal_Tails			; 6
 	offsetTableEntry.w EndPal_Knuckles		; 8
@@ -13276,20 +13277,29 @@ loc_A594:
 loc_A5A6:
 	bsr.s	sub_A58C
 	subq.w	#1,objoff_3C(a0)
-	bpl.s	loc_A5A6_return	; rts
+	bpl.w	loc_A5A6_return	; rts
 	move.w	#2,objoff_3C(a0)
 	move.w	objoff_32(a0),d0
 	cmpi.w	#$1C,d0
-	bhs.s	loc_A5A6_Part2
+	bhs.w	loc_A5A6_Part2
 	addq.w	#1,objoff_32(a0)
 	;move.w	(Ending_Routine).w,d1  
 
 
 	cmpi.b	#1,(Main_player).w
-	bne.s	+
+	bne.s	++
+	cmpi.b	#7,(Emerald_count).w
+	beq.s	+
 	move.w	#6,d1
 	cmpi.b	#3,(Sec_player).w
-	beq.s	loc_A5A6_plus2
+	bne.s	++
+	bra.s	loc_A5A6_plus2
++
+	move.w	#2,d1
+	cmpi.b	#3,(Sec_player).w
+	bne.s	+
+	bra.s	loc_A5A6_plus2
+
 +
 	cmpi.b	#2,(Main_player).w
 	bne.s	+
@@ -13351,11 +13361,11 @@ word_A656:
 	dc.w   $F0,  $99,  $F5,  $9D,  $F9,  $A4, $100,  $AC; 40
 	dc.w  $108,  $B8, $112,  $C4, $11F,  $D3, $12C,  $FA; 48
 
-NoneTails:		; Alone Tails
-	dc.b   0,  0,  0,  0,  1,  1,  1,  1,  1,  1,  1,  2,  2,  2,  3,  3
-	dc.b   3,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4; 16
 NoneSonic:		; Alone Sonic
 	dc.b   $26,$26,$26,$26,$27,$27,$27,$27,$27,$27,$27,  2,  2,  2,  3,  3
+	dc.b   3,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4; 16
+NoneTails:		; Alone Tails
+	dc.b   0,  0,  0,  0,  1,  1,  1,  1,  1,  1,  1,  2,  2,  2,  3,  3
 	dc.b   3,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4; 16
 NoneKnux:		; Alone Knuckles
 	dc.b   $20,$20,$20,$20,$21,$21,$21,$21,$21,$21,$21,  2,  2,  2,  3,  3
