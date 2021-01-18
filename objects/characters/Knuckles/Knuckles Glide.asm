@@ -780,15 +780,15 @@ Knuckles_CheckGlide:				  ; ...
 +
 		and.b	#$70,d0
 		beq.w	return_3165D2
-		tst.b	($FFFFFE19).w
-		bne.s	Knuckles_BeginGlide
-		cmp.b	#7,($FFFFFFB1).w
-		bcs.s	Knuckles_BeginGlide
-		cmp.w	#50,($FFFFFE20).w
-		bcs.w	Knuckles_BeginGlide
+		;tst.b	($FFFFFE19).w
+		;bne.s	Knuckles_BeginGlide
+		;cmp.b	#7,($FFFFFFB1).w
+		;bcs.s	Knuckles_BeginGlide
+		;cmp.w	#50,($FFFFFE20).w
+		;bcs.w	Knuckles_BeginGlide
 		;tst.b	($FFFFFE1E).w
 		;bne.s	Knuckles_TurnSuper
-		rts
+		
 
 Knuckles_BeginGlide:				  ; ...
 		bclr	#2,$22(a0)

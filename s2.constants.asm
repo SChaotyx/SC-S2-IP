@@ -1392,7 +1392,7 @@ Collision_addr:			ds.l	1
 Boss_defeated_flag:		ds.b	1
 				ds.b	2	; $FFFFF7A8-$FFFFF7A9 ; seems unused
 Current_Boss_ID:		ds.b	1
-				ds.b	5	; $FFFFF7AB-$FFFFF7AF ; seems unused
+				ds.b	5	; $FFFFF7AB-$FFFFF7AF ; seems unused ;GLIDE IS HERE!!!
 MTZ_Platform_Cog_X:			ds.w	1	; X position of moving MTZ platform for cog animation.
 MTZCylinder_Angle_Sonic:	ds.b	1
 MTZCylinder_Angle_Tails:	ds.b	1

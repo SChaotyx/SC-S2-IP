@@ -1217,8 +1217,7 @@ Sonic_JumpHeight:
 +
 	cmpi.b	#3,(Main_player).w
 	bne.s	+
-	cmp.w	$12(a0),d1
-	ble.w	Knuckles_CheckGlide	  ; Check if Knuckles should begin a glide
+	bsr.w	Knuckles_CheckGlide	  ; Check if Knuckles should begin a glide
 +
 	cmp.w	y_vel(a0),d1	; is Sonic going up faster than d1?
 	ble.s	+		; if not, branch
@@ -1227,8 +1226,11 @@ Sonic_JumpHeight:
 	bne.s	+		; if yes, branch
 	move.w	d1,y_vel(a0)	; immediately reduce Sonic's upward speed to d1
 +
+	cmpi.b	#1,(Main_player).w
+	bne.s	+
 	tst.b	y_vel(a0)		; is Sonic exactly at the height of his jump?
 	beq.s	Sonic_CheckGoSuper	; if yes, test for turning into Super Sonic
++
 	rts
 ; ---------------------------------------------------------------------------
 ; loc_1AB22:

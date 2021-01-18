@@ -3793,6 +3793,7 @@ SegaScreen:
 	lea	(SegaHideTM).w,a1
 	move.b	#ObjID_SegaHideTM,id(a1)	; load objB1 at $FFFFB080
 	move.b	#$4E,subtype(a1) ; <== ObjB1_SubObjData
+
 ; loc_38CE:
 SegaScreen_Contin:
 	moveq	#PalID_SEGA,d0
@@ -3878,6 +3879,7 @@ JmpTo_RunObjects
 ; ===========================================================================
 ; loc_3998:
 TitleScreen:
+	move.w	#3,(Player_option).w ;set default gamemode Sonic and Tails
 	move.b	#MusID_Stop,d0
 	bsr.w	PlayMusic
 	bsr.w	ClearPLC

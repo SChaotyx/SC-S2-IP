@@ -56,6 +56,10 @@ Obj02_Init:
 +
 ; ===========================================================================
 	move.b	#2,priority(a0)
+	cmpi.b	#2,(Main_player).w
+	bne.s	+
+	move.b	#3,priority(a0)
++
 	move.b	#$18,width_pixels(a0)
 	move.b	#$84,render_flags(a0) ; render_flags(Tails) = $80 | initial render_flags(Sonic)
 	lea	(Tails_top_speed).w,a2	; Load Tails_top_speed into a2
@@ -406,22 +410,39 @@ loc_1BC50:
 
 loc_1BC54:
 	moveq	#1,d2
+	cmpi.w 	#$300,inertia(a1)
+	bge.w	+
 	move.w	y_pos(a0),d1
-	sub.w	(Tails_CPU_target_y).w,d1
-	beq.s	loc_1BC68
+	sub.w	y_pos(a1),d1
+	cmpi.w	#15,d1
+	bge.s	+
+	cmpi.w	#-15,d1
+	ble.s	+
+
+	move.w	x_pos(a0),d1
+	sub.w	x_pos(a1),d1
+
+	cmpi.w	#15,d1
+	bge.w	return_1BCDE
+	cmpi.w	#-15,d1
+	bge.s	loc_1BC68
+	rts
++
+	move.w	y_pos(a0),d1
+	sub.w	y_pos(a1),d1
 	bmi.s	loc_1BC64
 	neg.w	d2
 
 loc_1BC64:
 	add.w	d2,y_pos(a0)
-
+	rts
 loc_1BC68:
 	lea	(Sonic_Stat_Record_Buf).w,a2
 	move.b	2(a2,d3.w),d2
 	;andi.b	#$D2,d2
 	;bne.w	return_1BCDE
-	or.w	d0,d1
-	bne.w	return_1BCDE
+	;or.w	d0,d1
+	;bne.w	return_1BCDE
 	move.l	a1,-(sp)		; Backup a1
 	move.b	#9,x_radius(a0)
 	move.b	#$13,y_radius(a0) ; this sets Sonic's collision height (2*pixels)
@@ -1690,8 +1711,7 @@ Tails_JumpHeight:
 	bne.s	+
 	tst.w	(Tails_control_counter).w	; if CPU has control
 	beq.w	+		; (if yes, branch)
-	cmp.w	$12(a0),d1
-	ble.w	Knuckles_CheckGlide	  ; Check if Knuckles should begin a glide
+	bsr.w	Knuckles_CheckGlide	 
 +
 	cmp.w	y_vel(a0),d1	; is Tails going up faster than d1?
 	ble.s	+		; if not, branch
