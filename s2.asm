@@ -4664,6 +4664,8 @@ Level_MainLoop:
 	bne.s	-
 	rts
 
+
+; ===========================================================================
 ; ---------------------------------------------------------------------------
 ; Subroutine to set the player mode, which is forced to Sonic and Tails in
 ; the demo mode and in 2P mode
@@ -4674,92 +4676,49 @@ Level_MainLoop:
 ; sub_4450:
 Level_SetPlayerMode:
 	cmpi.b	#GameModeID_TitleCard|GameModeID_Demo,(Game_Mode).w ; pre-level demo mode?
-	beq.w	ForceSAT			; if yes, branch
-	tst.w	(Two_player_mode).w	; 2P mode?
-	bne.w	ForceSAT			; if yes, branch
-
-;----------Sonic Alone----------
-	cmpi.w	#0,(Player_option).w
-	bne.s	+
-	move.b	#0,(Play_mode).w
-	move.b	#1,(Main_player).w
-	move.b	#2,(Sec_player).w
+	beq.w	SetSonicAndTails									; if yes, branch
+	tst.w	(Two_player_mode).w									; 2P mode?
+	bne.w	SetSonicAndTails									; if yes, force Sonic and Tails Game
+	moveq	#0,d0												; quickly clear d0
+	moveq	#0,d1												; quickly clear d1
+	move.w	(Player_option).w,d1								; move Player_option to d1
+	add.b	d1,d0
+	add.b	d1,d0
+	add.b	d1,d0												; multiply by 3 d1 in d0
+	move.b	Player_mode_settings(pc,d0.w),(Play_mode).w 		; set play mode
+	add.b	#1,d0												; move to main player setting
+	move.b	Player_mode_settings(pc,d0.w),(Main_player).w		; set main player character
+	add.b	#1,d0												; move to sidekick setting
+	move.b	Player_mode_settings(pc,d0.w),(Sec_player).w		; set sidekick character
 	rts
-+
-;----------Tails Alone----------
-	cmpi.w	#1,(Player_option).w
-	bne.s	+
-	move.b	#0,(Play_mode).w
-	move.b	#2,(Main_player).w
-	move.b	#1,(Sec_player).w
-	rts
-+
-;--------Knuckles Alone---------
-	cmpi.w	#2,(Player_option).w
-	bne.s	+
-	move.b	#0,(Play_mode).w
-	move.b	#3,(Main_player).w
-	move.b	#2,(Sec_player).w
-	rts
-+
-;--------Sonic And Tails--------
-	cmpi.w	#3,(Player_option).w
-	bne.s	+
-	move.b	#1,(Play_mode).w
-	move.b	#1,(Main_player).w
-	move.b	#2,(Sec_player).w
-	rts
-+
-;--------Sonic And K.T.E--------
-	cmpi.w	#4,(Player_option).w
-	bne.s	+
-	move.b	#1,(Play_mode).w
-	move.b	#1,(Main_player).w
-	move.b	#3,(Sec_player).w
-	rts
-+
-;--------Tails And Sonic--------
-	cmpi.w	#5,(Player_option).w
-	bne.s	+
-	move.b	#1,(Play_mode).w
-	move.b	#2,(Main_player).w
-	move.b	#1,(Sec_player).w
-	rts
-+
-;--------Tails And K.T.E--------
-	cmpi.w	#6,(Player_option).w
-	bne.s	+
-	move.b	#1,(Play_mode).w
-	move.b	#2,(Main_player).w
-	move.b	#3,(Sec_player).w
-	rts
-+
-;--------K.T.E And Sonic--------
-	cmpi.w	#7,(Player_option).w
-	bne.s	+
-	move.b	#1,(Play_mode).w
-	move.b	#3,(Main_player).w
-	move.b	#1,(Sec_player).w
-	rts
-+
-;--------K.T.E And Tails--------
-	cmpi.w	#8,(Player_option).w
-	bne.s	+
-	move.b	#1,(Play_mode).w
-	move.b	#3,(Main_player).w
-	move.b	#2,(Sec_player).w
-	rts
-+
 
 ; ---------------------------------------------------------------------------
-; force Sonic and Tails
-ForceSAT:
-	move.b	#1,(Play_mode).w
-	move.b	#1,(Main_player).w
-	move.b	#2,(Sec_player).w
+
+SetSonicAndTails:
+	move.b	#1,(Play_mode).w									; set sidekick play mode
+	move.b	#1,(Main_player).w									; set Sonic as a main player
+	move.b	#2,(Sec_player).w									; set Tails as a Sidekick
 	rts
 
 ; End of function Level_SetPlayerMode
+; ===========================================================================
+; ----------------------------------------------------------------------------
+; Player Mode Settings Array
+; This array defines which characters to load when starting a level
+; ---------------------------------------------------------------------------
+;						Play_mode	Main_player	Sec_player
+Player_mode_settings:
+	dc.b					0,			1,			2	; Sonic Alone
+	dc.b					0,			2,			1	; Tails Alone
+	dc.b					0,			3,			2	; Knuckles Alone
+	dc.b					1,			1,			2	; Sonic and Tails
+	dc.b					1,			1,			3	; Sonic and Knuckles
+	dc.b					1,			2,			1	; Tails and Sonic
+	dc.b					1,			2,			3	; Tails and Knuckles
+	dc.b					1,			3,			1	; Knuckles and Sonic
+	dc.b					1,			3,			2	; Knuckles and Tails
+; ===========================================================================
+
 
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
