@@ -3522,9 +3522,6 @@ PalPtr_SS3_2p:	palptr Pal_SS3_2p,3
 PalPtr_OOZ_B:	palptr Pal_OOZ_B, 1
 PalPtr_Menu:	palptr Pal_Menu,  0
 PalPtr_Result:	palptr Pal_Result,0
-PalPtr_Knux:	palptr Pal_Knux,  0
-PalPtr_CPZ_K_U:	palptr Pal_CPZ_K_U, 0
-PalPtr_ARZ_K_U:	palptr Pal_ARZ_K_U, 0
 PalPtr_SonicSS:	palptr Pal_SonicSS,    1
 PalPtr_TailsSS:	palptr Pal_TailsSS,    1
 PalPtr_KnucklesSS:	palptr Pal_KnucklesSS,    1
@@ -3581,9 +3578,6 @@ Pal_SS1_2p:palette Special Stage 1 2p.bin ; Special Stage 1 2p palette
 Pal_SS2_2p:palette Special Stage 2 2p.bin ; Special Stage 2 2p palette
 Pal_SS3_2p:palette Special Stage 3 2p.bin ; Special Stage 3 2p palette
 Pal_Result:palette Special Stage Results Screen.bin ; Special Stage Results Screen palette
-Pal_Knux:  palette Knuckles.bin,SonicAndTails2.bin ; "Sonic and Miles" background palette (also usually the primary palette line)
-Pal_CPZ_K_U: palette CPZ Knux underwater.bin ; Chemical Plant Zone underwater palette
-Pal_ARZ_K_U: palette ARZ Knux underwater.bin ; Aquatic Ruin Zone underwater palette
 Pal_SonicSS:    palette Special Stage Sonic.bin ; Special Stage palette for knuckles
 Pal_TailsSS:    palette Special Stage Tails.bin ; Special Stage palette for knuckles
 Pal_KnucklesSS:	palette	Special Stage Knuckles.bin
@@ -28250,8 +28244,7 @@ ObjPtr_ContinueText:
 ObjPtr_ContinueIcons:	dc.l ObjDA	; Continue text
 ObjPtr_ContinueChars:	dc.l ObjDB	; Sonic lying down or Tails nagging (continue screen)
 ObjPtr_RingPrize:	dc.l ObjDC	; Ring prize from Casino Night Zone
-ObjPtr_KnucklesSS:	dc.l ObjDD	; Knuckles Special Stage Object
-ObjPtr_MonitorDebug:		dc.l Obj26b	; Monitor
+ObjPtr_MonitorDebug:		dc.l Obj26b	; Monitor for debug mode (ObjDD)
 ; ===========================================================================
 ; ----------------------------------------------------------------------------
 ; Object 4C, 4D, 4E, 4F, 62, D0, and D1
@@ -33701,14 +33694,24 @@ loc_19F4C:
 
 ; ===========================================================================
 ; ===========================================================================
-	include "characters/speedtable.asm"
-	include "objects/Obj01 - Main Player.asm"
-	include "objects/Obj02 - Sidekick.asm"
-	include "objects/Obj05 - Tails Tails.asm"
-	
-	include "objects/characters/Sonic/Main.asm"
-	include "objects/characters/Tails/Main.asm"
-	include "objects/characters/Knuckles/Main.asm"
+; OTROS
+
+; ----------------------------------------------------------------------------
+; OBJETOS
+	include "objects/Speed Table.asm"			 ; subrutina para elegir las estadisticas correctas del jugador principal y secundario
+	include "objects/Obj01 - Main Player.asm"	 ; objeto del jugador principal
+	include "objects/Obj02 - Sidekick.asm"		 ; objeto del jugador secundario
+	include "objects/Obj05 - Tails Tails.asm"	 ; objeto de las colas de Tails
+
+; ----------------------------------------------------------------------------
+; PERSONAJES
+; aqui normalmente se incluyo codigo para las animaciones, patrones de carga y habilidades especiales
+
+
+	include "objects/characters/Sonic/Main.asm"		; codigo incluido exclusivo para el uso de Sonic
+	include "objects/characters/Tails/Main.asm"		; codigo incluido exclusivo para el uso de Tails
+	include "objects/characters/Knuckles/Main.asm"	; codigo incluido exclusivo para el uso de Knuckles
+
 ; ===========================================================================
 ; ===========================================================================
 
@@ -61217,15 +61220,6 @@ JmpTo25_ObjectMove
 
 	align 4
     endif
-
-; ===========================================================================
-; ----------------------------------------------------------------------------
-; Object DD - Sonic in Special Stage
-; ----------------------------------------------------------------------------
-
-	include "objects/ObjDD - Knuckles Special Stage.asm"
-
-
 
 
 ; ===========================================================================

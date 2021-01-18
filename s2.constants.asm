@@ -407,15 +407,12 @@ PalID_SS3_2p =	id(PalPtr_SS3_2p) ; 24
 PalID_OOZ_B =	id(PalPtr_OOZ_B) ; 25
 PalID_Menu =	id(PalPtr_Menu) ; 26
 PalID_Result =	id(PalPtr_Result) ; 27
-PalID_Knux =	id(PalPtr_Knux) ; 28
-PalID_CPZ_K_U =	id(PalPtr_CPZ_K_U) ; 29
-PalID_ARZ_K_U =	id(PalPtr_ARZ_K_U) ; 30
-PalID_SonicSS =	id(PalPtr_SonicSS) ; 31
-PalID_TailsSS =	id(PalPtr_TailsSS) ; 32
-PalID_KnucklesSS =	id(PalPtr_KnucklesSS) ; 33
-PalID_SonicSS2 =	id(PalPtr_SonicSS2) ; 31
-PalID_TailsSS2 =	id(PalPtr_TailsSS2) ; 32
-PalID_KnucklesSS2 =	id(PalPtr_KnucklesSS2) ; 33
+PalID_SonicSS =	id(PalPtr_SonicSS) ; 28
+PalID_TailsSS =	id(PalPtr_TailsSS) ; 29
+PalID_KnucklesSS =	id(PalPtr_KnucklesSS) ; 2A
+PalID_SonicSS2 =	id(PalPtr_SonicSS2) ; 2B
+PalID_TailsSS2 =	id(PalPtr_TailsSS2) ; 2C
+PalID_KnucklesSS2 =	id(PalPtr_KnucklesSS2) ; 2D
 
 ; PLC IDs
 offset :=	ArtLoadCues
@@ -720,8 +717,7 @@ ObjID_ContinueText =		id(ObjPtr_ContinueText)		; DA
 ObjID_ContinueIcons =		id(ObjPtr_ContinueIcons)	; DA
 ObjID_ContinueChars =		id(ObjPtr_ContinueChars)	; DB
 ObjID_RingPrize =		id(ObjPtr_RingPrize)		; DC
-ObjID_KnucklesSS =		id(ObjPtr_KnucklesSS)		; DD
-ObjID_MonitorDebug =			id(ObjPtr_MonitorDebug)		; DE
+ObjID_MonitorDebug =			id(ObjPtr_MonitorDebug)		; DD
 
 ; Music IDs
 offset :=	zMasterPlaylist

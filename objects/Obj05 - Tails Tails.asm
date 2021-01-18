@@ -43,9 +43,9 @@ Obj05_Main:
 	move.b	anim(a2),d0
 	btst	#5,status(a2)		; is Tails about to push against something?
 	beq.s	+			; if not, branch
-	cmpi.b	#$63,mapping_frame(a2)	; Is Tails in his pushing animation yet?
+	cmpi.b	#$A9,mapping_frame(a2)	; Is Tails in his pushing animation yet?
 	blo.s	+			; If not yet, branch, and do not set tails' tail pushing animation
-	cmpi.b	#$66,mapping_frame(a2)	; ''
+	cmpi.b	#$AC,mapping_frame(a2)	; ''
 	bhi.s	+			; ''
 	moveq	#4,d0
 +
