@@ -4717,6 +4717,8 @@ Player_mode_settings:
 	dc.b					1,			2,			3	; Tails and Knuckles
 	dc.b					1,			3,			1	; Knuckles and Sonic
 	dc.b					1,			3,			2	; Knuckles and Tails
+	dc.b					0,			0,			0	; blank
+; without the last line, the game freezes just before starting the level in some emulators
 ; ===========================================================================
 
 
@@ -6087,9 +6089,9 @@ SpecialStage:
 ; | of our data structures.                                                |
 ; \------------------------------------------------------------------------/
 	; Bug: These '+4's shouldn't be here; clearRAM accidentally clears an additional 4 bytes
-	clearRAM SS_Sprite_Table,SS_Sprite_Table_End+4
-	clearRAM SS_Horiz_Scroll_Buf_1,SS_Horiz_Scroll_Buf_1_End+4
-	clearRAM SS_Misc_Variables,SS_Misc_Variables_End+4
+	clearRAM SS_Sprite_Table,SS_Sprite_Table_End;+4
+	clearRAM SS_Horiz_Scroll_Buf_1,SS_Horiz_Scroll_Buf_1_End;+4
+	clearRAM SS_Misc_Variables,SS_Misc_Variables_End;+4
 	clearRAM SS_Sprite_Table_Input,SS_Sprite_Table_Input_End
 	clearRAM SS_Object_RAM,SS_Object_RAM_End
 
