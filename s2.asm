@@ -82459,8 +82459,9 @@ ArtUnc_Waterfall3:	BINCLUDE	"art/uncompressed/ARZ waterfall patterns - 3.bin"
 ; Patterns for Sonic  ; ArtUnc_50000:
 ;---------------------------------------------------------------------------------------
 	align $20
-;ArtUnc_Sonic:	BINCLUDE	"art/uncompressed/Sonic's art.bin"
 ArtUnc_Sonic:	BINCLUDE	"objects/characters/Sonic/Sonic Art.bin"
+	align $20
+ArtUnc_SuperSonic:	BINCLUDE	"objects/characters/Sonic/SuperSonic Art.bin"
 ;---------------------------------------------------------------------------------------
 ; Uncompressed art
 ; Patterns for Tails  ; ArtUnc_64320:

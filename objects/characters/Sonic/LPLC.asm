@@ -43,7 +43,13 @@ SPLC_ReadEntry:
 	addi.w	#$10,d3
 	andi.w	#$FFF,d1
 	lsl.l	#5,d1
-	addi.l	#ArtUnc_Sonic,d1
+	tst.b	(Super_Sonic_flag).w	; super Sonic?
+	bne.s	+						; if yes, branch
+	addi.l	#ArtUnc_Sonic,d1		; if not load art for sonic normal
+	bra.s	++						; continue normally
++
+	addi.l	#ArtUnc_SuperSonic,d1   ; if yes, load art for super Sonic
++
 	move.w	d4,d2
 	add.w	d3,d4
 	add.w	d3,d4

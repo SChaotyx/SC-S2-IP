@@ -347,6 +347,7 @@ TailsCPU_Flying:
 ; loc_1BBC8:
 TailsCPU_FlyingOnscreen:
 	move.w	#0,(Tails_respawn_counter).w
+
 ; loc_1BBCE:
 TailsCPU_Flying_Part2:
 	lea	(Sonic_Pos_Record_Buf).w,a2
@@ -357,6 +358,8 @@ TailsCPU_Flying_Part2:
 	sub.b	d2,d3
 	move.w	(a2,d3.w),(Tails_CPU_target_x).w
 	move.w	2(a2,d3.w),(Tails_CPU_target_y).w
+	cmpi.b	#1,(Sec_player).w	; if Sonic a Sidekick
+	beq.w	CPU_Comeback ; if yes, branch Sonic can´t fly xddd
 	tst.b	(Water_flag).w
 	beq.s	++
 	move.w	(Water_Level_1).w,d0
@@ -425,18 +428,91 @@ loc_1BC54:
 	cmpi.w	#15,d1
 	bge.w	return_1BCDE
 	cmpi.w	#-15,d1
-	bge.s	loc_1BC68
+	bge.w	CPU_BacktoNormal
 	rts
 +
 	move.w	y_pos(a0),d1
 	sub.w	y_pos(a1),d1
-	bmi.s	loc_1BC64
+	bmi.w	loc_1BC64
 	neg.w	d2
 
 loc_1BC64:
 	add.w	d2,y_pos(a0)
 	rts
-loc_1BC68:
+; ---------------------------------------------------------------------------
+
+; ===========================================================================
+; AI state where Sidekick pretends to be a football. (Sonic uses this)
+; ---------------------------------------------------------------------------
+
+CPU_Comeback:
+	move.w	(Tails_CPU_target_x).w,d0	; move Tails CPU Target X to d1
+	move.w	d0,x_pos(a0)	; lock sidekick to target X
+	sub.w	#10,y_pos(a0)	; starting to move up
+	cmpi.b	#1,(CPU_Comeback_routine).w	; Has sidekick already been placed under the main player?
+	beq.s	CPU_Comeback_CheckYpos		; if yes, check when sidekick is higher than y_pos main player
+	cmpi.b	#2,(CPU_Comeback_routine).w ; sidekick exceeded the Y position of the main player?
+	beq.s	CPU_Comeback_Down	; If yes, start to go down
+
+CPU_Comeback_SetPos:
+	move.b	#AniIDSonAni_Comeback,anim(a0) ; set big roll animation
+	move.b	#0,priority(a0)	; puts sidekick above all
+	move.w	y_pos(a1),d0	; move main player y_pos to d0
+	add.w	#200,d0			; put sidekick 200 pixels below the main player
+	move.w	d0,y_pos(a0)	; implement position to sidekick
+	move.b	#1,(CPU_Comeback_routine).w	; start the second part of the routine
+	rts
+; ---------------------------------------------------------------------------
+
+CPU_Comeback_CheckYpos:
+	move.w	y_pos(a0),d1	; move sidekick y_pos to d1
+	sub.w	(Tails_CPU_target_y).w,d1	; subtract the Y position of the main player with the Y position of the sidekick
+	cmpi.w	#-10,d1		; check if the difference is -10 or greater
+	bge.s	+	; if not, return
+	move.b	#2,(CPU_Comeback_routine).w ; if yes, go to the next routine
++
+	rts
+; ---------------------------------------------------------------------------
+
+CPU_Comeback_Down:
+	move.b	#AniIDSonAni_Roll,anim(a0)	; set normal roll animation
+	move.b	#3,priority(a0)		; restore sidekick priority
+	move.w	(CPU_Comeback_Move).w,d1 ; start moving down
+	add.w	d1,y_pos(a0)	; start moving down
+	add.b	#1,(CPU_Comeback_Timer).w ; Timer to increase gravity
+
+	cmpi.w	#20,(CPU_Comeback_Move).w ; Has maximum gravity been reached?
+	bge.s	+	; if yes, branch
+	cmpi.b	#3,(CPU_Comeback_Timer).w ; increase gravity every 3 frames
+	bne.s	+	; if yes, increase graviti
+	add.w	#1,(CPU_Comeback_Move).w	; increase gravity
+	move.b	#0,(CPU_Comeback_Timer).w	; reset timer graviti
++
+	move.w	y_pos(a0),d1	; move sidekick y_pos to d1
+	sub.w	(Tails_CPU_target_y).w,d1	; subtract the Y position of the main player with the Y position of the sidekick	
+	cmpi.w	#-5,d1	; is sidekick right above the main player?
+	ble.s	+	;if yes, reset the CPU to normal mode
+	;cmpi.w	#150,d1
+	;bge.s	CPU_Comeback_Reset
+
+CPU_Comeback_BacktoNormal:
+	bsr.w	CPU_BacktoNormal	; set CPU to normal mode
+	move.w	inertia(a1),d1	;
+	move.w	d1,inertia(a0)	; set the inertia of the main player to sidekick
+	move.w	x_vel(a1),d1	;
+	move.w	d1,x_vel(a0)	; set the x_vel of the main player to sidekick
+	add.w	#$400,y_vel(a0)
+
+CPU_Comeback_Reset:
+	move.b	#0,(CPU_Comeback_routine).w ;
+	move.w	#0,(CPU_Comeback_Move).w ;
+	move.b	#0,(CPU_Comeback_Timer).w ; reset variables for the next time sidekick needs to respawn
++
+	rts
+; ---------------------------------------------------------------------------
+
+
+CPU_BacktoNormal:
 	lea	(Sonic_Stat_Record_Buf).w,a2
 	move.b	2(a2,d3.w),d2
 	;andi.b	#$D2,d2
@@ -477,6 +553,7 @@ loc_1BC68:
 
 return_1BCDE:
 	rts
+
 
 ; ===========================================================================
 ; AI State where Tails follows the player normally

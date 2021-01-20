@@ -323,6 +323,7 @@ SonAni_Balance4_ptr:		offsetTableEntry.w SonAni_Balance4	; 30 ; $1E
 SupSonAni_Transform_ptr:	offsetTableEntry.w SupSonAni_Transform	; 31 ; $1F
 SonAni_Lying_ptr:		offsetTableEntry.w SonAni_Lying		; 32 ; $20
 SonAni_LieDown_ptr:		offsetTableEntry.w SonAni_LieDown	; 33 ; $21
+SonAni_Comeback_ptr:		offsetTableEntry.w SonAni_Comeback	; 34 ; $22
 
 SonAni_Walk:	dc.b $FF,   1,   2,   3,   4,   5,   6,   7,   8, $FF
 	rev02even
@@ -395,6 +396,8 @@ SonAni_Balance4:dc.b    3, $CF, $C8, $C9, $CA, $CB, $FE,   4
 SonAni_Lying:	dc.b   9,  8,  9,$FF
 	rev02even
 SonAni_LieDown:	dc.b   3,  7,$FD,  0
+	rev02even
+SonAni_Comeback: dc.b	1, $DA, $DB, $DA, $DC, $DA, $DD, $DA, $DE, $FF
 	even
 
 ; ---------------------------------------------------------------------------

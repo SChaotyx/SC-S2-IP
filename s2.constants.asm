@@ -926,7 +926,7 @@ AniIDSonAni_Balance4		= id(SonAni_Balance4_ptr)		; 30 ; $1E
 AniIDSupSonAni_Transform	= id(SupSonAni_Transform_ptr)	; 31 ; $1F
 AniIDSonAni_Lying			= id(SonAni_Lying_ptr)			; 32 ; $20
 AniIDSonAni_LieDown			= id(SonAni_LieDown_ptr)		; 33 ; $21
-
+AniIDSonAni_Comeback		= id(SonAni_Comeback_ptr)		; 33 ; $21
 
 offset :=	TailsAniData
 ptrsize :=	2
@@ -1307,12 +1307,12 @@ Plc_Buffer_End:
 
 
 Misc_Variables:
-				ds.w	1	; unused
-
 ; extra variables for the second player (CPU) in 1-player mode
+CPU_Comeback_Move:				ds.w	1	; CPU comeback gravity efect
+CPU_Comeback_routine:			ds.b	1	; CPU comeback routine
+CPU_Comeback_Timer:				ds.b	1	; CPU comeback gravity timer
 Tails_control_counter:		ds.w	1	; how long until the CPU takes control
 Tails_respawn_counter:		ds.w	1
-				ds.w	1	; unused
 Tails_CPU_routine:		ds.w	1
 Tails_CPU_target_x:		ds.w	1
 Tails_CPU_target_y:		ds.w	1
@@ -1343,7 +1343,7 @@ Demo_press_counter_2P:		ds.w	1	; frames remaining until next button press, for p
 Tornado_Velocity_X:		ds.w	1	; speed of tails' plane in scz ($FFFFF736)
 Tornado_Velocity_Y:		ds.w	1
 ScreenShift:			ds.b	1
-				ds.b	4	; $FFFFF73B-$FFFFF73E
+								ds.b	4	; unused
 Boss_CollisionRoutine:		ds.b	1
 Boss_AnimationArray:		ds.b	$10	; up to $10 bytes; 2 bytes per entry
 Ending_Routine:
