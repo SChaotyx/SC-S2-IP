@@ -358,24 +358,6 @@ TailsCPU_Flying_Part2:
 	sub.b	d2,d3
 	move.w	(a2,d3.w),(Tails_CPU_target_x).w
 	move.w	2(a2,d3.w),(Tails_CPU_target_y).w
-	cmpi.b	#1,(Sec_player).w	; if Sonic a Sidekick
-	beq.w	CPU_Comeback ; if yes, branch Sonic can´t fly xddd
-	tst.b	(Water_flag).w
-	beq.s	++
-	move.w	(Water_Level_1).w,d0
-	cmpi.b	#2,(Sec_player).w
-	bne.s	+
-	move.b	#AniIDTailsAni_Fly,anim(a0)
-	cmp.w	y_pos(a0),d0
-	bge.s	++
-	move.b	#AniIDTailsAni_Swim,anim(a0)
-	bra.s	++
-+
-	subi.w	#$10,d0
-	cmp.w	(Tails_CPU_target_y).w,d0
-	bge.s	+
-	move.w	d0,(Tails_CPU_target_y).w
-+
 	move.w	x_pos(a0),d0
 	sub.w	(Tails_CPU_target_x).w,d0
 	beq.s	loc_1BC54
@@ -412,28 +394,29 @@ loc_1BC50:
 	add.w	d2,x_pos(a0)
 
 loc_1BC54:
-	moveq	#1,d2
-	cmpi.w 	#$300,inertia(a1)
-	bge.w	+
-	move.w	y_pos(a0),d1
-	sub.w	y_pos(a1),d1
-	cmpi.w	#15,d1
-	bge.s	+
-	cmpi.w	#-15,d1
-	ble.s	+
-
-	move.w	x_pos(a0),d1
-	sub.w	x_pos(a1),d1
-
-	cmpi.w	#15,d1
-	bge.w	return_1BCDE
-	cmpi.w	#-15,d1
-	bge.w	CPU_BacktoNormal
-	rts
+	cmpi.b	#1,(Sec_player).w	; if Sonic a Sidekick
+	beq.w	CPU_Comeback ; if yes, branch Sonic can´t fly xddd
+	tst.b	(Water_flag).w
+	beq.s	++
+	move.w	(Water_Level_1).w,d0
+	cmpi.b	#2,(Sec_player).w
+	bne.s	+
+	move.b	#AniIDTailsAni_Fly,anim(a0)
+	cmp.w	y_pos(a0),d0
+	bge.s	++
+	move.b	#AniIDTailsAni_Swim,anim(a0)
+	bra.s	++
 +
+	subi.w	#$10,d0
+	cmp.w	(Tails_CPU_target_y).w,d0
+	bge.s	+
+	move.w	d0,(Tails_CPU_target_y).w
++
+	moveq	#1,d2
 	move.w	y_pos(a0),d1
-	sub.w	y_pos(a1),d1
-	bmi.w	loc_1BC64
+	sub.w	(Tails_CPU_target_y).w,d1
+	beq.w	CPU_BacktoNormal
+	bmi.s	loc_1BC64
 	neg.w	d2
 
 loc_1BC64:
@@ -446,15 +429,17 @@ loc_1BC64:
 ; ---------------------------------------------------------------------------
 
 CPU_Comeback:
-	move.w	(Tails_CPU_target_x).w,d0	; move Tails CPU Target X to d1
-	move.w	d0,x_pos(a0)	; lock sidekick to target X
 	sub.w	#10,y_pos(a0)	; starting to move up
 	cmpi.b	#1,(CPU_Comeback_routine).w	; Has sidekick already been placed under the main player?
 	beq.s	CPU_Comeback_CheckYpos		; if yes, check when sidekick is higher than y_pos main player
 	cmpi.b	#2,(CPU_Comeback_routine).w ; sidekick exceeded the Y position of the main player?
-	beq.s	CPU_Comeback_Down	; If yes, start to go down
+	bge.s	CPU_Comeback_Down	; If yes, start to go down
+	cmpi.b	#6,(MainCharacter+routine).w	; is Sonic dead?
+	bne.s	CPU_Comeback_SetYPos	; if not, branch
+	move.b	#2,(CPU_Comeback_routine).w ; if yes, skip to 2 routine
+	rts
 
-CPU_Comeback_SetPos:
+CPU_Comeback_SetYPos:
 	move.b	#AniIDSonAni_Comeback,anim(a0) ; set big roll animation
 	move.b	#0,priority(a0)	; puts sidekick above all
 	move.w	y_pos(a1),d0	; move main player y_pos to d0
@@ -467,7 +452,7 @@ CPU_Comeback_SetPos:
 CPU_Comeback_CheckYpos:
 	move.w	y_pos(a0),d1	; move sidekick y_pos to d1
 	sub.w	(Tails_CPU_target_y).w,d1	; subtract the Y position of the main player with the Y position of the sidekick
-	cmpi.w	#-10,d1		; check if the difference is -10 or greater
+	cmpi.w	#-20,d1		; check if the difference is -20 or greater
 	bge.s	+	; if not, return
 	move.b	#2,(CPU_Comeback_routine).w ; if yes, go to the next routine
 +
@@ -488,26 +473,26 @@ CPU_Comeback_Down:
 	add.w	#1,(CPU_Comeback_Move).w	; increase gravity
 	move.b	#0,(CPU_Comeback_Timer).w	; reset timer graviti
 +
+	cmpi.b	#6,(MainCharacter+routine).w	; is Sonic dead?
+	beq.s	CPU_Comeback_return	; if yes, branch
+	move.b	#2,(CPU_Comeback_routine).w ; if yes, go to the next routine
 	move.w	y_pos(a0),d1	; move sidekick y_pos to d1
-	sub.w	(Tails_CPU_target_y).w,d1	; subtract the Y position of the main player with the Y position of the sidekick	
-	cmpi.w	#-5,d1	; is sidekick right above the main player?
-	ble.s	+	;if yes, reset the CPU to normal mode
-	;cmpi.w	#150,d1
-	;bge.s	CPU_Comeback_Reset
-
-CPU_Comeback_BacktoNormal:
-	bsr.w	CPU_BacktoNormal	; set CPU to normal mode
-	move.w	inertia(a1),d1	;
-	move.w	d1,inertia(a0)	; set the inertia of the main player to sidekick
-	move.w	x_vel(a1),d1	;
-	move.w	d1,x_vel(a0)	; set the x_vel of the main player to sidekick
+	cmpi.w	#$300,inertia(a1) ; the sidekick is moving slow?
+	bgt.s	+	; if not, branch
+	sub.w	y_pos(a1),d1	; subtract the Y position of the main player with the actual Y position of the sidekick
+	bra.s	++	; ignore the line below
++
+	sub.w	(Tails_CPU_target_y).w,d1	; subtract the Y position of the main player with the Y position of the sidekick
++	
+	cmpi.w	#-10,d1	; is sidekick right above the main player?
+	ble.s	CPU_Comeback_return	; if not, return
+	bsr.w	CPU_BacktoNormal_Continue	; set CPU to normal mode
 	add.w	#$400,y_vel(a0)
-
-CPU_Comeback_Reset:
 	move.b	#0,(CPU_Comeback_routine).w ;
 	move.w	#0,(CPU_Comeback_Move).w ;
 	move.b	#0,(CPU_Comeback_Timer).w ; reset variables for the next time sidekick needs to respawn
-+
+
+CPU_Comeback_return:
 	rts
 ; ---------------------------------------------------------------------------
 
@@ -519,6 +504,8 @@ CPU_BacktoNormal:
 	;bne.w	return_1BCDE
 	;or.w	d0,d1
 	;bne.w	return_1BCDE
+	
+CPU_BacktoNormal_Continue:
 	move.l	a1,-(sp)		; Backup a1
 	move.b	#9,x_radius(a0)
 	move.b	#$13,y_radius(a0) ; this sets Sonic's collision height (2*pixels)
@@ -532,9 +519,10 @@ CPU_BacktoNormal:
 	move.w	#6,(Tails_CPU_routine).w	; => TailsCPU_Normal
 	move.b	#0,obj_control(a0)
 	move.b	#AniIDTailsAni_Roll,anim(a0)
-	move.w	#0,x_vel(a0)
-	move.w	#0,y_vel(a0)
-	move.w	#0,inertia(a0)
+	move.w	inertia(a1),d1	;
+	move.w	d1,inertia(a0)	; set the inertia of the main player to sidekick
+	move.w	x_vel(a1),d1	;
+	move.w	d1,x_vel(a0)	; set the x_vel of the main player to sidekick
 	move.b	#2,status(a0)
 	move.w	#0,move_lock(a0)
 	andi.w	#drawing_mask,art_tile(a0)
