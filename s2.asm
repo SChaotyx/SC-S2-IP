@@ -82730,17 +82730,27 @@ ArtNem_TailsLife:	BINCLUDE	"art/nemesis/Tails life counter.bin"
 	even
 ArtNem_MiniTails:	BINCLUDE	"art/nemesis/Tails continue.bin"
 ;---------------------------------------------------------------------------------------
-;
-;
+; Nemesis compressed art 
+; Knuckles extra continue icon
+	even
 ArtNem_MiniKnuckles:
 		binclude "art/nemesis/Knuckles continue.bin"
-			even
+;---------------------------------------------------------------------------------------
+; Nemesis compressed art 
+; Knuckles life icon
+	even
 ArtNem_KTELife:	
 		binclude "art/nemesis/Knuckles life counter.bin"
-			even
+;---------------------------------------------------------------------------------------
+; Nemesis compressed art 
+; Knuckles Signpost Patch
+	even
 ArtNem_Signpost_KnucklesPatch:
 		binclude "art/nemesis/Signpost Knuckles.bin"
-			even
+;---------------------------------------------------------------------------------------
+; Nemesis compressed art 
+; ???????????????
+	even
 byte_33B1F0:	dc.b  $16, $66,	$66, $66, $16, $66, $66, $66, $16, $66;	0 ; ...
 		dc.b  $66, $66,	$16, $66, $66, $66, $16, $66, $66, $66;	10
 		dc.b  $16, $66,	$66, $66, $16, $66, $66, $68, $16, $66;	20
