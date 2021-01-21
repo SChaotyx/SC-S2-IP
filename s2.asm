@@ -33553,14 +33553,14 @@ loc_19E30:
 	move.w	a0,d1
 	subi.w	#Object_RAM,d1
 	bne.s	loc_19E76
-	;cmpi.b	#2,(Main_player).w
-	;beq.s	loc_19E76
-	jsr	(Sonic_ResetOnFloor_Part2).l
+	_cmpi.b	#ObjID_Sonic,id(a1)	; is this object ID Sonic (obj01)?
+	bne.s	loc_19E76	; if not, branch to the Tails version of this code
+	jsr	(Player_ResetOnFloor_Part2).l
 	bra.s	loc_19E7C
 ; ===========================================================================
 
 loc_19E76:
-	jsr	(Tails_ResetOnFloor_Part2).l
+	jsr	(Sidekick_ResetOnFloor_Part2).l
 
 loc_19E7C:
 	movea.l	(sp)+,a0 ; a0=character
@@ -33943,7 +33943,7 @@ Obj0A_ReduceAir:
 	bsr.w	ResumeMusic
 	move.l	a0,-(sp)
 	movea.l	a2,a0
-	bsr.w	Sonic_ResetOnFloor_Part2
+	bsr.w	Player_ResetOnFloor_Part2
 	move.b	#AniIDSonAni_Drown,anim(a0)	; use Sonic's drowning animation
 	bset	#1,status(a0)
 	bset	#high_priority_bit,art_tile(a0)
@@ -77332,7 +77332,7 @@ Hurt_Shield:
 ; loc_3F8BE:
 Hurt_Sidekick:
 	move.b	#4,routine(a0)
-	jsrto	(Sonic_ResetOnFloor_Part2).l, JmpTo_Sonic_ResetOnFloor_Part2
+	jsrto	(Player_ResetOnFloor_Part2).l, JmpTo_Player_ResetOnFloor_Part2
 	bset	#1,status(a0)
 	move.w	#-$400,y_vel(a0) ; make Sonic bounce away from the object
 	move.w	#-$200,x_vel(a0)
@@ -77377,7 +77377,7 @@ KillCharacter:
 	bne.s	++
 	clr.b	status_secondary(a0)
 	move.b	#6,routine(a0)
-	jsrto	(Sonic_ResetOnFloor_Part2).l, JmpTo_Sonic_ResetOnFloor_Part2
+	jsrto	(Player_ResetOnFloor_Part2).l, JmpTo_Player_ResetOnFloor_Part2
 	bset	#1,status(a0)
 	move.w	#-$700,y_vel(a0)
 	move.w	#0,x_vel(a0)
@@ -77802,8 +77802,8 @@ loc_3FCA4:
     endif
 
     if ~~removeJmpTos
-JmpTo_Sonic_ResetOnFloor_Part2
-	jmp	(Sonic_ResetOnFloor_Part2).l
+JmpTo_Player_ResetOnFloor_Part2
+	jmp	(Player_ResetOnFloor_Part2).l
 JmpTo_Check_CNZ_bumpers
 	jmp	(Check_CNZ_bumpers).l
 JmpTo_Touch_Rings

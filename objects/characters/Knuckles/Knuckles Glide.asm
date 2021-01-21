@@ -81,7 +81,7 @@ loc_315762:					  ; ...
 		beq.s	loc_315780
 		move.w	$14(a0),$10(a0)
 		move.w	#0,$12(a0)
-		bra.w	Sonic_ResetOnFloor_Part2
+		bra.w	Knuckles_ResetOnFloor_Part2
 ; ---------------------------------------------------------------------------
 
 loc_315780:					  ; ...
@@ -200,11 +200,11 @@ loc_3158B2:					  ; ...
 		add.b	#$20,d0
 		and.b	#$C0,d0
 		beq.s	loc_3158F0
-		bra.w	Sonic_ResetOnFloor_Part2
+		bra.w	Knuckles_ResetOnFloor_Part2
 ; ---------------------------------------------------------------------------
 
 loc_3158F0:					  ; ...
-		bsr.w	Sonic_ResetOnFloor_Part2
+		bsr.w	Knuckles_ResetOnFloor_Part2
 		move.w	#$F,$2E(a0)
 		move.b	#$23,$1C(a0)
 
@@ -246,7 +246,7 @@ loc_315926:					  ; ...
 		sub.b	#$13,d0
 		ext.w	d0
 		add.w	d0,$C(a0)
-		bsr.w	Sonic_ResetOnFloor_Part2
+		bsr.w	Knuckles_ResetOnFloor_Part2
 		move.w	#$F,$2E(a0)
 		move.b	#$22,$1C(a0)
 		rts
@@ -381,7 +381,7 @@ loc_315AA2:					  ; ...
 		move.w	#0,$14(a0)
 		move.w	#0,$10(a0)
 		move.w	#0,$12(a0)
-		bsr.w	Sonic_ResetOnFloor_Part2
+		bsr.w	Knuckles_ResetOnFloor_Part2
 		move.b	#5,$1C(a0)
 		rts
 ; ---------------------------------------------------------------------------
@@ -539,7 +539,7 @@ Knuckles_Climbing_Up:				  ; ...
 		subq.w	#1,8(a0)
 
 loc_315C70:					  ; ...
-		bsr.w	Sonic_ResetOnFloor_Part2
+		bsr.w	Knuckles_ResetOnFloor_Part2
 		move.b	#5,$1C(a0)
 
 return_315C7A:					  ; ...

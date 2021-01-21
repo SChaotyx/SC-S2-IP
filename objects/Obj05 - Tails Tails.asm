@@ -100,6 +100,9 @@ Obj05AniSelection:
 	dc.b	0,0	; TailsAni_Dummy4,5	->
 	dc.b	0	; TailsAni_HaulAss	->
 	dc.b	$B	; TailsAni_Fly		->
+	dc.b	0	; TailsAni_Swim		->
+	dc.b	$B	; TailsAni_Tired	->
+	dc.b	0	; TailsAni_SwimTired	->
 	even
 
 ; ---------------------------------------------------------------------------

@@ -966,6 +966,8 @@ AniIDTailsAni_Dummy5		= id(TailsAni_Dummy5_ptr)		; 30 ; $1E
 AniIDTailsAni_HaulAss		= id(TailsAni_HaulAss_ptr)		; 31 ; $1F
 AniIDTailsAni_Fly			= id(TailsAni_Fly_ptr)			; 32 ; $20
 AniIDTailsAni_Swim			= id(TailsAni_Swim_ptr)			; 33 ; $21
+AniIDTailsAni_Tired			= id(TailsAni_Tired_ptr)		; 34 ; $22
+AniIDTailsAni_SwimTired		= id(TailsAni_SwimTired_ptr)	; 35 ; $23
 
 
 ; Other sizes
@@ -1203,7 +1205,9 @@ Underwater_palette_line2:	ds.b palette_line_size
 Underwater_palette_line3:	ds.b palette_line_size
 Underwater_palette_line4:	ds.b palette_line_size
 
-				ds.b	$500	; $FFFFF100-$FFFFF5FF ; unused, leftover from the Sonic 1 sound driver (and used by it when you port it to Sonic 2)
+				ds.b	$4FD	; $FFFFF100-$FFFFF5FF ; unused, leftover from the Sonic 1 sound driver (and used by it when you port it to Sonic 2)
+Fly_flag:		ds.b	1
+Fly_timer:		ds.w	1
 
 Game_Mode:			ds.w	1	; 1 byte ; see GameModesArray (master level trigger, Mstr_Lvl_Trigger)
 Ctrl_1_Logical:					; 2 bytes

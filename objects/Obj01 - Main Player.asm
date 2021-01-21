@@ -1219,6 +1219,10 @@ Sonic_JumpHeight:
 	bne.s	+
 	bsr.w	Knuckles_CheckGlide	  ; Check if Knuckles should begin a glide
 +
+	cmpi.b	#2,(Main_player).w
+	bne.s	+
+	bsr.w	Tails_ChecKFly  ; Check if Tails should begin flying
++
 	cmp.w	y_vel(a0),d1	; is Sonic going up faster than d1?
 	ble.s	+		; if not, branch
 	move.b	(Ctrl_1_Held_Logical).w,d0
@@ -1714,7 +1718,7 @@ Sonic_DoLevelCollision:
 +
 	add.w	d1,y_pos(a0)
 	move.b	d3,angle(a0)
-	bsr.w	Sonic_ResetOnFloor
+	bsr.w	Player_ResetOnFloor
 	move.b	d3,d0
 	addi.b	#$20,d0
 	andi.b	#$40,d0
@@ -1780,7 +1784,7 @@ Sonic_HitFloor:
 	bpl.s	return_1AFE6
 	add.w	d1,y_pos(a0)
 	move.b	d3,angle(a0)
-	bsr.w	Sonic_ResetOnFloor
+	bsr.w	Player_ResetOnFloor
 	move.w	#0,y_vel(a0)
 	move.w	x_vel(a0),inertia(a0)
 
@@ -1815,7 +1819,7 @@ Sonic_HitCeilingAndWalls:
 
 loc_1B02C:
 	move.b	d3,angle(a0)
-	bsr.w	Sonic_ResetOnFloor
+	bsr.w	Player_ResetOnFloor
 	move.w	y_vel(a0),inertia(a0)
 	tst.b	d3
 	bpl.s	return_1B042
@@ -1858,7 +1862,7 @@ Sonic_HitFloor2:
 	bpl.s	return_1B09E
 	add.w	d1,y_pos(a0)
 	move.b	d3,angle(a0)
-	bsr.w	Sonic_ResetOnFloor
+	bsr.w	Player_ResetOnFloor
 	move.w	#0,y_vel(a0)
 	move.w	x_vel(a0),inertia(a0)
 
@@ -1867,56 +1871,29 @@ return_1B09E:
 ; End of function Sonic_DoLevelCollision
 
 
-
 ; ---------------------------------------------------------------------------
-; Subroutine to reset Sonic's mode when he lands on the floor
+; Subroutine to reset Player mode when he lands on the floor
 ; ---------------------------------------------------------------------------
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
-; loc_1B0A0:
-Sonic_ResetOnFloor:
-	tst.b	pinball_mode(a0)
-	bne.s	Sonic_ResetOnFloor_Part3
-	move.b	#AniIDSonAni_Walk,anim(a0)
-; loc_1B0AC:
-Sonic_ResetOnFloor_Part2:
-	_cmpi.b	#ObjID_Sonic,id(a0)	; is this object ID Sonic (obj01)?
-	beq.s	+	; if not, branch to the Tails version of this code
-	cmpi.b	#2,(Sec_player).w
-	beq.w	Tails_ResetOnFloor_Part22
-+
+Player_ResetOnFloor:
+	cmpi.b	#1,(Main_player).w
+	beq.w	Sonic_ResetOnFloor
 	cmpi.b	#2,(Main_player).w
-	beq.w	Tails_ResetOnFloor_Part22
-Sonic_ResetOnFloor_Part22:
-	btst	#2,status(a0)
-	beq.s	Sonic_ResetOnFloor_Part3
-	bclr	#2,status(a0)
-	move.b	#$13,y_radius(a0) ; this increases Sonic's collision height to standing
-	move.b	#9,x_radius(a0)
-	move.b	#AniIDSonAni_Walk,anim(a0)	; use running/walking/standing animation
-	subq.w	#5,y_pos(a0)	; move Sonic up 5 pixels so the increased height doesn't push him into the ground
-; loc_1B0DA:
-Sonic_ResetOnFloor_Part3:
-	bclr	#1,status(a0)
-	bclr	#5,status(a0)
-	bclr	#4,status(a0)
-	move.b	#0,jumping(a0)
-	move.w	#0,(Chain_Bonus_counter).w
-	move.b	#0,flip_angle(a0)
-	move.b	#0,flip_turned(a0)
-	move.b	#0,flips_remaining(a0)
-	move.w	#0,(Sonic_Look_delay_counter).w
-	;cmpi.b	#3,(Main_player).w
-	;bne.s	+
-	move.b	#0,$21(a0)
-;+
-	cmpi.b	#AniIDSonAni_Hang2,anim(a0)
-	bne.s	return_1B11E
-	move.b	#AniIDSonAni_Walk,anim(a0)
-
-return_1B11E:
+	beq.w	Tails_ResetOnFloor
+	cmpi.b	#3,(Main_player).w
+	beq.w	Knuckles_ResetOnFloor
+Player_ResetOnFloor_Part2:
+	cmpi.b	#1,(Main_player).w
+	beq.w	Sonic_ResetOnFloor_Part2
+	cmpi.b	#2,(Main_player).w
+	beq.w	Tails_ResetOnFloor_Part2
+	cmpi.b	#3,(Main_player).w
+	beq.w	Knuckles_ResetOnFloor_Part2
 	rts
+; End of subroutine Player_ResetOnFloor
+
 
 ; ===========================================================================
 ; ---------------------------------------------------------------------------

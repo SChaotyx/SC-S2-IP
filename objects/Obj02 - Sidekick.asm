@@ -2180,7 +2180,7 @@ Tails_DoLevelCollision:
 +
 	add.w	d1,y_pos(a0)
 	move.b	d3,angle(a0)
-	bsr.w	Tails_ResetOnFloor
+	bsr.w	Sidekick_ResetOnFloor
 	move.b	d3,d0
 	addi.b	#$20,d0
 	andi.b	#$40,d0
@@ -2246,7 +2246,7 @@ Tails_HitFloor:
 	bpl.s	return_1CA96
 	add.w	d1,y_pos(a0)
 	move.b	d3,angle(a0)
-	bsr.w	Tails_ResetOnFloor
+	bsr.w	Sidekick_ResetOnFloor
 	move.w	#0,y_vel(a0)
 	move.w	x_vel(a0),inertia(a0)
 
@@ -2281,7 +2281,7 @@ Tails_HitCeilingAndWalls:
 
 loc_1CADC:
 	move.b	d3,angle(a0)
-	bsr.w	Tails_ResetOnFloor
+	bsr.w	Sidekick_ResetOnFloor
 	move.w	y_vel(a0),inertia(a0)
 	tst.b	d3
 	bpl.s	return_1CAF2
@@ -2324,7 +2324,7 @@ Tails_HitFloor2:
 	bpl.s	return_1CB4E
 	add.w	d1,y_pos(a0)
 	move.b	d3,angle(a0)
-	bsr.w	Tails_ResetOnFloor
+	bsr.w	Sidekick_ResetOnFloor
 	move.w	#0,y_vel(a0)
 	move.w	x_vel(a0),inertia(a0)
 
@@ -2333,59 +2333,29 @@ return_1CB4E:
 ; End of function Tails_DoLevelCollision
 
 
-
 ; ---------------------------------------------------------------------------
-; Subroutine to reset Tails' mode when he lands on the floor
+; Subroutine to reset Sidekick mode when he lands on the floor
 ; ---------------------------------------------------------------------------
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
-; loc_1CB50:
-Tails_ResetOnFloor:
-	tst.b	pinball_mode(a0)
-	bne.s	Tails_ResetOnFloor_Part3
-	move.b	#AniIDTailsAni_Walk,anim(a0)
-; loc_1CB5C:
-Tails_ResetOnFloor_Part2:
-	_cmpi.b	#ObjID_Sonic,id(a0)	; is this object ID Sonic (obj01)?
-	bne.s	+	; if not, branch to the Tails version of this code
-	cmpi.b	#1,(Main_player).w
-	beq.w	Sonic_ResetOnFloor_Part22
-+
+Sidekick_ResetOnFloor:
 	cmpi.b	#1,(Sec_player).w
-	beq.w	Sonic_ResetOnFloor_Part22
+	beq.w	Sonic_ResetOnFloor
+	cmpi.b	#2,(Sec_player).w
+	beq.w	Tails_ResetOnFloor
 	cmpi.b	#3,(Sec_player).w
-	beq.w	Sonic_ResetOnFloor_Part22
-Tails_ResetOnFloor_Part22:
-	btst	#2,status(a0)
-	beq.s	Tails_ResetOnFloor_Part3
-	bclr	#2,status(a0)
-	move.b	#$F,y_radius(a0) ; this slightly increases Tails' collision height to standing
-	move.b	#9,x_radius(a0)
-	move.b	#AniIDTailsAni_Walk,anim(a0)	; use running/walking/standing animation
-	subq.w	#1,y_pos(a0)	; move Tails up 1 pixel so the increased height doesn't push him slightly into the ground
-; loc_1CB80:
-Tails_ResetOnFloor_Part3:
-	bclr	#1,status(a0)
-	bclr	#5,status(a0)
-	bclr	#4,status(a0)
-	move.b	#0,jumping(a0)
-	move.w	#0,(Chain_Bonus_counter).w
-	move.b	#0,flip_angle(a0)
-	move.b	#0,flip_turned(a0)
-	move.b	#0,flips_remaining(a0)
-	move.w	#0,(Tails_Look_delay_counter).w
+	beq.w	Knuckles_ResetOnFloor
+Sidekick_ResetOnFloor_Part2:
+	cmpi.b	#1,(Sec_player).w
+	beq.w	Sonic_ResetOnFloor_Part2
+	cmpi.b	#2,(Sec_player).w
+	beq.w	Tails_ResetOnFloor_Part2
 	cmpi.b	#3,(Sec_player).w
-	bne.s	+
-	move.b	#0,$21(a0)
-+
-	cmpi.b	#AniIDTailsAni_Hang2,anim(a0)
-	bne.s	return_1CBC4
-	move.b	#AniIDTailsAni_Walk,anim(a0)
-
-return_1CBC4:
+	beq.w	Knuckles_ResetOnFloor_Part2
 	rts
-; End of subroutine Tails_ResetOnFloor
+; End of subroutine Sidekick_ResetOnFloor
+
 
 ; ===========================================================================
 ; ---------------------------------------------------------------------------
