@@ -413,6 +413,24 @@ loc_1BC54:
 	move.w	d0,(Tails_CPU_target_y).w
 +
 	moveq	#1,d2
+	cmpi.w 	#$500,inertia(a1)
+	bge.w	+
+	move.w	y_pos(a0),d1
+	sub.w	y_pos(a1),d1
+	cmpi.w	#15,d1
+	bge.s	+
+	cmpi.w	#-15,d1
+	ble.s	+
+
+	move.w	x_pos(a0),d1
+	sub.w	x_pos(a1),d1
+
+	cmpi.w	#15,d1
+	bge.w	return_1BCDE
+	cmpi.w	#-15,d1
+	bge.w	CPU_BacktoNormal_Continue
+	rts
++
 	move.w	y_pos(a0),d1
 	sub.w	(Tails_CPU_target_y).w,d1
 	beq.w	CPU_BacktoNormal
@@ -469,9 +487,9 @@ CPU_Comeback_Down:
 	cmpi.w	#20,(CPU_Comeback_Move).w ; Has maximum gravity been reached?
 	bge.s	+	; if yes, branch
 	cmpi.b	#3,(CPU_Comeback_Timer).w ; increase gravity every 3 frames
-	bne.s	+	; if yes, increase graviti
+	bne.s	+	; if yes, increase gravity
 	add.w	#1,(CPU_Comeback_Move).w	; increase gravity
-	move.b	#0,(CPU_Comeback_Timer).w	; reset timer graviti
+	move.b	#0,(CPU_Comeback_Timer).w	; reset timer gravity
 +
 	cmpi.b	#6,(MainCharacter+routine).w	; is Sonic dead?
 	beq.s	CPU_Comeback_return	; if yes, branch
@@ -487,7 +505,7 @@ CPU_Comeback_Down:
 	cmpi.w	#-10,d1	; is sidekick right above the main player?
 	ble.s	CPU_Comeback_return	; if not, return
 	bsr.w	CPU_BacktoNormal_Continue	; set CPU to normal mode
-	add.w	#$400,y_vel(a0)
+	move.w	#$400,y_vel(a0)
 	move.b	#0,(CPU_Comeback_routine).w ;
 	move.w	#0,(CPU_Comeback_Move).w ;
 	move.b	#0,(CPU_Comeback_Timer).w ; reset variables for the next time sidekick needs to respawn
@@ -500,10 +518,10 @@ CPU_Comeback_return:
 CPU_BacktoNormal:
 	lea	(Sonic_Stat_Record_Buf).w,a2
 	move.b	2(a2,d3.w),d2
-	;andi.b	#$D2,d2
-	;bne.w	return_1BCDE
-	;or.w	d0,d1
-	;bne.w	return_1BCDE
+	andi.b	#$D2,d2
+	bne.w	return_1BCDE
+	or.w	d0,d1
+	bne.w	return_1BCDE
 	
 CPU_BacktoNormal_Continue:
 	move.l	a1,-(sp)		; Backup a1
@@ -523,6 +541,7 @@ CPU_BacktoNormal_Continue:
 	move.w	d1,inertia(a0)	; set the inertia of the main player to sidekick
 	move.w	x_vel(a1),d1	;
 	move.w	d1,x_vel(a0)	; set the x_vel of the main player to sidekick
+	move.w	#0,y_vel(a0)
 	move.b	#2,status(a0)
 	move.w	#0,move_lock(a0)
 	andi.w	#drawing_mask,art_tile(a0)
@@ -718,7 +737,7 @@ TailsCPU_CheckDespawn:
 ; loc_1BE8C:
 TailsCPU_TickRespawnTimer:
 	addq.w	#1,(Tails_respawn_counter).w
-	cmpi.w	#$12C,(Tails_respawn_counter).w
+	cmpi.w	#$C8,(Tails_respawn_counter).w
 	blo.s	TailsCPU_UpdateObjInteract
 
 BranchTo_TailsCPU_Despawn
