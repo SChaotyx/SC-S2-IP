@@ -10112,7 +10112,7 @@ ObjDB_Sonic_Wait:
 	tst.b	(Ctrl_1_Press).w	; is start pressed?
 	bmi.s	ObjDB_Sonic_StartRunning ; if yes, branch
 	jsr	(Sonic_Animate).l
-	jmp	(LoadKnucklesDynPLC).l
+	jmp	(LoadSonicDynPLC).l
 ; ---------------------------------------------------------------------------
 ; loc_7BE4:
 ObjDB_Sonic_StartRunning:
@@ -10134,7 +10134,7 @@ ObjDB_Sonic_Run:
 +
 	jsr	(ObjectMove).l
 	jsr	(Sonic_Animate).l
-	jmp	(LoadKnucklesDynPLC).l
+	jmp	(LoadSonicDynPLC).l
 ; ===========================================================================
 ; loc_7C22:
 ObjDB_Tails_Init:
@@ -33669,9 +33669,9 @@ loc_19F4C:
 ; aqui normalmente se incluyo codigo para las animaciones, patrones de carga y habilidades especiales
 
 
-	include "objects/characters/Sonic/Main.asm"		; codigo incluido exclusivo para el uso de Sonic
-	include "objects/characters/Tails/Main.asm"		; codigo incluido exclusivo para el uso de Tails
-	include "objects/characters/Knuckles/Main.asm"	; codigo incluido exclusivo para el uso de Knuckles
+	include "objects/characters/Char01 - Sonic/Main.asm"	; codigo incluido exclusivo para el uso de Sonic
+	include "objects/characters/Char02 - Tails/Main.asm"	; codigo incluido exclusivo para el uso de Tails
+	include "objects/characters/Char03 - Knuckles/Main.asm"	; codigo incluido exclusivo para el uso de Knuckles
 
 ; ===========================================================================
 ; ===========================================================================
@@ -71309,18 +71309,16 @@ ObjB2_Animate_Pilot:
 	cmpi.b	#1,(Sec_player).w
 	bne.s	+
 	move.b	Sonic_pilot_frames(pc,d0.w),d0
-	jmp LoadSonicDynPLC_Part2
 +
 	cmpi.b	#2,(Sec_player).w
 	bne.s	+
 	move.b	Tails_pilot_frames(pc,d0.w),d0
-	jmp LoadTailsDynPLC_Part2
 +
 	cmpi.b	#3,(Sec_player).w
 	bne.s	+
 	move.b	Knuckles_pilot_frames(pc,d0.w),d0
-	jmp LoadKnucklesDynPLC_Part2
 +
+	jmp LoadSidekickDynPLC_Part2
 ;	include "objects/ObjB2 - Animate Pilot.asm"
 ; ===========================================================================
   ; loc_3AF94:
@@ -76539,10 +76537,10 @@ JmpTo2_MarkObjGone_P1
 	jmp	(MarkObjGone_P1).l
 JmpTo_Pal_FadeToWhite_UpdateColour
 	jmp	(Pal_FadeToWhite.UpdateColour).l
-JmpTo_LoadTailsDynPLC_Part2
-	jmp	(LoadTailsDynPLC_Part2).l
-JmpTo_LoadSonicDynPLC_Part2
-	jmp	(LoadKnucklesDynPLC_Part2).l
+JmpTo_LoadSidekickDynPLC_Part2
+	jmp	(LoadSidekickDynPLC_Part2).l
+JmpTo_LoadPlayerDynPLC_Part2
+	jmp	(LoadPlayerDynPLC_Part2).l
 JmpTo8_MarkObjGone3
 	jmp	(MarkObjGone3).l
 JmpTo64_Adjust2PArtPointer
@@ -82459,30 +82457,29 @@ ArtUnc_Waterfall3:	BINCLUDE	"art/uncompressed/ARZ waterfall patterns - 3.bin"
 ; Patterns for Sonic  ; ArtUnc_50000:
 ;---------------------------------------------------------------------------------------
 	align $20
-ArtUnc_Sonic:	BINCLUDE	"objects/characters/Sonic/Sonic Art.bin"
+ArtUnc_Sonic:	BINCLUDE	"objects/characters/Char01 - Sonic/Art/Sonic Art.bin"
 	align $20
-ArtUnc_SuperSonic:	BINCLUDE	"objects/characters/Sonic/SuperSonic Art.bin"
+ArtUnc_SuperSonic:	BINCLUDE	"objects/characters/Char01 - Sonic/Art/SuperSonic Art.bin"
 ;---------------------------------------------------------------------------------------
 ; Uncompressed art
 ; Patterns for Tails  ; ArtUnc_64320:
 ;---------------------------------------------------------------------------------------
 	align $20
 ;ArtUnc_Tails:	BINCLUDE	"art/uncompressed/Tails's art.bin"
-ArtUnc_Tails:	BINCLUDE	"objects/characters/Tails/Tails Art.bin"
+ArtUnc_Tails:	BINCLUDE	"objects/characters/Char02 - Tails/Art/Tails Art.bin"
 ;---------------------------------------------------------------------------------------
 ; Uncompressed art
 ; Patterns for Tails  ; ArtUnc_64320:
 ;---------------------------------------------------------------------------------------
 	align $20
 ;ArtUnc_Tails:	BINCLUDE	"art/uncompressed/Tails's art.bin"
-ArtUnc_TailsTails:	BINCLUDE	"objects/characters/Tails/Tails Tails Art.bin"
+ArtUnc_TailsTails:	BINCLUDE	"objects/characters/Char02 - Tails/Art/Tails Tails Art.bin"
 ;--------------------------------------------------------------------------------------
 ; Uncompressed art
 ; Patterns for Knuckles
 ;---------------------------------------------------------------------------------------
 	align $20
-;ArtUnc_Knuckles:	BINCLUDE	"art/uncompressed/Knuckles's art.bin"
-ArtUnc_Knuckles:	BINCLUDE	"objects/characters/Knuckles/Knuckles Art.bin"
+ArtUnc_Knuckles:	BINCLUDE	"objects/characters/Char03 - Knuckles/Art/Knuckles Art.bin"
 ;---------------------------------------------------------------------------------------
 ; Sprite Mappings
 ; Sonic			; MapUnc_6FBE0: SprTbl_Sonic:
@@ -82501,17 +82498,20 @@ MapRUnc_SuperSonic:	BINCLUDE	"mappings/spriteDPLC/SonicSuper.bin"
 ; Sonic Art and Mappings for Special Stage
 MapUnc_SonicSS:			BINCLUDE "mappings/sprite/SonicSS.bin"
 MapRUnc_SonicSS:		BINCLUDE "mappings/spriteDPLC/SonicSS.bin"
-ArtUnc_SSSonic:			BINCLUDE "objects/characters/Sonic/Sonic Art SS.bin"
+	align $20
+ArtUnc_SSSonic:			BINCLUDE "objects/characters/Char01 - Sonic/Art/Sonic Art SS.bin"
 ;--------------------------------------------------------------------------------------
 ; Tails Art and Mappings for Special Stage
 MapUnc_TailsSS:		BINCLUDE "mappings/sprite/TailsSS.bin"
 MapRUnc_TailsSS:	BINCLUDE "mappings/spriteDPLC/TailsSS.bin"
-ArtUnc_SSTails:		BINCLUDE "objects/characters/Tails/Tails Art SS.bin"
+	align $20
+ArtUnc_SSTails:		BINCLUDE "objects/characters/Char02 - Tails/Art/Tails Art SS.bin"
 ;--------------------------------------------------------------------------------------
 ; Knuckles Art and Mappings for Special Stage
 MapUnc_KnucklesSS:		BINCLUDE "mappings/sprite/KnucklesSS.bin"
 MapRUnc_KnucklesSS:		BINCLUDE "mappings/spriteDPLC/KnucklesSS.bin"
-ArtUnc_SSKnuckles:		BINCLUDE "objects/characters/Knuckles/Knuckles Art SS.bin"
+	align $20
+ArtUnc_SSKnuckles:		BINCLUDE "objects/characters/Char03 - Knuckles/Art/Knuckles Art SS.bin"
 ;--------------------------------------------------------------------------------------
 ; Nemesis compressed art (32 blocks)
 ; Shield			; ArtNem_71D8E:

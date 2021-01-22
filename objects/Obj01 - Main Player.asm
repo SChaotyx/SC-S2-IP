@@ -154,12 +154,12 @@ Obj01_Control:
 	bne.s	+
 	move.b	next_anim(a0),anim(a0)
 +
-	bsr.w	Sonic_Animate
+	bsr.w	Player_Animate
 	tst.b	obj_control(a0)
 	bmi.s	+
 	jsr	(TouchResponse).l
 +
-	bra.w	LoadSonicDynPLC
+	bra.w	LoadPlayerDynPLC
 
 ; ===========================================================================
 ; secondary states under state Obj01_Control
@@ -313,36 +313,9 @@ Obj01_OutWater:
 ; End of subroutine Sonic_Water
 
 ; ===========================================================================
-; ---------------------------------------------------------------------------
-; Start of subroutine Obj01_MdNormal
-; Called if Sonic is neither airborne nor rolling this frame
-; ---------------------------------------------------------------------------
-; loc_1A26E:
-Obj01_MdNormal_Checks:
-	cmpi.b	#1,(Main_player).w
-	bne.s	Obj01_MdNormal
-	move.b	(Ctrl_1_Press_Logical).w,d0
-	andi.b	#button_B_mask|button_C_mask|button_A_mask,d0
-	bne.s	Obj01_MdNormal
-	cmpi.b	#AniIDSonAni_Blink,anim(a0)
-	beq.s	return_1A2DE
-	cmpi.b	#AniIDSonAni_GetUp,anim(a0)
-	beq.s	return_1A2DE
-	cmpi.b	#AniIDSonAni_Wait,anim(a0)
-	bne.s	Obj01_MdNormal
-	cmpi.b	#$1E,anim_frame(a0)
-	blo.s	Obj01_MdNormal
-	move.b	(Ctrl_1_Held_Logical).w,d0
-	andi.b	#button_up_mask|button_down_mask|button_left_mask|button_right_mask|button_B_mask|button_C_mask|button_A_mask,d0
-	beq.s	return_1A2DE
-	move.b	#AniIDSonAni_Blink,anim(a0)
-	cmpi.b	#$AC,anim_frame(a0)
-	blo.s	return_1A2DE
-	move.b	#AniIDSonAni_GetUp,anim(a0)
-	bra.s	return_1A2DE
-; ---------------------------------------------------------------------------
 ; loc_1A2B8:
 Obj01_MdNormal:
+	bsr.w	Player_SetMove
 	bsr.w	Sonic_CheckSpindash
 	bsr.w	Sonic_Jump
 	bsr.w	Sonic_SlopeResist
@@ -356,6 +329,7 @@ Obj01_MdNormal:
 return_1A2DE:
 	rts
 ; End of subroutine Obj01_MdNormal
+
 ; ===========================================================================
 ; Start of subroutine Obj01_MdAir
 ; Called if Sonic is airborne, but not in a ball (thus, probably not jumping)
@@ -1215,14 +1189,7 @@ Sonic_JumpHeight:
 	beq.s	+		; if not, branch
 	move.w	#-$200,d1
 +
-	cmpi.b	#3,(Main_player).w
-	bne.s	+
-	bsr.w	Knuckles_CheckGlide	  ; Check if Knuckles should begin a glide
-+
-	cmpi.b	#2,(Main_player).w
-	bne.s	+
-	bsr.w	Tails_ChecKFly  ; Check if Tails should begin flying
-+
+	bsr.w	Player_SetAirMove
 	cmp.w	y_vel(a0),d1	; is Sonic going up faster than d1?
 	ble.s	+		; if not, branch
 	move.b	(Ctrl_1_Held_Logical).w,d0
@@ -1926,8 +1893,8 @@ Obj01_Hurt_Normal:
 	bsr.w	Sonic_HurtStop
 	bsr.w	Sonic_LevelBound
 	bsr.w	Sonic_RecordPos
-	bsr.w	Sonic_Animate
-	bsr.w	LoadSonicDynPLC
+	bsr.w	Player_Animate
+	bsr.w	LoadPlayerDynPLC
 	jmp	(DisplaySprite).l
 ; ===========================================================================
 ; loc_1B184:
@@ -1959,8 +1926,8 @@ Sonic_HurtInstantRecover:
 	subq.b	#2,routine(a0)	; => Obj01_Control
 	move.b	#0,routine_secondary(a0)
 	bsr.w	Sonic_RecordPos
-	bsr.w	Sonic_Animate
-	bsr.w	LoadSonicDynPLC
+	bsr.w	Player_Animate
+	bsr.w	LoadPlayerDynPLC
 	jmp	(DisplaySprite).l
 ; ===========================================================================
 
@@ -1982,8 +1949,8 @@ Obj01_Dead:
 	bsr.w	CheckGameOver
 	jsr	(ObjectMoveAndFall).l
 	bsr.w	Sonic_RecordPos
-	bsr.w	Sonic_Animate
-	bsr.w	LoadSonicDynPLC
+	bsr.w	Player_Animate
+	bsr.w	LoadPlayerDynPLC
 	jmp	(DisplaySprite).l
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
@@ -2081,8 +2048,8 @@ Obj01_Respawning:
 	bne.s	+
 	move.b	#2,routine(a0)	; => Obj01_Control
 +
-	bsr.w	Sonic_Animate
-	bsr.w	LoadSonicDynPLC
+	bsr.w	Player_Animate
+	bsr.w	LoadPlayerDynPLC
 	jmp	(DisplaySprite).l
 ; ===========================================================================
 
@@ -2093,10 +2060,79 @@ Obj01_Drowned:
 	bsr.w	ObjectMove	; Make Sonic able to move
 	addi.w	#$10,y_vel(a0)	; Apply gravity
 	bsr.w	Sonic_RecordPos	; Record position
-	bsr.w	Sonic_Animate	; Animate Sonic
-	bsr.w	LoadSonicDynPLC	; Load Sonic's DPLCs
+	bsr.w	Player_Animate	; Animate Sonic
+	bsr.w	LoadPlayerDynPLC	; Load Sonic's DPLCs
 	bra.w	DisplaySprite	; And finally, display Sonic
 
+
+; ---------------------------------------------------------------------------
+; Main player animate subroutine
+; ---------------------------------------------------------------------------
+Player_Animate:
+	cmpi.b	#1,(Main_player).w
+	beq.w	Sonic_Animate
+	cmpi.b	#2,(Main_player).w
+	beq.w	Tails_Animate
+	cmpi.b	#3,(Main_player).w
+	beq.w	Knuckles_Animate
+	rts
+
+
+; ---------------------------------------------------------------------------
+; Main player pattern loading subroutine
+; ---------------------------------------------------------------------------
+LoadPlayerDynPLC:
+	cmpi.b	#1,(Main_player).w
+	beq.w	LoadSonicDynPLC
+	cmpi.b	#2,(Main_player).w
+	beq.w	LoadTailsDynPLC
+	cmpi.b	#3,(Main_player).w
+	beq.w	LoadKnucklesDynPLC
+LoadPlayerDynPLC_Part2:
+	cmpi.b	#1,(Main_player).w
+	beq.w	LoadSonicDynPLC_Part2
+	cmpi.b	#2,(Main_player).w
+	beq.w	LoadTailsDynPLC_Part2
+	cmpi.b	#3,(Main_player).w
+	beq.w	LoadKnucklesDynPLC_Part2
+	rts
+
+
+; ---------------------------------------------------------------------------
+; Subroutine to load the special moves of each character 
+; (not including those used by all characters like the Spindash)
+; ---------------------------------------------------------------------------
+Player_SetMove:
+	cmpi.b	#1,(Main_player).w
+	bne.s	+
+	rts
++
+	cmpi.b	#2,(Main_player).w
+	bne.s	+
+	rts
++
+	cmpi.b	#3,(Main_player).w
+	bne.s	+
+	rts
++
+	rts
+
+Player_SetAirMove:
+	cmpi.b	#1,(Main_player).w
+	bne.s	+
+	rts
++
+	cmpi.b	#2,(Main_player).w
+	bne.s	+
+	bsr.w	Tails_CheckFly
+	rts
++
+	cmpi.b	#3,(Main_player).w
+	bne.s	+
+	bsr.w	Knuckles_CheckGlide
+	rts
++
+	rts
 
 JmpTo_KillCharacter
 	jmp	(KillCharacter).l

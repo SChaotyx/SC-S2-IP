@@ -1,4 +1,52 @@
 ; ---------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
+
+
+; ---------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
+
+
+; ---------------------------------------------------------------------------
+; Subroutine to reset Sonic's mode when he lands on the floor
+; ---------------------------------------------------------------------------
+
+; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
+
+; loc_1B0A0:
+Sonic_ResetOnFloor:
+	tst.b	pinball_mode(a0)
+	bne.s	Sonic_ResetOnFloor_Part3
+	move.b	#AniIDSonAni_Walk,anim(a0)
+; loc_1B0AC:
+Sonic_ResetOnFloor_Part2:
+	btst	#2,status(a0)
+	beq.s	Sonic_ResetOnFloor_Part3
+	bclr	#2,status(a0)
+	move.b	#$13,y_radius(a0) ; this increases Sonic's collision height to standing
+	move.b	#9,x_radius(a0)
+	move.b	#AniIDSonAni_Walk,anim(a0)	; use running/walking/standing animation
+	subq.w	#5,y_pos(a0)	; move Sonic up 5 pixels so the increased height doesn't push him into the ground
+; loc_1B0DA:
+Sonic_ResetOnFloor_Part3:
+	bclr	#1,status(a0)
+	bclr	#5,status(a0)
+	bclr	#4,status(a0)
+	move.b	#0,jumping(a0)
+	move.w	#0,(Chain_Bonus_counter).w
+	move.b	#0,flip_angle(a0)
+	move.b	#0,flip_turned(a0)
+	move.b	#0,flips_remaining(a0)
+	move.w	#0,(Sonic_Look_delay_counter).w
+	cmpi.b	#AniIDSonAni_Hang2,anim(a0)
+	bne.s	return_1B11E
+	move.b	#AniIDSonAni_Walk,anim(a0)
+
+return_1B11E:
+	rts
+
+
+
+	; ---------------------------------------------------------------------------
 ; Subroutine to animate Sonic's sprites
 ; See also: AnimateSprite
 ; ---------------------------------------------------------------------------
@@ -7,11 +55,6 @@
 
 ; loc_1B350:
 Sonic_Animate:
-    cmpi.b  #2,(Main_player).w
-    beq.w   Tails_AnimatePart2
-	cmpi.b  #3,(Main_player).w
-    beq.w   Knuckles_Animate
-Sonic_AnimatePart2:
 	lea	(SonicAniData).l,a1
 	tst.b	(Super_Sonic_flag).w
 	beq.s	+
@@ -452,3 +495,61 @@ SupSonAni_Duck:		dc.b   5, $9B, $FF
 	rev02even
 SupSonAni_Transform:	dc.b   2, $D2, $D2, $D3, $D3, $D4, $D5, $D6, $D5, $D6, $D5, $D6, $D5, $D6, $FD,   0
 	even
+
+
+; ---------------------------------------------------------------------------
+; Sonic pattern loading subroutine
+; ---------------------------------------------------------------------------
+
+; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
+
+; loc_1B848:
+LoadSonicDynPLC:
+	moveq	#0,d0
+	move.b	mapping_frame(a0),d0	; load frame number
+; loc_1B84E:
+LoadSonicDynPLC_Part2:
+	cmp.b	(Sonic_LastLoadedDPLC).w,d0
+	beq.s	return_1B89A
+	move.b	d0,(Sonic_LastLoadedDPLC).w
+
+	tst.b	(Super_Sonic_flag).w	; super Sonic?
+	bne.s	+						; if yer, branch
+	lea	(MapRUnc_Sonic).l,a2		; if not load plc for sonic normal
+	bra.s	++						; continue normally
++
+	lea	(MapRUnc_SuperSonic).l,a2	; if yes, load plc for super Sonic
++
+
+	add.w	d0,d0
+	adda.w	(a2,d0.w),a2
+	move.w	(a2)+,d5
+	subq.w	#1,d5
+	bmi.s	return_1B89A
+	move.w	#tiles_to_bytes(ArtTile_ArtUnc_Sonic),d4
+; loc_1B86E:
+SPLC_ReadEntry:
+	moveq	#0,d1
+	move.w	(a2)+,d1
+	move.w	d1,d3
+	lsr.w	#8,d3
+	andi.w	#$F0,d3
+	addi.w	#$10,d3
+	andi.w	#$FFF,d1
+	lsl.l	#5,d1
+	tst.b	(Super_Sonic_flag).w	; super Sonic?
+	bne.s	+						; if yes, branch
+	addi.l	#ArtUnc_Sonic,d1		; if not load art for sonic normal
+	bra.s	++						; continue normally
++
+	addi.l	#ArtUnc_SuperSonic,d1   ; if yes, load art for super Sonic
++
+	move.w	d4,d2
+	add.w	d3,d4
+	add.w	d3,d4
+	jsr	(QueueDMATransfer).l
+	dbf	d5,SPLC_ReadEntry	; repeat for number of entries
+
+return_1B89A:
+	rts
+; ===========================================================================

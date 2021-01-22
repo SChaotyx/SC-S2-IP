@@ -1,4 +1,58 @@
-;=============== S U B	R O U T	I N E =======================================
+; ---------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
+
+	include "objects/characters/Char03 - Knuckles/Moves/Knuckles Glide.asm"
+
+; ---------------------------------------------------------------------------
+; ---------------------------------------------------------------------------
+
+; ---------------------------------------------------------------------------
+; Subroutine to reset Knuckles mode when he lands on the floor
+; ---------------------------------------------------------------------------
+
+; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
+
+Knuckles_ResetOnFloor:
+	tst.b	pinball_mode(a0)
+	bne.s	Knuckles_ResetOnFloor_Part3
+	move.b	#AniIDSonAni_Walk,anim(a0)
+; loc_1B0AC:
+Knuckles_ResetOnFloor_Part2:
+	btst	#2,status(a0)
+	beq.s	Knuckles_ResetOnFloor_Part3
+	bclr	#2,status(a0)
+	move.b	#$13,y_radius(a0) ; this increases Sonic's collision height to standing
+	move.b	#9,x_radius(a0)
+	move.b	#AniIDSonAni_Walk,anim(a0)	; use running/walking/standing animation
+	subq.w	#5,y_pos(a0)	; move Sonic up 5 pixels so the increased height doesn't push him into the ground
+; loc_1B0DA:
+Knuckles_ResetOnFloor_Part3:
+	bclr	#1,status(a0)
+	bclr	#5,status(a0)
+	bclr	#4,status(a0)
+	move.b	#0,jumping(a0)
+	move.w	#0,(Chain_Bonus_counter).w
+	move.b	#0,flip_angle(a0)
+	move.b	#0,flip_turned(a0)
+	move.b	#0,flips_remaining(a0)
+	move.w	#0,(Sonic_Look_delay_counter).w
+	move.b	#0,$21(a0) ; clear glide flag
+	cmpi.b	#AniIDSonAni_Hang2,anim(a0)
+	bne.s	return_1B11EK
+	move.b	#AniIDSonAni_Walk,anim(a0)
+
+return_1B11EK:
+	rts
+; End of subroutine Knuckles_ResetOnFloor
+
+
+
+; ---------------------------------------------------------------------------
+; Subroutine to animate Knuckles' sprites
+; See also: AnimateSprite
+; ---------------------------------------------------------------------------
+
+; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
 
 Knuckles_Animate:				  ; ...
@@ -334,3 +388,68 @@ KnucklesAni_Badass:dc.b	  5,$D8,$D9,$DA,$DB,$D8,$D9,$DA,$DB,$D8,$D9,$DA,$DB; 0 ;
 		dc.b $FF			  ; 39
 KnucklesAni_Transform:dc.b   2,$EB,$EB,$EC,$ED,$EC,$ED,$EC,$ED,$EC,$ED,$EC,$ED;	0 ; ...
 		dc.b $FD,  0,  0		  ; 13
+
+
+
+
+; ---------------------------------------------------------------------------
+; Knuckles pattern loading subroutine
+; ---------------------------------------------------------------------------
+
+; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
+
+; loc_1B848:
+LoadKnucklesDynPLC:
+	moveq	#0,d0
+	move.b	mapping_frame(a0),d0	; load frame number
+; loc_1B84E:
+LoadKnucklesDynPLC_Part2:
+	cmpi.b	#1,(Main_player).w
+	beq.s	+
+	cmpi.b	#1,(Sec_player).w
+	beq.s	+
+
+	cmp.b	(Sonic_LastLoadedDPLC).w,d0
+	beq.s	return_LKDPLC
+	move.b	d0,(Sonic_LastLoadedDPLC).w
+	bra.s	LoadKnucklesDynPLC_Continue
++
+	cmp.b	(Tails_LastLoadedDPLC).w,d0
+	beq.s	return_LKDPLC
+	move.b	d0,(Tails_LastLoadedDPLC).w
+
+LoadKnucklesDynPLC_Continue:
+	lea	(MapRUnc_Knuckles).l,a2
+	add.w	d0,d0
+	adda.w	(a2,d0.w),a2
+	move.w	(a2)+,d5
+	subq.w	#1,d5
+	bmi.s	return_LKDPLC
+	cmpi.b	#1,(Main_player).w
+	beq.s	+
+	cmpi.b	#1,(Sec_player).w
+	beq.s	+
+
+	move.w	#tiles_to_bytes(ArtTile_ArtUnc_Sonic),d4
+	bra.s	KPLC_ReadEntry
++
+	move.w	#tiles_to_bytes(ArtTile_ArtUnc_Tails),d4
+
+KPLC_ReadEntry:
+	moveq	#0,d1
+	move.w	(a2)+,d1
+	move.w	d1,d3
+	lsr.w	#8,d3
+	andi.w	#$F0,d3
+	addi.w	#$10,d3
+	andi.w	#$FFF,d1
+	lsl.l	#5,d1
+	addi.l	#ArtUnc_Knuckles,d1
+	move.w	d4,d2
+	add.w	d3,d4
+	add.w	d3,d4
+	jsr	(QueueDMATransfer).l
+	dbf	d5,KPLC_ReadEntry	; repeat for number of entries
+
+return_LKDPLC:
+	rts

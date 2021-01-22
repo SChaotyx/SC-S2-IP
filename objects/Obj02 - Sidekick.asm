@@ -182,18 +182,18 @@ Obj02_Control_Part2:
 	bne.s	+
 	move.b	next_anim(a0),anim(a0)
 +
-	bsr.w	Tails_Animate
+	bsr.w	Sidekick_Animate
 	tst.b	obj_control(a0)
 	bmi.s	+
 	jsr	(TouchResponse).l
 +
-	bra.w	LoadTailsDynPLC
+	bra.w	LoadSidekickDynPLC
 
 ; ===========================================================================
 ; secondary states under state Obj02_Normal
 ; off_1BA4E:
 Obj02_Modes:	offsetTable
-		offsetTableEntry.w Obj02_MdNormal_Checks	; 0 - not airborne or rolling
+		offsetTableEntry.w Obj02_MdNormal	; 0 - not airborne or rolling
 		offsetTableEntry.w Obj02_MdAir		; 2 - airborne
 		offsetTableEntry.w Obj02_MdRoll		; 4 - rolling
 		offsetTableEntry.w Obj02_MdJump		; 6 - jumping
@@ -902,34 +902,8 @@ Obj02_OutWater:
 ; End of subroutine Tails_Water
 
 ; ===========================================================================
-; ---------------------------------------------------------------------------
-; Start of subroutine Obj02_MdNormal
-; Called if Tails is neither airborne nor rolling this frame
-; ---------------------------------------------------------------------------
-Obj02_MdNormal_Checks:
-	cmpi.b	#1,(Sec_player).w
-	bne.s	Obj02_MdNormal
-	move.b	(Ctrl_2_Press_Logical).w,d0
-	andi.b	#button_B_mask|button_C_mask|button_A_mask,d0
-	bne.s	Obj02_MdNormal
-	cmpi.b	#AniIDSonAni_Blink,anim(a0)
-	beq.s	return_mdnormal
-	cmpi.b	#AniIDSonAni_GetUp,anim(a0)
-	beq.s	return_mdnormal
-	cmpi.b	#AniIDSonAni_Wait,anim(a0)
-	bne.s	Obj02_MdNormal
-	cmpi.b	#$1E,anim_frame(a0)
-	blo.s	Obj02_MdNormal
-	move.b	(Ctrl_2_Held_Logical).w,d0
-	andi.b	#button_up_mask|button_down_mask|button_left_mask|button_right_mask|button_B_mask|button_C_mask|button_A_mask,d0
-	beq.s	return_mdnormal
-	move.b	#AniIDSonAni_Blink,anim(a0)
-	cmpi.b	#$AC,anim_frame(a0)
-	blo.s	return_mdnormal
-	move.b	#AniIDSonAni_GetUp,anim(a0)
-	bra.s	return_mdnormal
-; ---------------------------------------------------------------------------; loc_1C00A:
 Obj02_MdNormal:
+	bsr.w	Sidekick_SetMove
 	bsr.w	Tails_CheckSpindash
 	bsr.w	Tails_Jump
 	bsr.w	Tails_SlopeResist
@@ -943,6 +917,7 @@ Obj02_MdNormal:
 return_mdnormal:
 	rts
 ; End of subroutine Obj02_MdNormal
+
 ; ===========================================================================
 ; Start of subroutine Obj02_MdAir
 ; Called if Tails is airborne, but not in a ball (thus, probably not jumping)
@@ -1791,11 +1766,9 @@ Tails_JumpHeight:
 	beq.s	+		; if not, branch
 	move.w	#-$200,d1
 +
-	cmpi.b	#3,(Sec_player).w
-	bne.s	+
 	tst.w	(Tails_control_counter).w	; if CPU has control
-	beq.w	+		; (if yes, branch)
-	bsr.w	Knuckles_CheckGlide	 
+	beq.w	+
+	bsr.w	Sidekick_SetAirMove
 +
 	cmp.w	y_vel(a0),d1	; is Tails going up faster than d1?
 	ble.s	+		; if not, branch
@@ -2376,8 +2349,8 @@ Obj02_Hurt:
 	bsr.w	Tails_HurtStop
 	bsr.w	Tails_LevelBound
 	bsr.w	Tails_RecordPos
-	bsr.w	Tails_Animate
-	bsr.w	LoadTailsDynPLC
+	bsr.w	Sidekick_Animate
+	bsr.w	LoadSidekickDynPLC
 	jmp	(DisplaySprite).l
 ; ===========================================================================
 ; loc_1CC08:
@@ -2413,8 +2386,8 @@ Obj02_Dead:
 	bsr.w	Obj02_CheckGameOver
 	jsr	(ObjectMoveAndFall).l
 	bsr.w	Tails_RecordPos
-	bsr.w	Tails_Animate
-	bsr.w	LoadTailsDynPLC
+	bsr.w	Sidekick_Animate
+	bsr.w	LoadSidekickDynPLC
 	jmp	(DisplaySprite).l
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
@@ -2533,8 +2506,8 @@ Obj02_Respawning:
 	bne.s	+
 	move.b	#2,routine(a0)
 +
-	bsr.w	Tails_Animate
-	bsr.w	LoadTailsDynPLC
+	bsr.w	Sidekick_Animate
+	bsr.w	LoadSidekickDynPLC
 	jmp	(DisplaySprite).l
 ; ===========================================================================
 
@@ -2545,8 +2518,76 @@ Obj02_Drowned:
 	bsr.w	ObjectMove	; Make Tails able to move
 	addi.w	#$10,y_vel(a0)	; Apply gravity
 	bsr.w	Tails_RecordPos	; Record position
-	bsr.w	Tails_Animate	; Animate Tails
-	bsr.w	LoadTailsDynPLC	; Load Tails's DPLCs
+	bsr.w	Sidekick_Animate	; Animate Tails
+	bsr.w	LoadSidekickDynPLC	; Load Tails's DPLCs
 	bra.w	DisplaySprite	; And finally, display Tails
 
 
+; ---------------------------------------------------------------------------
+; Main player animate subroutine
+; ---------------------------------------------------------------------------
+Sidekick_Animate:
+	cmpi.b	#1,(Sec_player).w
+	beq.w	Sonic_Animate
+	cmpi.b	#2,(Sec_player).w
+	beq.w	Tails_Animate
+	cmpi.b	#3,(Sec_player).w
+	beq.w	Knuckles_Animate
+	rts
+
+
+; ---------------------------------------------------------------------------
+; Sidekick pattern loading subroutine
+; ---------------------------------------------------------------------------
+LoadSidekickDynPLC:
+	cmpi.b	#1,(Sec_player).w
+	beq.w	LoadSonicDynPLC
+	cmpi.b	#2,(Sec_player).w
+	beq.w	LoadTailsDynPLC
+	cmpi.b	#3,(Sec_player).w
+	beq.w	LoadKnucklesDynPLC
+LoadSidekickDynPLC_Part2:
+	cmpi.b	#1,(Sec_player).w
+	beq.w	LoadSonicDynPLC_Part2
+	cmpi.b	#2,(Sec_player).w
+	beq.w	LoadTailsDynPLC_Part2
+	cmpi.b	#3,(Sec_player).w
+	beq.w	LoadKnucklesDynPLC_Part2
+	rts
+
+
+; ---------------------------------------------------------------------------
+; Subroutine to load the special moves of each character 
+; (not including those used by all characters like the Spindash)
+; ---------------------------------------------------------------------------
+Sidekick_SetMove:
+	cmpi.b	#1,(Sec_player).w
+	bne.s	+
+	rts
++
+	cmpi.b	#2,(Sec_player).w
+	bne.s	+
+	rts
++
+	cmpi.b	#3,(Sec_player).w
+	bne.s	+
+	rts
++
+	rts
+
+Sidekick_SetAirMove:
+	cmpi.b	#1,(Sec_player).w
+	bne.s	+
+	rts
++
+	cmpi.b	#2,(Sec_player).w
+	bne.s	+
+	bsr.w	Tails_CheckFly
+	rts
++
+	cmpi.b	#3,(Sec_player).w
+	bne.s	+
+	bsr.w	Knuckles_CheckGlide
+	rts
++
+	rts
