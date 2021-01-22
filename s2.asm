@@ -3873,7 +3873,16 @@ JmpTo_RunObjects
 ; ===========================================================================
 ; loc_3998:
 TitleScreen:
-	move.w	#3,(Player_option).w ;set default gamemode Sonic and Tails
+	tst.b	(Play_mode).w
+	bne.s	+
+	tst.b	(Main_player).w
+	bne.s	+
+	tst.b	(Sec_player).w
+	bne.s	+
+	move.b	#1,(Play_mode).w
+	move.b	#1,(Main_player).w
+	move.b	#2,(Sec_player).w
++
 	move.b	#MusID_Stop,d0
 	bsr.w	PlayMusic
 	bsr.w	ClearPLC
@@ -4117,10 +4126,10 @@ TitleScreen_Demo:
 +
 	move.w	#1,(Demo_mode_flag).w
 	move.b	#GameModeID_Demo,(Game_Mode).w ; => Level (Demo mode)
-	cmpi.w	#emerald_hill_zone_act_1,(Current_ZoneAndAct).w
-	bne.s	+
-	move.w	#1,(Two_player_mode).w
-+
+	;cmpi.w	#emerald_hill_zone_act_1,(Current_ZoneAndAct).w
+	;bne.s	+
+	;move.w	#1,(Two_player_mode).w
+;+
 	move.b	#3,(Life_count).w
 	move.b	#3,(Life_count_2P).w
 	moveq	#0,d0
@@ -4677,22 +4686,22 @@ Level_MainLoop:
 Level_SetPlayerMode:
 	cmpi.b	#GameModeID_TitleCard|GameModeID_Demo,(Game_Mode).w ; pre-level demo mode?
 	beq.w	SetSonicAndTails									; if yes, branch
-	tst.w	(Two_player_mode).w									; 2P mode?
-	bne.w	SetSonicAndTails									; if yes, force Sonic and Tails Game
-	moveq	#0,d0												; quickly clear d0
-	moveq	#0,d1												; quickly clear d1
-	move.w	(Player_option).w,d1								; move Player_option to d1
-	add.b	d1,d0
-	add.b	d1,d0
-	add.b	d1,d0												; multiply by 3 d1 in d0
-	move.b	Player_mode_settings(pc,d0.w),(Play_mode).w 		; set play mode
-	add.b	#1,d0												; move to main player setting
-	move.b	Player_mode_settings(pc,d0.w),(Main_player).w		; set main player character
-	add.b	#1,d0												; move to sidekick setting
-	move.b	Player_mode_settings(pc,d0.w),(Sec_player).w		; set sidekick character
+	;tst.w	(Two_player_mode).w									; 2P mode?
+	;bne.w	SetSonicAndTails									; if yes, force Sonic and Tails Game
++
+	tst.b	(Sec_player).w	; if sidekick character defined?
+	bne.s	+	; if yes, branch
+	move.b	#2,(Sec_player).w	; set default sidekick character (Tails)
+	move.b	#0,(Play_mode).w	; set play mode alone
+	cmpi.b	#2,(Main_player).w	; if main player Tails?
+	bne.s	+	;if not, branch
+	move.b	#1,(Sec_player).w	; set sidekick character (Sonic)
++
+	; this is unnecessary but anyway...
+	tst.b	(Main_player).w	; if main player defined?
+	bne.s	+	;if yes, branch
+	move.b	#1,(Main_player).w	; set default main player (Sonic)
 	rts
-
-; ---------------------------------------------------------------------------
 
 SetSonicAndTails:
 	move.b	#1,(Play_mode).w									; set sidekick play mode
@@ -4701,24 +4710,6 @@ SetSonicAndTails:
 	rts
 
 ; End of function Level_SetPlayerMode
-; ===========================================================================
-; ----------------------------------------------------------------------------
-; Player Mode Settings Array
-; This array defines which characters to load when starting a level
-; ---------------------------------------------------------------------------
-;						Play_mode	Main_player	Sec_player
-Player_mode_settings:
-	dc.b					0,			1,			2	; Sonic Alone
-	dc.b					0,			2,			1	; Tails Alone
-	dc.b					0,			3,			2	; Knuckles Alone
-	dc.b					1,			1,			2	; Sonic and Tails
-	dc.b					1,			1,			3	; Sonic and Knuckles
-	dc.b					1,			2,			1	; Tails and Sonic
-	dc.b					1,			2,			3	; Tails and Knuckles
-	dc.b					1,			3,			1	; Knuckles and Sonic
-	dc.b					1,			3,			2	; Knuckles and Tails
-	dc.b					0,			0,			0	; blank
-; without the last line, the game freezes just before starting the level in some emulators
 ; ===========================================================================
 
 
@@ -5270,7 +5261,8 @@ MoveDemo_On_P2:
     else
 	cmpi.w #emerald_hill_zone_act_1,(Current_ZoneAndAct).w ; avoid a range overflow error
     endif
-	bne.s	MoveDemo_On_SkipP2 ; if it's not the EHZ demo, branch to skip player 2
+	; branch directly
+	bra.s	MoveDemo_On_SkipP2 ; if it's not the EHZ demo, branch to skip player 2
 	lea	(Demo_EHZ_Tails).l,a1
 
 	; same as the corresponding remainder of MoveDemo_On_P1, but for player 2
@@ -5692,11 +5684,7 @@ Demo_EHZ:
 	demoinput R,	$46
 	demoinput ,	$1E
 	demoinput L,	$F
-	demoinput ,	5
-	demoinput L,	5
 	demoinput ,	9
-	demoinput L,	$3F
-	demoinput ,	5
 	demoinput R,	$67
 	demoinput ,	$62
 	demoinput R,	$12
@@ -9019,11 +9007,28 @@ Obj5E:
 	lea	(SSHUDLayoutAlone).l,a1
 	bra.s	loadhud
 player2hud:
-	move.w	(Player_option).w,d1
-	sub.w	#3,d1
-	add.w	d1,d1
+	cmpi.b	#1,(Main_player).w
+	bne.s	+
+	add.b	#2,d1
+	cmpi.b	#3,(Sec_player).w
+	bne.s	+
+	add.b	#2,d1
++
+	cmpi.b	#2,(Main_player).w
+	bne.s	+
+	add.b	#6,d1
+	cmpi.b	#3,(Sec_player).w
+	bne.s	+
+	add.b	#2,d1
++
+	cmpi.b	#3,(Main_player).w
+	bne.s	+
+	add.b	#10,d1
+	cmpi.b	#2,(Sec_player).w
+	bne.s	+
+	add.b	#2,d1
++
 	lea	(SSHUDLayoutNotAlone).l,a1
-
 
 loadhud:
 	lea	sub2_x_pos(a0),a2
@@ -9046,14 +9051,15 @@ SSHUDLayoutAlone:	offsetTable
 		offsetTableEntry.w SSHUD_Blank		;0
 		offsetTableEntry.w SSHUD_Sonic		;1
 		offsetTableEntry.w SSHUD_Tails		;2
-		offsetTableEntry.w SSHUD_Knuckles		;3
+		offsetTableEntry.w SSHUD_Knuckles	;3
 SSHUDLayoutNotAlone:	offsetTable
-		offsetTableEntry.w SSHUD_SonicTailsTotal
-		offsetTableEntry.w SSHUD_SonicKnuxTotal
-		offsetTableEntry.w SSHUD_TailsSonicTotal
-		offsetTableEntry.w SSHUD_TailsKnuxTotal
-		offsetTableEntry.w SSHUD_KnuxSonicTotal
-		offsetTableEntry.w SSHUD_KnuxTailsTotal
+		offsetTableEntry.w SSHUD_Blank				;0	;0
+		offsetTableEntry.w SSHUD_SonicTailsTotal	;2	;2
+		offsetTableEntry.w SSHUD_SonicKnuxTotal		;4	;4
+		offsetTableEntry.w SSHUD_TailsSonicTotal	;6	;6
+		offsetTableEntry.w SSHUD_TailsKnuxTotal		;8	;8
+		offsetTableEntry.w SSHUD_KnuxSonicTotal		;10	;A
+		offsetTableEntry.w SSHUD_KnuxTailsTotal		;12	;C
 
 
 SSHUD_Blank:
@@ -11581,6 +11587,8 @@ MenuScreen_Options:
 	bsr.w	OptionScreen_DrawUnselected
 	addq.b	#1,(Options_menu_box).w
 	bsr.w	OptionScreen_DrawUnselected
+	addq.b	#1,(Options_menu_box).w
+	bsr.w	OptionScreen_DrawUnselected
 	clr.b	(Options_menu_box).w
 	clr.b	(Level_started_flag).w
 	clr.w	(Anim_Counters).w
@@ -11621,7 +11629,8 @@ OptionScreen_Main:
 ; loc_909A:
 OptionScreen_Select:
 	move.b	(Options_menu_box).w,d0
-	bne.s	OptionScreen_Select_Not1P
+	cmpi.b	#1,d0
+	bgt.s	OptionScreen_Select_Not1P
 	; Start a single player game
 	btst	#button_A,(Ctrl_1_Held).w ; is A held down?
 	beq.s	+	 		; if not, branch
@@ -11642,8 +11651,8 @@ OptionScreen_Select:
 ; ===========================================================================
 ; loc_90B6:
 OptionScreen_Select_Not1P:
-	subq.b	#1,d0
-	bne.s	OptionScreen_Select_Other
+	cmpi.b	#3,d0
+	beq.s	OptionScreen_Select_Other
 	; Start a 2P VS game
 	moveq	#1,d0
 	move.w	d0,(Two_player_mode).w
@@ -11659,6 +11668,14 @@ OptionScreen_Select_Other:
 	move.b	#GameModeID_SegaScreen,(Game_Mode).w ; => SegaScreen
 	rts
 
+
+; word_917A:
+OptionScreen_Choices:
+	dc.l (4-1)<<24|(Main_playerOpt&$FFFFFF)
+	dc.l (4-1)<<24|(Sec_playerOpt&$FFFFFF)
+	dc.l (2-1)<<24|(Two_player_items&$FFFFFF)
+	dc.l ($80-1)<<24|(Sound_test_sound&$FFFFFF)
+
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
 ;sub_90E0:
@@ -11671,13 +11688,13 @@ OptionScreen_Controls:
 	beq.s	+
 	subq.b	#1,d2
 	bcc.s	+
-	move.b	#2,d2
+	move.b	#3,d2
 
 +
 	btst	#button_down,d0
 	beq.s	+
 	addq.b	#1,d2
-	cmpi.b	#3,d2
+	cmpi.b	#4,d2
 	blo.s	+
 	moveq	#0,d2
 
@@ -11687,31 +11704,81 @@ OptionScreen_Controls:
 	move.b	OptionScreen_Choices(pc,d2.w),d3 ; number of choices for the option
 	movea.l	OptionScreen_Choices(pc,d2.w),a1 ; location where the choice is stored (in RAM)
 	move.w	(a1),d2
+; ---------------------------------------------------------------------------
 	btst	#button_left,d0
-	beq.s	+
+	beq.s	button_leftendcheck
 	subq.b	#1,d2
 	bcc.s	+
 	move.b	d3,d2
-
 +
+	cmpi.b	#0,(Options_menu_box).w
+	bne.s	++
+	tst.b	d2
+	bne.s	+
+	move.b	#3,d2
++
+	cmp.b	(Sec_player).w,d2
+	bne.s	+
+	sub.b	#1,d2
+	tst.b	d2
+	bne.s	+
+	move.b	#3,d2
++
+	cmpi.b	#1,(Options_menu_box).w
+	bne.s	+
+	cmp.b	(Main_player).w,d2
+	bne.s	+
+	sub.b	#1,d2
++
+button_leftendcheck:
+; ---------------------------------------------------------------------------
+
 	btst	#button_right,d0
-	beq.s	+
+	beq.s	button_rightendcheck
 	addq.b	#1,d2
 	cmp.b	d3,d2
 	bls.s	+
 	moveq	#0,d2
-
 +
+	cmpi.b	#0,(Options_menu_box).w
+	bne.s	++
+	tst.b	d2
+	bne.s	+
+	move.b	#1,d2
++
+	cmp.b	(Sec_player).w,d2
+	bne.s	+
+	add.b	#1,d2
+	cmpi.b	#4,d2
+	bne.s	+
+	move.b	#1,d2
++
+	cmpi.b	#1,(Options_menu_box).w
+	bne.s	+
+	cmp.b	(Main_player).w,d2
+	bne.s	+
+	add.b	#1,d2
+	cmpi.b	#4,d2
+	bne.s	+
+	move.b	#0,d2
++
+button_rightendcheck:
+; ---------------------------------------------------------------------------
+
 	btst	#button_A,d0
 	beq.s	+
+	cmpi.b	#3,(Options_menu_box).w
+	bne.s	+
 	addi.b	#$10,d2
 	cmp.b	d3,d2
 	bls.s	+
 	moveq	#0,d2
 
 +
+; ---------------------------------------------------------------------------
+
 	move.w	d2,(a1)
-	cmpi.b	#2,(Options_menu_box).w
+	cmpi.b	#3,(Options_menu_box).w
 	bne.s	+	; rts
 	andi.w	#button_B_mask|button_C_mask,d0
 	beq.s	+	; rts
@@ -11729,11 +11796,7 @@ OptionScreen_Controls:
 ; End of function OptionScreen_Controls
 
 ; ===========================================================================
-; word_917A:
-OptionScreen_Choices:
-	dc.l (9-1)<<24|(Player_option&$FFFFFF)
-	dc.l (2-1)<<24|(Two_player_items&$FFFFFF)
-	dc.l ($80-1)<<24|(Sound_test_sound&$FFFFFF)
+
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
@@ -11750,9 +11813,9 @@ OptionScreen_DrawSelected:
 	lea	(Chunk_Table+$30).l,a2
 	movea.l	(a3)+,a1
 	bsr.w	MenuScreenTextToRAM
-	lea	(Chunk_Table+$B6).l,a2
+	lea	(Chunk_Table+$8A).l,a2
 	moveq	#0,d1
-	cmpi.b	#2,(Options_menu_box).w
+	cmpi.b	#3,(Options_menu_box).w
 	beq.s	+
 	move.b	(Options_menu_box).w,d1
 	lsl.w	#2,d1
@@ -11763,15 +11826,15 @@ OptionScreen_DrawSelected:
 +
 	movea.l	(a4,d1.w),a1
 	bsr.w	MenuScreenTextToRAM
-	cmpi.b	#2,(Options_menu_box).w
+	cmpi.b	#3,(Options_menu_box).w
 	bne.s	+
-	lea	(Chunk_Table+$C2).l,a2
+	lea	(Chunk_Table+$96).l,a2
 	bsr.w	OptionScreen_HexDumpSoundTest
 +
 	lea	(Chunk_Table).l,a1
 	move.l	(a3)+,d0
 	moveq	#$15,d1
-	moveq	#7,d2
+	moveq	#5,d2
 	jmpto	(PlaneMapToVRAM_H40).l, JmpTo_PlaneMapToVRAM_H40
 ; ===========================================================================
 
@@ -11787,9 +11850,9 @@ OptionScreen_DrawUnselected:
 	lea	(Chunk_Table+$190).l,a2
 	movea.l	(a3)+,a1
 	bsr.w	MenuScreenTextToRAM
-	lea	(Chunk_Table+$216).l,a2
+	lea	(Chunk_Table+$1EA).l,a2
 	moveq	#0,d1
-	cmpi.b	#2,(Options_menu_box).w
+	cmpi.b	#3,(Options_menu_box).w
 	beq.s	+
 	move.b	(Options_menu_box).w,d1
 	lsl.w	#2,d1
@@ -11801,33 +11864,33 @@ OptionScreen_DrawUnselected:
 +
 	movea.l	(a4,d1.w),a1
 	bsr.w	MenuScreenTextToRAM
-	cmpi.b	#2,(Options_menu_box).w
+	cmpi.b	#3,(Options_menu_box).w
 	bne.s	+
-	lea	(Chunk_Table+$222).l,a2
+	lea	(Chunk_Table+$1F6).l,a2
 	bsr.w	OptionScreen_HexDumpSoundTest
 
 +
 	lea	(Chunk_Table+$160).l,a1
 	move.l	(a3)+,d0
 	moveq	#$15,d1
-	moveq	#7,d2
+	moveq	#5,d2
 	jmpto	(PlaneMapToVRAM_H40).l, JmpTo_PlaneMapToVRAM_H40
 ; ===========================================================================
 
 ;loc_9268
 OptionScreen_SelectTextPtr:
-	lea	(off_92D2).l,a4
+	lea	(Character_SelectOpt).l,a4
 	tst.b	(Graphics_Flags).w
-	bpl.s	+
-	lea	(off_92DE).l,a4
-
-+
-	tst.b	(Options_menu_box).w
 	beq.s	+
-	lea	(off_92EA).l,a4
+	lea	(Character_SelectOpt2).l,a4
 
 +
 	cmpi.b	#2,(Options_menu_box).w
+	bne.s	+
+	lea	(off_92EA).l,a4
+
++
+	cmpi.b	#3,(Options_menu_box).w
 	bne.s	+	; rts
 	lea	(off_92F2).l,a4
 
@@ -11863,9 +11926,22 @@ boxData macro txtlabel,vramAddr
 	dc.l txtlabel, vdpComm(vramAddr,VRAM,WRITE)
     endm
 
-	boxData	TextOptScr_PlayerSelect,VRAM_Plane_A_Name_Table+planeLocH40(9,3)
-	boxData	TextOptScr_VsModeItems,VRAM_Plane_A_Name_Table+planeLocH40(9,11)
-	boxData	TextOptScr_SoundTest,VRAM_Plane_A_Name_Table+planeLocH40(9,19)
+	boxData	TextOptScr_PlayerSelect,VRAM_Plane_A_Name_Table+planeLocH40(9,2)
+	boxData	TextOptScr_SidekickSelect,VRAM_Plane_A_Name_Table+planeLocH40(9,8)
+	boxData	TextOptScr_VsModeItems,VRAM_Plane_A_Name_Table+planeLocH40(9,14)
+	boxData	TextOptScr_SoundTest,VRAM_Plane_A_Name_Table+planeLocH40(9,20 )
+
+Character_SelectOpt:
+	dc.l TextOptScr_None
+	dc.l TextOptScr_CharSonic
+	dc.l TextOptScr_CharMiles
+	dc.l TextOptScr_CharKnuckles
+
+Character_SelectOpt2:
+	dc.l TextOptScr_None
+	dc.l TextOptScr_CharSonic
+	dc.l TextOptScr_CharTails
+	dc.l TextOptScr_CharKnuckles
 
 off_92D2:
 	dc.l TextOptScr_SonicAlone
@@ -12419,8 +12495,17 @@ super_sonic_cheat:	dc.b   4,   1,   2,   6,   0	; Book of Genesis, 41:26
 
 	; options screen menu text
 
-TextOptScr_PlayerSelect:		menutxt	"* PLAYER SELECT *"	; byte_97CA:
+TextOptScr_PlayerSelect:		menutxt	"*PLAYER 1 SELECT*"	; byte_97CA:
+TextOptScr_SidekickSelect:		menutxt	"*PLAYER 2 SELECT*" 
 
+TextOptScr_None:				menutxt	"     NONE      "	
+TextOptScr_CharSonic:			menutxt	"     SONIC     "	
+TextOptScr_CharTails:			menutxt	"     TAILS     "	
+TextOptScr_CharKnuckles:		menutxt	"    KNUCKLES   "	
+TextOptScr_CharMiles:			menutxt	"     MILES     "	
+
+; old text options
+; ---------------------------------------------------------------------------
 TextOptScr_SonicAlone:			menutxt	"  SONIC ALONE  "	; byte_97FC:
 TextOptScr_TailsAlone:			menutxt	"  TAILS ALONE  "	; byte_981C:
 TextOptScr_KnucklesAlone:		menutxt	"KNUCKLES ALONE "	; byte_981C:
@@ -12436,7 +12521,7 @@ TextOptScr_SonicAndMiles:		menutxt	"SONIC AND MILES"	; byte_97EC:
 TextOptScr_MilesAndSonic:		menutxt	"MILES AND SONIC"	; byte_981C:
 TextOptScr_MilesAndKnuckles:	menutxt	"MILES AND K.T.E"	; byte_981C:
 TextOptScr_KnucklesAndMiles:	menutxt	"K.T.E AND MILES"	; byte_981C:
-
+; ---------------------------------------------------------------------------
 
 TextOptScr_VsModeItems:			menutxt	"* VS MODE ITEMS *"	; byte_982C:
 TextOptScr_AllKindsItems:		menutxt	"ALL KINDS ITEMS"	; byte_983E:

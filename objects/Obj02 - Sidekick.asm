@@ -64,8 +64,8 @@ Obj02_Init:
 	move.b	#$84,render_flags(a0) ; render_flags(Tails) = $80 | initial render_flags(Sonic)
 	lea	(Tails_top_speed).w,a2	; Load Tails_top_speed into a2
 	bsr.w	ApplySpeedSettings	; Fetch Speed settings
-	;cmpi.b	#2,(Main_player).w
-	;bne.s	Obj02_Init_2Pmode
+	tst.w	(Two_player_mode).w
+	bne.s	Obj02_Init_2Pmode
 	;tst.b	(Last_star_pole_hit).w
 	;bne.w	Obj02_Init_Continued
 	; only happens when not starting at a checkpoint:
