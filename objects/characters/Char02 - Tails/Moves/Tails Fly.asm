@@ -20,14 +20,16 @@ Tails_CheckFly:
 ; ---------------------------------------------------------------------------
 
 Tails_Flying:
+	bclr	#4,status(a0)		; clear roll jump flag
     btst	#6,status(a0)
     bne.s   Tails_Swiming
     move.b	#AniIDTailsAni_Fly,anim(a0)
-    sub.w   #45,y_vel(a0)
-    ; upward limiter
     cmpi.w  #-$120,y_vel(a0)
-    bge.s   +
-    add.w  #45,y_vel(a0)
+    bgt.s   +
+    sub.w   #40,y_vel(a0)
+    bra.s   ++
++
+    sub.w   #45,y_vel(a0)
 +
     cmpi.w  #$1E0,(Fly_timer).w
     bge.s   Tails_FlyTired
@@ -42,7 +44,11 @@ Tails_Flying:
 
 Tails_FlyUpward:
     add.b   #1,(Fly_flag).w
-    sub.w   #35,y_vel(a0)
+    ; upward limiter
+    cmpi.w  #-$120,y_vel(a0)
+    blt.s   +
+    sub.w   #40,y_vel(a0)
++
     cmpi.b  #22,(Fly_flag).w
     blt.s   +
     move.b  #1,(Fly_flag).w
@@ -58,11 +64,12 @@ Tails_FlyTired:
 
 Tails_Swiming:
     move.b	#AniIDTailsAni_Swim,anim(a0)
+    cmpi.w  #-$120,y_vel(a0)
+    bgt.s   +
+    sub.w   #40/4,y_vel(a0)
+    bra.s   ++
++
     sub.w   #45/4,y_vel(a0)
-    ; upward limiter
-    cmpi.w  #-$100,y_vel(a0)
-    bge.s   +
-    add.w  #45,y_vel(a0)
 +
     cmpi.w  #$1E0,(Fly_timer).w
     bge.s   Tails_SwimTired
@@ -77,7 +84,11 @@ Tails_Swiming:
 
 Tails_SwimUpward:
     add.b   #1,(Fly_flag).w
+    ; upward limiter
+    cmpi.w  #-$120,y_vel(a0)
+    blt.s   +
     sub.w   #35/2,y_vel(a0)
++
     cmpi.b  #32,(Fly_flag).w
     blt.s   +
     move.b  #1,(Fly_flag).w
