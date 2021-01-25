@@ -1,17 +1,10 @@
-
 ; ===========================================================================
 ; ----------------------------------------------------------------------------
-; Object 02 - Tails
+; Object 02 - Sidekck
 ; ----------------------------------------------------------------------------
-; Sprite_1B8A4: Object_Tails:
+; Sprite_1B8A4:
 Obj02:
 	; a0=character
-	cmpi.b	#2,(Main_player).w
-	bne.s	+
-	move.w	(Camera_Min_X_pos).w,(Tails_Min_X_pos).w
-	move.w	(Camera_Max_X_pos).w,(Tails_Max_X_pos).w
-	move.w	(Camera_Max_Y_pos_now).w,(Tails_Max_Y_pos).w
-+
 	moveq	#0,d0
 	move.b	routine(a0),d0
 	move.w	Obj02_Index(pc,d0.w),d1
@@ -30,35 +23,12 @@ Obj02_Index:	offsetTable
 ; loc_1B8D8: Obj02_Main:
 Obj02_Init:
 	addq.b	#2,routine(a0)	; => Obj01_Control
-; ===========================================================================
-	move.b	#$13,y_radius(a0) ; this sets Sonic's collision height (2*pixels)
-    cmpi.b  #2,(Sec_player).w
-    bne.s   +
-	move.b	#$F,y_radius(a0) ; this sets Sonic's collision height (2*pixels)
-+
-; ===========================================================================
-	move.b	#9,x_radius(a0)
-; ===========================================================================
-    ;Sonic
-	cmpi.b  #1,(Sec_player).w
-    bne.s   +
-	move.l	#Mapunc_Sonic,mappings(a0)
-+
-    ;Tails
-    cmpi.b  #2,(Sec_player).w
-    bne.s   +
-	move.l	#MapUnc_Tails,mappings(a0)
-+
-	;Knuckles
-	cmpi.b  #3,(Sec_player).w
-    bne.s   +
-	move.l	#MapUnc_Knuckles,mappings(a0)
-+
-; ===========================================================================
+	bsr.w	SetPlayer_Radius
+    bsr.w   SetPlayer_Mappings
 	move.b	#2,priority(a0)
 	cmpi.b	#2,(Main_player).w
 	bne.s	+
-	move.b	#3,priority(a0)
+	addi.b	#1,priority(a0)
 +
 	move.b	#$18,width_pixels(a0)
 	move.b	#$84,render_flags(a0) ; render_flags(Tails) = $80 | initial render_flags(Sonic)
@@ -69,22 +39,7 @@ Obj02_Init:
 	;tst.b	(Last_star_pole_hit).w
 	;bne.w	Obj02_Init_Continued
 	; only happens when not starting at a checkpoint:
-; ===========================================================================
-    cmpi.b  #2,(Sec_player).w
-    bne.s   +
-	move.w	#make_art_tile(ArtTile_ArtUnc_Tails,0,0),art_tile(a0)
-+
-	cmpi.b  #2,(Sec_player).w
-    beq.s   +
-	move.w	#make_art_tile(ArtTile_ArtUnc_Sonic,0,0),art_tile(a0)
-+
-	cmpi.b	#3,(Sec_player).w
-	bne.s	+
-	cmpi.b	#1,(Main_player).w
-	bne.s	+
-	move.w	#make_art_tile(ArtTile_ArtUnc_Tails,0,0),art_tile(a0)
-+
-; ===========================================================================
+    bsr.w	SetPlayer_ArtTile
 	bsr.w	Adjust2PArtPointer
 	move.b	#$C,top_solid_bit(a0)
 	move.b	#$D,lrb_solid_bit(a0)
@@ -96,22 +51,7 @@ Obj02_Init:
 ; ===========================================================================
 ; loc_1B952:
 Obj02_Init_2Pmode:
-; ===========================================================================
-    cmpi.b  #2,(Sec_player).w
-    bne.s   +
-	move.w	#make_art_tile(ArtTile_ArtUnc_Tails,0,0),art_tile(a0)
-+
-	cmpi.b  #2,(Sec_player).w
-    beq.s   +
-	move.w	#make_art_tile(ArtTile_ArtUnc_Sonic,0,0),art_tile(a0)
-+
-	cmpi.b	#3,(Sec_player).w
-	bne.s	+
-	cmpi.b	#1,(Main_player).w
-	bne.s	+
-	move.w	#make_art_tile(ArtTile_ArtUnc_Tails,0,0),art_tile(a0)
-+
-; ===========================================================================
+	bsr.w	SetPlayer_ArtTile
 	bsr.w	Adjust2PArtPointer
 	move.w	(MainCharacter+top_solid_bit).w,top_solid_bit(a0)
 	tst.w	(MainCharacter+art_tile).w
@@ -182,12 +122,12 @@ Obj02_Control_Part2:
 	bne.s	+
 	move.b	next_anim(a0),anim(a0)
 +
-	bsr.w	Sidekick_Animate
+	bsr.w	SetPlayer_Animate
 	tst.b	obj_control(a0)
 	bmi.s	+
 	jsr	(TouchResponse).l
 +
-	bra.w	LoadSidekickDynPLC
+	bra.w	LoadPlayerDynPLC
 
 ; ===========================================================================
 ; secondary states under state Obj02_Normal
@@ -903,7 +843,7 @@ Obj02_OutWater:
 
 ; ===========================================================================
 Obj02_MdNormal:
-	bsr.w	Sidekick_SetMove
+	bsr.w	SetPlayer_Move
 	bsr.w	Tails_CheckSpindash
 	bsr.w	Tails_Jump
 	bsr.w	Tails_SlopeResist
@@ -1768,7 +1708,7 @@ Tails_JumpHeight:
 +
 	tst.w	(Tails_control_counter).w	; if CPU has control
 	beq.w	+
-	bsr.w	Sidekick_SetAirMove
+	bsr.w	SetPlayer_AirMove
 +
 	cmp.w	y_vel(a0),d1	; is Tails going up faster than d1?
 	ble.s	+		; if not, branch
@@ -2349,8 +2289,8 @@ Obj02_Hurt:
 	bsr.w	Tails_HurtStop
 	bsr.w	Tails_LevelBound
 	bsr.w	Tails_RecordPos
-	bsr.w	Sidekick_Animate
-	bsr.w	LoadSidekickDynPLC
+	bsr.w	SetPlayer_Animate
+	bsr.w	LoadPlayerDynPLC
 	jmp	(DisplaySprite).l
 ; ===========================================================================
 ; loc_1CC08:
@@ -2386,8 +2326,8 @@ Obj02_Dead:
 	bsr.w	Obj02_CheckGameOver
 	jsr	(ObjectMoveAndFall).l
 	bsr.w	Tails_RecordPos
-	bsr.w	Sidekick_Animate
-	bsr.w	LoadSidekickDynPLC
+	bsr.w	SetPlayer_Animate
+	bsr.w	LoadPlayerDynPLC
 	jmp	(DisplaySprite).l
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
@@ -2506,8 +2446,8 @@ Obj02_Respawning:
 	bne.s	+
 	move.b	#2,routine(a0)
 +
-	bsr.w	Sidekick_Animate
-	bsr.w	LoadSidekickDynPLC
+	bsr.w	SetPlayer_Animate
+	bsr.w	LoadPlayerDynPLC
 	jmp	(DisplaySprite).l
 ; ===========================================================================
 
@@ -2518,76 +2458,8 @@ Obj02_Drowned:
 	bsr.w	ObjectMove	; Make Tails able to move
 	addi.w	#$10,y_vel(a0)	; Apply gravity
 	bsr.w	Tails_RecordPos	; Record position
-	bsr.w	Sidekick_Animate	; Animate Tails
-	bsr.w	LoadSidekickDynPLC	; Load Tails's DPLCs
+	bsr.w	SetPlayer_Animate	; Animate Tails
+	bsr.w	LoadPlayerDynPLC	; Load Tails's DPLCs
 	bra.w	DisplaySprite	; And finally, display Tails
 
-
-; ---------------------------------------------------------------------------
-; Main player animate subroutine
-; ---------------------------------------------------------------------------
-Sidekick_Animate:
-	cmpi.b	#1,(Sec_player).w
-	beq.w	Sonic_Animate
-	cmpi.b	#2,(Sec_player).w
-	beq.w	Tails_Animate
-	cmpi.b	#3,(Sec_player).w
-	beq.w	Knuckles_Animate
-	rts
-
-
-; ---------------------------------------------------------------------------
-; Sidekick pattern loading subroutine
-; ---------------------------------------------------------------------------
-LoadSidekickDynPLC:
-	cmpi.b	#1,(Sec_player).w
-	beq.w	LoadSonicDynPLC
-	cmpi.b	#2,(Sec_player).w
-	beq.w	LoadTailsDynPLC
-	cmpi.b	#3,(Sec_player).w
-	beq.w	LoadKnucklesDynPLC
-LoadSidekickDynPLC_Part2:
-	cmpi.b	#1,(Sec_player).w
-	beq.w	LoadSonicDynPLC_Part2
-	cmpi.b	#2,(Sec_player).w
-	beq.w	LoadTailsDynPLC_Part2
-	cmpi.b	#3,(Sec_player).w
-	beq.w	LoadKnucklesDynPLC_Part2
-	rts
-
-
-; ---------------------------------------------------------------------------
-; Subroutine to load the special moves of each character 
-; (not including those used by all characters like the Spindash)
-; ---------------------------------------------------------------------------
-Sidekick_SetMove:
-	cmpi.b	#1,(Sec_player).w
-	bne.s	+
-	rts
-+
-	cmpi.b	#2,(Sec_player).w
-	bne.s	+
-	rts
-+
-	cmpi.b	#3,(Sec_player).w
-	bne.s	+
-	rts
-+
-	rts
-
-Sidekick_SetAirMove:
-	cmpi.b	#1,(Sec_player).w
-	bne.s	+
-	rts
-+
-	cmpi.b	#2,(Sec_player).w
-	bne.s	+
-	bsr.w	Tails_CheckFly
-	rts
-+
-	cmpi.b	#3,(Sec_player).w
-	bne.s	+
-	bsr.w	Knuckles_CheckGlide
-	rts
-+
-	rts
+	

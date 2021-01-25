@@ -33748,6 +33748,7 @@ loc_19F4C:
 	include "objects/Obj01 - Main Player.asm"	 ; objeto del jugador principal
 	include "objects/Obj02 - Sidekick.asm"		 ; objeto del jugador secundario
 	include "objects/Obj05 - Tails Tails.asm"	 ; objeto de las colas de Tails
+	include "objects/SetPlayer.asm"
 
 ; ----------------------------------------------------------------------------
 ; PERSONAJES
@@ -71394,16 +71395,19 @@ ObjB2_Animate_Pilot:
 	cmpi.b	#1,(Sec_player).w
 	bne.s	+
 	move.b	Sonic_pilot_frames(pc,d0.w),d0
+	jmp LoadSonicDynPLC_Part2
 +
 	cmpi.b	#2,(Sec_player).w
 	bne.s	+
 	move.b	Tails_pilot_frames(pc,d0.w),d0
+	jmp LoadTailsDynPLC_Part2
 +
 	cmpi.b	#3,(Sec_player).w
 	bne.s	+
 	move.b	Knuckles_pilot_frames(pc,d0.w),d0
+	jmp LoadKnucklesDynPLC_Part2
 +
-	jmp LoadSidekickDynPLC_Part2
+	rts
 ;	include "objects/ObjB2 - Animate Pilot.asm"
 ; ===========================================================================
   ; loc_3AF94:
@@ -76622,8 +76626,8 @@ JmpTo2_MarkObjGone_P1
 	jmp	(MarkObjGone_P1).l
 JmpTo_Pal_FadeToWhite_UpdateColour
 	jmp	(Pal_FadeToWhite.UpdateColour).l
-JmpTo_LoadSidekickDynPLC_Part2
-	jmp	(LoadSidekickDynPLC_Part2).l
+;JmpTo_LoadSidekickDynPLC_Part2
+;	jmp	(LoadSidekickDynPLC_Part2).l
 JmpTo_LoadPlayerDynPLC_Part2
 	jmp	(LoadPlayerDynPLC_Part2).l
 JmpTo8_MarkObjGone3

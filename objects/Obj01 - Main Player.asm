@@ -1,9 +1,9 @@
 
 ; ===========================================================================
 ; ----------------------------------------------------------------------------
-; Object 01 - Sonic
+; Object 01 - Main Character
 ; ----------------------------------------------------------------------------
-; Sprite_19F50: Object_Sonic:
+; Sprite_19F50:
 Obj01:
 	; a0=character
 	tst.w	(Debug_placement_mode).w	; is debug mode being used?
@@ -30,34 +30,8 @@ Obj01_Index:	offsetTable
 ; loc_19F76: Obj_01_Sub_0: Obj01_Main:
 Obj01_Init:
 	addq.b	#2,routine(a0)	; => Obj01_Control
-; ===========================================================================
-	move.b	#$13,y_radius(a0) ; this sets Sonic's collision height (2*pixels)
-    cmpi.b  #2,(Main_player).w
-    bne.s   +
-	move.b	#$F,y_radius(a0) ; this sets Sonic's collision height (2*pixels)
-+
-; ===========================================================================
-	move.b	#9,x_radius(a0)
-; ===========================================================================
-    ;Sonic
-	cmpi.b  #1,(Main_player).w
-    bne.s   +
-	move.l	#Mapunc_Sonic,mappings(a0)
-	tst.b	(Super_Sonic_flag).w
-	beq.s	+
-	move.l	#Mapunc_SuperSonic,mappings(a0)
-+
-    ;Tails
-    cmpi.b  #2,(Main_player).w
-    bne.s   +
-	move.l	#MapUnc_Tails,mappings(a0)
-+
-	;Knuckles
-	cmpi.b  #3,(Main_player).w
-    bne.s   +
-	move.l	#MapUnc_Knuckles,mappings(a0)
-+
-; ===========================================================================
+	bsr.w	SetPlayer_Radius
+    bsr.w   SetPlayer_Mappings
 	move.b	#2,priority(a0)
 	move.b	#$18,width_pixels(a0)
 	move.b	#4,render_flags(a0)
@@ -66,22 +40,7 @@ Obj01_Init:
 	;tst.b	(Last_star_pole_hit).w
 	;bne.s	Obj01_Init_Continued
 	; only happens when not starting at a checkpoint:
-; ===========================================================================
-	cmpi.b  #2,(Main_player).w
-    bne.s   +
-	move.w	#make_art_tile(ArtTile_ArtUnc_Tails,0,0),art_tile(a0)
-+
-	cmpi.b  #2,(Main_player).w
-    beq.s   +
-	move.w	#make_art_tile(ArtTile_ArtUnc_Sonic,0,0),art_tile(a0)
-+
-	cmpi.b	#3,(Main_player).w
-	bne.s	+
-	cmpi.b	#1,(Sec_player).w
-	bne.s	+
-	move.w	#make_art_tile(ArtTile_ArtUnc_Tails,0,0),art_tile(a0)
-+
-; ===========================================================================
+	bsr.w	SetPlayer_ArtTile
 	bsr.w	Adjust2PArtPointer
 	move.b	#$C,top_solid_bit(a0)
 	move.b	#$D,lrb_solid_bit(a0)
@@ -154,7 +113,7 @@ Obj01_Control:
 	bne.s	+
 	move.b	next_anim(a0),anim(a0)
 +
-	bsr.w	Player_Animate
+	bsr.w	SetPlayer_Animate
 	tst.b	obj_control(a0)
 	bmi.s	+
 	jsr	(TouchResponse).l
@@ -315,7 +274,7 @@ Obj01_OutWater:
 ; ===========================================================================
 ; loc_1A2B8:
 Obj01_MdNormal:
-	bsr.w	Player_SetMove
+	bsr.w	SetPlayer_Move
 	bsr.w	Sonic_CheckSpindash
 	bsr.w	Sonic_Jump
 	bsr.w	Sonic_SlopeResist
@@ -1189,7 +1148,7 @@ Sonic_JumpHeight:
 	beq.s	+		; if not, branch
 	move.w	#-$200,d1
 +
-	bsr.w	Player_SetAirMove
+	bsr.w	SetPlayer_AirMove
 	cmp.w	y_vel(a0),d1	; is Sonic going up faster than d1?
 	ble.s	+		; if not, branch
 	move.b	(Ctrl_1_Held_Logical).w,d0
@@ -1893,7 +1852,7 @@ Obj01_Hurt_Normal:
 	bsr.w	Sonic_HurtStop
 	bsr.w	Sonic_LevelBound
 	bsr.w	Sonic_RecordPos
-	bsr.w	Player_Animate
+	bsr.w	SetPlayer_Animate
 	bsr.w	LoadPlayerDynPLC
 	jmp	(DisplaySprite).l
 ; ===========================================================================
@@ -1926,7 +1885,7 @@ Sonic_HurtInstantRecover:
 	subq.b	#2,routine(a0)	; => Obj01_Control
 	move.b	#0,routine_secondary(a0)
 	bsr.w	Sonic_RecordPos
-	bsr.w	Player_Animate
+	bsr.w	SetPlayer_Animate
 	bsr.w	LoadPlayerDynPLC
 	jmp	(DisplaySprite).l
 ; ===========================================================================
@@ -1949,7 +1908,7 @@ Obj01_Dead:
 	bsr.w	CheckGameOver
 	jsr	(ObjectMoveAndFall).l
 	bsr.w	Sonic_RecordPos
-	bsr.w	Player_Animate
+	bsr.w	SetPlayer_Animate
 	bsr.w	LoadPlayerDynPLC
 	jmp	(DisplaySprite).l
 
@@ -2048,7 +2007,7 @@ Obj01_Respawning:
 	bne.s	+
 	move.b	#2,routine(a0)	; => Obj01_Control
 +
-	bsr.w	Player_Animate
+	bsr.w	SetPlayer_Animate
 	bsr.w	LoadPlayerDynPLC
 	jmp	(DisplaySprite).l
 ; ===========================================================================
@@ -2060,79 +2019,16 @@ Obj01_Drowned:
 	bsr.w	ObjectMove	; Make Sonic able to move
 	addi.w	#$10,y_vel(a0)	; Apply gravity
 	bsr.w	Sonic_RecordPos	; Record position
-	bsr.w	Player_Animate	; Animate Sonic
+	bsr.w	SetPlayer_Animate	; Animate Sonic
 	bsr.w	LoadPlayerDynPLC	; Load Sonic's DPLCs
 	bra.w	DisplaySprite	; And finally, display Sonic
 
 
-; ---------------------------------------------------------------------------
-; Main player animate subroutine
-; ---------------------------------------------------------------------------
-Player_Animate:
-	cmpi.b	#1,(Main_player).w
-	beq.w	Sonic_Animate
-	cmpi.b	#2,(Main_player).w
-	beq.w	Tails_Animate
-	cmpi.b	#3,(Main_player).w
-	beq.w	Knuckles_Animate
-	rts
 
 
-; ---------------------------------------------------------------------------
-; Main player pattern loading subroutine
-; ---------------------------------------------------------------------------
-LoadPlayerDynPLC:
-	cmpi.b	#1,(Main_player).w
-	beq.w	LoadSonicDynPLC
-	cmpi.b	#2,(Main_player).w
-	beq.w	LoadTailsDynPLC
-	cmpi.b	#3,(Main_player).w
-	beq.w	LoadKnucklesDynPLC
-LoadPlayerDynPLC_Part2:
-	cmpi.b	#1,(Main_player).w
-	beq.w	LoadSonicDynPLC_Part2
-	cmpi.b	#2,(Main_player).w
-	beq.w	LoadTailsDynPLC_Part2
-	cmpi.b	#3,(Main_player).w
-	beq.w	LoadKnucklesDynPLC_Part2
-	rts
 
 
-; ---------------------------------------------------------------------------
-; Subroutine to load the special moves of each character 
-; (not including those used by all characters like the Spindash)
-; ---------------------------------------------------------------------------
-Player_SetMove:
-	cmpi.b	#1,(Main_player).w
-	bne.s	+
-	rts
-+
-	cmpi.b	#2,(Main_player).w
-	bne.s	+
-	rts
-+
-	cmpi.b	#3,(Main_player).w
-	bne.s	+
-	rts
-+
-	rts
 
-Player_SetAirMove:
-	cmpi.b	#1,(Main_player).w
-	bne.s	+
-	rts
-+
-	cmpi.b	#2,(Main_player).w
-	bne.s	+
-	bsr.w	Tails_CheckFly
-	rts
-+
-	cmpi.b	#3,(Main_player).w
-	bne.s	+
-	bsr.w	Knuckles_CheckGlide
-	rts
-+
-	rts
 
 JmpTo_KillCharacter
 	jmp	(KillCharacter).l
