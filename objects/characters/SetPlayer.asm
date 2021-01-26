@@ -5,32 +5,40 @@
 ; ===========================================================================
 
     ; a0 = object
-    ; d0 = Player_MainChar or Player_Sidekick if Obj02 use it
-    ; d0 = Player_Sidekick or Player_MainChar if Obj02 use it
+    ; d0 = 0000 Sidekick -> 0000 Main Character
 
 ; ---------------------------------------------------------------------------
 ; detect object
 ; ---------------------------------------------------------------------------
 DetectObj_Player:
+	moveq	#0,d0
+	_cmpi.b	#ObjID_MainPlayer,id(a0)	; is this object ID Player_MainChar (obj01)?
+	bne.s	+   ; if not, define Player_Sidekick on d0
     move.b  (Player_MainChar).w,d0
-    move.b  (Player_Sidekick).w,d1
-    _cmpi.b	#ObjID_MainPlayer,id(a0)	; is this object ID Player_MainChar (obj01)?
-	beq.s	+   ; if not, define Player_Sidekick on d0
+	swap	d0
     move.b  (Player_Sidekick).w,d0
-    move.b  (Player_MainChar).w,d1
-+   rts
+	swap	d0
+	rts
++  
+    move.b  (Player_Sidekick).w,d0
+	swap	d0
+    move.b  (Player_MainChar).w,d0
+	swap	d0
+	rts
 
 ; ---------------------------------------------------------------------------
 ; detect object controller read (Main character or Sidekick)
 ; ---------------------------------------------------------------------------
 DetectPlayerCtrl:
+	_cmpi.b	#ObjID_MainPlayer,id(a0)	; is this object ID Player_MainChar (obj01)?
+	bne.s	+   ; if not, define Player_Sidekick on d0
 	move.b	(Ctrl_1_Press_Logical).w,(Ctrl_Press_Logical).w
 	move.b	(Ctrl_1_Held_Logical).w,(Ctrl_Held_Logical).w
-	_cmpi.b	#ObjID_MainPlayer,id(a0)	; is this object ID Player_MainChar (obj01)?
-	beq.s	+   ; if not, define Player_Sidekick on d0
+	rts
++
 	move.b	(Ctrl_2_Press_Logical).w,(Ctrl_Press_Logical).w
 	move.b	(Ctrl_2_Held_Logical).w,(Ctrl_Held_Logical).w
-+	rts
+	rts
 
 ; ---------------------------------------------------------------------------
 ; Set player radius
@@ -67,22 +75,64 @@ SetPlayer_Mappings:
 +   rts
 
 ; ---------------------------------------------------------------------------
-; Set player art tile
+; Set player pattern loading subroutine
 ; ---------------------------------------------------------------------------
-SetPlayer_ArtTile:
+LoadPlayerDynPLC:
+	bsr.w	LoadCharDynPLC
+	rts
+LoadPlayerDynPLC_Part2:
+	bsr.w	LoadCharDynPLC_Part2
+	rts
+
+; ---------------------------------------------------------------------------
+; Set player DPLC
+; ---------------------------------------------------------------------------
+SetPlayerDPLC:
+	move.l 	d0,d1	; backup d0 on d1
     bsr.w   DetectObj_Player
-    cmpi.b  #2,d0
-    bne.s   +
-	move.w	#make_art_tile(ArtTile_ArtUnc_Tails,0,0),art_tile(a0)
-+   cmpi.b  #2,d0
-    beq.s   +
-	move.w	#make_art_tile(ArtTile_ArtUnc_Sonic,0,0),art_tile(a0)
-+   cmpi.b	#3,d0
+	cmpi.b	#1,d0
+	bne.s	++
+	tst.b	(Super_Sonic_flag).w	; super Sonic?
+	beq.s	+
+	lea	(MapRUnc_SuperSonic).l,a2
+	bra.s	++
++
+	lea	(MapRUnc_Sonic).l,a2
++
+	cmpi.b	#2,d0
 	bne.s	+
-	cmpi.b	#1,d1
+	lea	(MapRUnc_Tails).l,a2
++
+	cmpi.b	#3,d0
 	bne.s	+
-	move.w	#make_art_tile(ArtTile_ArtUnc_Tails,0,0),art_tile(a0)
-+   rts
+	lea	(MapRUnc_Knuckles).l,a2
++
+	move.l 	d1,d0	; restore d0
+	rts
+
+; ---------------------------------------------------------------------------
+; Set player DPLC
+; ---------------------------------------------------------------------------
+SetPlayerArt:
+	bsr.w   DetectObj_Player
+	cmpi.b	#1,d0
+	bne.s	++
+	tst.b	(Super_Sonic_flag).w	; super Sonic?
+	beq.s	+
+	addi.l	#ArtUnc_SuperSonic,d1
+	bra.s	++
++	
+	addi.l	#ArtUnc_Sonic,d1
++
+	cmpi.b	#2,d0
+	bne.s	+
+	addi.l	#ArtUnc_Tails,d1
++
+	cmpi.b	#3,d0
+	bne.s	+
+	addi.l	#ArtUnc_Knuckles,d1
++
+	rts
 
 ; ---------------------------------------------------------------------------
 ; Set player animate subroutine
@@ -95,26 +145,6 @@ SetPlayer_Animate:
 	beq.w	Tails_Animate
 	cmpi.b	#3,d0
 	beq.w	Knuckles_Animate
-	rts
-
-; ---------------------------------------------------------------------------
-; Set player pattern loading subroutine
-; ---------------------------------------------------------------------------
-LoadPlayerDynPLC:
-    bsr.w   DetectObj_Player
-	cmpi.b	#1,d0
-	beq.w	LoadSonicDynPLC
-	cmpi.b	#2,d0
-	beq.w	LoadTailsDynPLC
-	cmpi.b	#3,d0
-	beq.w	LoadKnucklesDynPLC
-LoadPlayerDynPLC_Part2:
-	cmpi.b	#1,d0
-	beq.w	LoadSonicDynPLC_Part2
-	cmpi.b	#2,d0
-	beq.w	LoadTailsDynPLC_Part2
-	cmpi.b	#3,d0
-	beq.w	LoadKnucklesDynPLC_Part2
 	rts
 
 ; ---------------------------------------------------------------------------

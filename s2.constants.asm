@@ -2398,7 +2398,7 @@ ArtTile_ArtNem_HUD                    = ArtTile_ArtNem_Powerups + $4A
 ArtTile_ArtUnc_Sonic                  = $0780
 ArtTile_ArtUnc_Tails                  = $07A0
 ;ArtTile_ArtUnc_Tails_Tails            = $03BE
-ArtTile_ArtUnc_Tails_Tails            = $07B0
+;ArtTile_ArtUnc_Tails_Tails            = $07B0
 
 ; ---------------------------------------------------------------------------
 ; HUD. The HUD components are linked in a chain, and linked to

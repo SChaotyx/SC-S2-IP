@@ -10118,7 +10118,7 @@ ObjDB_Sonic_Wait:
 	tst.b	(Ctrl_1_Press).w	; is start pressed?
 	bmi.s	ObjDB_Sonic_StartRunning ; if yes, branch
 	jsr	(Sonic_Animate).l
-	jmp	(LoadSonicDynPLC).l
+	jmp	(LoadCharDynPLC).l
 ; ---------------------------------------------------------------------------
 ; loc_7BE4:
 ObjDB_Sonic_StartRunning:
@@ -10140,7 +10140,7 @@ ObjDB_Sonic_Run:
 +
 	jsr	(ObjectMove).l
 	jsr	(Sonic_Animate).l
-	jmp	(LoadSonicDynPLC).l
+	jmp	(LoadCharDynPLC).l
 ; ===========================================================================
 ; loc_7C22:
 ObjDB_Tails_Init:
@@ -10182,7 +10182,7 @@ ObjDB_Tails_Run:
 +
 	jsr	(ObjectMove).l
 	jsr	(Tails_Animate).l
-	jmp	(LoadTailsDynPLC).l
+	jmp	(LoadCharDynPLC).l
 ; ===========================================================================
 ; animation script for continue screen Tails nagging
 ; off_7CB0
@@ -33740,24 +33740,17 @@ loc_19F4C:
 
 ; ===========================================================================
 ; ===========================================================================
-; OTROS
 
 ; ----------------------------------------------------------------------------
-; OBJETOS
-	include "objects/Speed Table.asm"			 ; subrutina para elegir las estadisticas correctas del jugador principal y secundario
+; OBJECTS
 	include "objects/Obj01 - Main Player.asm"	 ; objeto del jugador principal
 	include "objects/Obj02 - Sidekick.asm"		 ; objeto del jugador secundario
 	include "objects/Obj05 - Tails Tails.asm"	 ; objeto de las colas de Tails
-	include "objects/SetPlayer.asm"
 
+
+	include "objects/characters/Characters Index.asm"
+	
 ; ----------------------------------------------------------------------------
-; PERSONAJES
-; aqui normalmente se incluyo codigo para las animaciones, patrones de carga y habilidades especiales
-
-
-	include "objects/characters/Char01 - Sonic/Main.asm"	; codigo incluido exclusivo para el uso de Sonic
-	include "objects/characters/Char02 - Tails/Main.asm"	; codigo incluido exclusivo para el uso de Tails
-	include "objects/characters/Char03 - Knuckles/Main.asm"	; codigo incluido exclusivo para el uso de Knuckles
 
 ; ===========================================================================
 ; ===========================================================================
@@ -71395,18 +71388,16 @@ ObjB2_Animate_Pilot:
 	cmpi.b	#1,(Player_Sidekick).w
 	bne.s	+
 	move.b	Sonic_pilot_frames(pc,d0.w),d0
-	jmp LoadSonicDynPLC_Part2
 +
 	cmpi.b	#2,(Player_Sidekick).w
 	bne.s	+
 	move.b	Tails_pilot_frames(pc,d0.w),d0
-	jmp LoadTailsDynPLC_Part2
 +
 	cmpi.b	#3,(Player_Sidekick).w
 	bne.s	+
 	move.b	Knuckles_pilot_frames(pc,d0.w),d0
-	jmp LoadKnucklesDynPLC_Part2
 +
+	jmp LoadCharDynPLC_Part2
 	rts
 ;	include "objects/ObjB2 - Animate Pilot.asm"
 ; ===========================================================================

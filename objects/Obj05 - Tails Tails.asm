@@ -21,7 +21,13 @@ Obj05_parent_prev_anim = objoff_30
 Obj05_Init:
 	addq.b	#2,routine(a0) ; => Obj05_Main
 	move.l	#MapUnc_TailsTails,mappings(a0)
-	move.w	#make_art_tile(ArtTile_ArtUnc_Tails_Tails,0,0),art_tile(a0)
+	cmpi.b	#2,(Player_MainChar).w
+	beq.s	+
+	move.w	#make_art_tile(ArtTile_ArtUnc_Tails+16,0,0),art_tile(a0)
+	bra.s	++
++
+	move.w	#make_art_tile(ArtTile_ArtUnc_Sonic+16,0,0),art_tile(a0)
++
 	bsr.w	Adjust2PArtPointer
 	move.b	#2,priority(a0)
 	move.b	#$18,width_pixels(a0)
@@ -146,6 +152,54 @@ Obj05Ani_Hanging:	dc.b    9, $29, $2A, $2B, $2C, $FF
 	rev02even
 Obj05Ani_Fly:	dc.b    1, $27, $28, $FF
 	rev02even
+
+
+; ---------------------------------------------------------------------------
+; Tails' Tails pattern loading subroutine
+; ---------------------------------------------------------------------------
+
+; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
+
+; loc_1D184:
+LoadTailsTailsDynPLC:
+	moveq	#0,d0
+	move.b	mapping_frame(a0),d0
+	cmp.b	(TailsTails_LastLoadedDPLC).w,d0
+	beq.w	return_1D1FE2
+	move.b	d0,(TailsTails_LastLoadedDPLC).w
+	lea	(MapRUnc_TailsTails).l,a2
+	add.w	d0,d0
+	adda.w	(a2,d0.w),a2
+	move.w	(a2)+,d5
+	subq.w	#1,d5
+	bmi.w	return_1D1FE2
+	cmpi.b	#2,(Player_MainChar).w
+	beq.s	+
+	move.w	#tiles_to_bytes(ArtTile_ArtUnc_Tails+16),d4
+	bra.s	++
++
+	move.w	#tiles_to_bytes(ArtTile_ArtUnc_Sonic+16),d4
++
+	bra.w	TTPLC_ReadEntry
+
+TTPLC_ReadEntry:
+	moveq	#0,d1
+	move.w	(a2)+,d1
+	move.w	d1,d3
+	lsr.w	#8,d3
+	andi.w	#$F0,d3
+	addi.w	#$10,d3
+	andi.w	#$FFF,d1
+	lsl.l	#5,d1
+	addi.l	#ArtUnc_TailsTails,d1
+	move.w	d4,d2
+	add.w	d3,d4
+	add.w	d3,d4
+	jsr	(QueueDMATransfer).l
+	dbf	d5,TTPLC_ReadEntry	; repeat for number of entries
+
+return_1D1FE2:
+	rts
 
 ; ===========================================================================
 

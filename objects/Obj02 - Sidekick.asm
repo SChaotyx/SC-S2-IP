@@ -39,7 +39,8 @@ Obj02_Init:
 	;tst.b	(Last_star_pole_hit).w
 	;bne.w	Obj02_Init_Continued
 	; only happens when not starting at a checkpoint:
-    bsr.w	SetPlayer_ArtTile
+    ;bsr.w	SetPlayer_ArtTile
+	move.w	#make_art_tile(ArtTile_ArtUnc_Tails,0,0),art_tile(a0)
 	bsr.w	Adjust2PArtPointer
 	move.b	#$C,top_solid_bit(a0)
 	move.b	#$D,lrb_solid_bit(a0)
@@ -51,7 +52,8 @@ Obj02_Init:
 ; ===========================================================================
 ; loc_1B952:
 Obj02_Init_2Pmode:
-	bsr.w	SetPlayer_ArtTile
+	;bsr.w	SetPlayer_ArtTile
+	move.w	#make_art_tile(ArtTile_ArtUnc_Tails,0,0),art_tile(a0)
 	bsr.w	Adjust2PArtPointer
 	move.w	(MainCharacter+top_solid_bit).w,top_solid_bit(a0)
 	tst.w	(MainCharacter+art_tile).w
