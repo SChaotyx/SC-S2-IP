@@ -13140,23 +13140,11 @@ ObjCC_Index:	offsetTable
 ObjCC_Init:
 	lea	(ObjB2_SubObjData).l,a1
 	jsrto	(LoadSubObject_Part3).l, JmpTo_LoadSubObject_Part3
+	cmpi.b	#2,(Player_Sidekick).w
+	beq.s	+
 	move.b	#4,mapping_frame(a0)
-	cmpi.b	#2,(Player_MainChar).w
-	bne.s	+
 	move.b	#1,anim(a0)
-+
-	cmpi.b	#3,(Player_Sidekick).w
-	bne.s	+
-	cmpi.b	#1,(Player_MainChar).w
-	bne.s	+
-	move.b	#2,anim(a0)
-+
-	cmpi.b	#1,(Player_Sidekick).w
-	bne.s	+
-	cmpi.b	#3,(Player_MainChar).w
-	bne.s	+
-	move.b	#1,anim(a0)
-+
++ 
 	move.w	#-$10,x_pos(a0)
 	move.w	#$C0,y_pos(a0)
 	move.w	#$100,x_vel(a0)
@@ -70604,24 +70592,12 @@ ObjB2_Init:
 	move.b	subtype(a0),d0
 	subi.b	#$4E,d0
 	move.b	d0,routine(a0)
-
-	;WHAAAAAAAAAAAAATTTTT ---> AH YA ENTENDÍ XD 
 	cmpi.b	#2,(Player_Sidekick).w
-	beq.s	++
-	cmpi.b	#8,d0
-	bhs.s	++
-	cmpi.b	#3,(Player_Sidekick).w
-	bne.s	+
-	cmpi.b	#1,(Player_MainChar).w
-	bne.s	+
-	move.b	#4,mapping_frame(a0)
-	move.b	#2,anim(a0)
-	bra.s	++
-+
+	beq.s	+
 	move.b	#4,mapping_frame(a0)
 	move.b	#1,anim(a0)
-
-+ ; BranchTo5_JmpTo45_DisplaySprite
++ 
+	; BranchTo5_JmpTo45_DisplaySprite
 	jmpto	(DisplaySprite).l, JmpTo45_DisplaySprite
 ; ===========================================================================
 ; loc_3A7DE:
