@@ -38,8 +38,8 @@ Tails_ResetOnFloor_Part3:
 	move.b	#0,flip_turned(a0)
 	move.b	#0,flips_remaining(a0)
 	move.w	#0,(Tails_Look_delay_counter).w
-	move.b	#0,(Fly_flag).w
-	move.w	#0,(Fly_timer).w
+	move.b	#0,double_jump_flag(a0)
+	move.b	#0,double_jump_properly(a0)
 	cmpi.b	#AniIDTailsAni_Hang2,anim(a0)
 	bne.s	return_1CBC4
 	move.b	#AniIDTailsAni_Walk,anim(a0)
@@ -346,9 +346,9 @@ TailsAni_Dummy4_ptr:	offsetTableEntry.w TailsAni_Dummy4	; 29 ; $1D
 TailsAni_Dummy5_ptr:	offsetTableEntry.w TailsAni_Dummy5	; 30 ; $1E
 TailsAni_HaulAss_ptr:	offsetTableEntry.w TailsAni_HaulAss	; 31 ; $1F
 TailsAni_Fly_ptr:	offsetTableEntry.w TailsAni_Fly		; 32 ; $20
-TailsAni_Swim_ptr:	offsetTableEntry.w TailsAni_Swim		; 33 ; $21
-TailsAni_Tired_ptr:	offsetTableEntry.w TailsAni_Tired		; 34 ; $22
-TailsAni_SwimTired_ptr:	offsetTableEntry.w TailsAni_SwimTired		; 35 ; $23
+TailsAni_Tired_ptr:	offsetTableEntry.w TailsAni_Tired		; 33 ; $21
+TailsAni_Swim_ptr:	offsetTableEntry.w TailsAni_Swim		; 34 ; $22
+TailsAni_SwimTired_ptr:	offsetTableEntry.w TailsAni_SwimTired		; 35 ; $34
 
 TailsAni_Walk:	dc.b  $FF,   7,   8,   1,   2,   3,   4,   5,   6, $FF
 	rev02even
@@ -420,11 +420,11 @@ TailsAni_HaulAss:	dc.b  $FF, $C3, $C4, $FF, $FF, $FF, $FF, $FF, $FF, $FF
 	rev02even
 TailsAni_Fly:		dc.b  $1F, $A0, $FF
 	rev02even
-TailsAni_Tired:		dc.b  $1F, $A3, $A4, $FF
+TailsAni_Tired:		dc.b   $B, $A3, $A4, $FF
 	rev02even
-TailsAni_Swim:		dc.b    4, $BD, $BE, $BF, $C0, $C1, $FF
+TailsAni_Swim:		dc.b    7, $BD, $BE, $BF, $C0, $C1, $FF
 	rev02even
-TailsAni_SwimTired: dc.b	4, $C2, $CD, $CE, $FF
+TailsAni_SwimTired: dc.b	$B, $C2, $CD, $CE, $FF
 	even
 
 ; ===========================================================================

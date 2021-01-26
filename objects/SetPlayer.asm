@@ -21,6 +21,18 @@ DetectObj_Player:
 +   rts
 
 ; ---------------------------------------------------------------------------
+; detect object controller read (Main character or Sidekick)
+; ---------------------------------------------------------------------------
+DetectPlayerCtrl:
+	move.b	(Ctrl_1_Press_Logical).w,(Ctrl_Press_Logical).w
+	move.b	(Ctrl_1_Held_Logical).w,(Ctrl_Held_Logical).w
+	_cmpi.b	#ObjID_Sonic,id(a0)	; is this object ID Main_Player (obj01)?
+	beq.s	+   ; if not, define Sec_player on d0
+	move.b	(Ctrl_2_Press_Logical).w,(Ctrl_Press_Logical).w
+	move.b	(Ctrl_2_Held_Logical).w,(Ctrl_Held_Logical).w
++	rts
+
+; ---------------------------------------------------------------------------
 ; Set player radius
 ; ---------------------------------------------------------------------------
 SetPlayer_Radius:
@@ -122,7 +134,9 @@ SetPlayer_Move:
 +   ; Knuckles
 	cmpi.b	#3,d0
 	bne.s	+
-+   rts
+	rts
++  	
+	rts
 ; ---------------------------------------------------------------------------
 SetPlayer_AirMove:
     bsr.w   DetectObj_Player
@@ -140,3 +154,18 @@ SetPlayer_AirMove:
 	bne.s	+
 	bsr.w	Knuckles_CheckGlide
 +   rts
+
+; ---------------------------------------------------------------------------
+; MdAir double jump check
+; ---------------------------------------------------------------------------
+DoubleJump_Check:
+    bsr.w   DetectObj_Player
+	cmpi.b	#2,d0
+	bne.s	+
+	bra.w	Tails_Flying
++
+	cmpi.b	#3,d0
+	bne.s	+
+	bra.w	Obj01_MdAir_Gliding
++
+	rts

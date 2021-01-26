@@ -863,11 +863,8 @@ return_mdnormal:
 ; Called if Tails is airborne, but not in a ball (thus, probably not jumping)
 ; loc_1C032: Obj02_MdJump
 Obj02_MdAir:
-	cmpi.b	#3,(Sec_player).w
-	bne.s	+
-	tst.b	$21(a0)
-	bne.w	Obj01_MdAir_Gliding
-+
+	tst.b	double_jump_flag(a0)
+	bne.w	DoubleJump_Check
 	bsr.w	Tails_JumpHeight
 	bsr.w	Tails_ChgJumpDir
 	bsr.w	Tails_LevelBound

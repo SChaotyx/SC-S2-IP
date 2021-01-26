@@ -294,11 +294,8 @@ return_1A2DE:
 ; Called if Sonic is airborne, but not in a ball (thus, probably not jumping)
 ; loc_1A2E0: Obj01_MdJump
 Obj01_MdAir:
-	cmpi.b	#3,(Main_player).w
-	bne.s	+
-	tst.b	$21(a0)
-	bne.w	Obj01_MdAir_Gliding
-+
+	tst.b	double_jump_flag(a0)
+	bne.w	DoubleJump_Check
 	bsr.w	Sonic_JumpHeight
 	bsr.w	Sonic_ChgJumpDir
 	bsr.w	Sonic_LevelBound

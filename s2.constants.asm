@@ -46,6 +46,8 @@ subtype =		$28
 ; ---------------------------------------------------------------------------
 ; conventions specific to sonic/tails (Obj01, Obj02, and ObjDB):
 ; note: $1F, $20, and $21 are unused and available
+double_jump_flag = $21	; Tails Fly | Knuckles Glide
+double_jump_properly = $1F	; Tails Fly Timer
 inertia =		$14 ; and $15 ; directionless representation of speed... not updated in the air
 flip_angle =		$27 ; angle about the x axis (360 degrees = 256) (twist/tumble)
 air_left =		$28
@@ -965,8 +967,8 @@ AniIDTailsAni_Dummy4		= id(TailsAni_Dummy4_ptr)		; 29 ; $1D
 AniIDTailsAni_Dummy5		= id(TailsAni_Dummy5_ptr)		; 30 ; $1E
 AniIDTailsAni_HaulAss		= id(TailsAni_HaulAss_ptr)		; 31 ; $1F
 AniIDTailsAni_Fly			= id(TailsAni_Fly_ptr)			; 32 ; $20
-AniIDTailsAni_Swim			= id(TailsAni_Swim_ptr)			; 33 ; $21
-AniIDTailsAni_Tired			= id(TailsAni_Tired_ptr)		; 34 ; $22
+AniIDTailsAni_Tired			= id(TailsAni_Tired_ptr)		; 33 ; $21
+AniIDTailsAni_Swim			= id(TailsAni_Swim_ptr)			; 34 ; $22
 AniIDTailsAni_SwimTired		= id(TailsAni_SwimTired_ptr)	; 35 ; $23
 
 
@@ -1205,10 +1207,9 @@ Underwater_palette_line2:	ds.b palette_line_size
 Underwater_palette_line3:	ds.b palette_line_size
 Underwater_palette_line4:	ds.b palette_line_size
 
-				ds.b	$4FD	; $FFFFF100-$FFFFF5FF ; unused, leftover from the Sonic 1 sound driver (and used by it when you port it to Sonic 2)
-Fly_flag:		ds.b	1
-Fly_timer:		ds.w	1
-
+				ds.b	$4FE	; $FFFFF100-$FFFFF5FF ; unused, leftover from the Sonic 1 sound driver (and used by it when you port it to Sonic 2)
+Ctrl_Held_Logical:		ds.b	1	; 1 byte
+Ctrl_Press_Logical:		ds.b	1	; 1 byte
 Game_Mode:			ds.w	1	; 1 byte ; see GameModesArray (master level trigger, Mstr_Lvl_Trigger)
 Ctrl_1_Logical:					; 2 bytes
 Ctrl_1_Held_Logical:		ds.b	1	; 1 byte
