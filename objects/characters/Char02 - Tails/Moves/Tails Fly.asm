@@ -41,7 +41,7 @@ Tails_CheckFly_Return:
 Tails_Flying:
 	bsr.w	DetectPlayerCtrl
     bsr.w	Tails_Fly_Move
-	_cmpi.b	#ObjID_Sonic,id(a0)	; is this object ID Main_Player (obj01)?
+	_cmpi.b	#ObjID_MainPlayer,id(a0)	; is this object ID Player_MainChar (obj01)?
 	bne.s	+   ; if not, branch to sidekick version
 	bsr.w	Sonic_ChgJumpDir
 	bsr.w	Sonic_LevelBound

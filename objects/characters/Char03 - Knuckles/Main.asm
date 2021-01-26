@@ -405,9 +405,9 @@ LoadKnucklesDynPLC:
 	move.b	mapping_frame(a0),d0	; load frame number
 ; loc_1B84E:
 LoadKnucklesDynPLC_Part2:
-	cmpi.b	#1,(Main_player).w
+	cmpi.b	#1,(Player_MainChar).w
 	beq.s	+
-	cmpi.b	#1,(Sec_player).w
+	cmpi.b	#1,(Player_Sidekick).w
 	beq.s	+
 
 	cmp.b	(Sonic_LastLoadedDPLC).w,d0
@@ -426,9 +426,9 @@ LoadKnucklesDynPLC_Continue:
 	move.w	(a2)+,d5
 	subq.w	#1,d5
 	bmi.s	return_LKDPLC
-	cmpi.b	#1,(Main_player).w
+	cmpi.b	#1,(Player_MainChar).w
 	beq.s	+
-	cmpi.b	#1,(Sec_player).w
+	cmpi.b	#1,(Player_Sidekick).w
 	beq.s	+
 
 	move.w	#tiles_to_bytes(ArtTile_ArtUnc_Sonic),d4

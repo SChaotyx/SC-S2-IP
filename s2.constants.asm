@@ -498,8 +498,8 @@ offset :=	Obj_Index
 ptrsize :=	4
 idstart :=	1
 
-ObjID_Sonic =			id(ObjPtr_Sonic)		; 01
-ObjID_Tails =			id(ObjPtr_Tails)		; 02
+ObjID_MainPlayer =			id(ObjPtr_Sonic)		; 01
+ObjID_Sidekick =			id(ObjPtr_Tails)		; 02
 ObjID_PlaneSwitcher =		id(ObjPtr_PlaneSwitcher)	; 03
 ObjID_WaterSurface =		id(ObjPtr_WaterSurface)		; 04
 ObjID_TailsTails =		id(ObjPtr_TailsTails)		; 05
@@ -507,13 +507,13 @@ ObjID_Spiral =			id(ObjPtr_Spiral)		; 06
 ObjID_Oil =			id(ObjPtr_Oil)			; 07
 ObjID_SpindashDust =		id(ObjPtr_SpindashDust)		; 08
 ObjID_Splash =			id(ObjPtr_Splash)		; 08
-ObjID_SonicSS =			id(ObjPtr_SonicSS)		; 09
+ObjID_MainPlayerSS =			id(ObjPtr_SonicSS)		; 09
 ObjID_SmallBubbles =		id(ObjPtr_SmallBubbles)		; 0A
 ObjID_TippingFloor =		id(ObjPtr_TippingFloor)		; 0B
 ObjID_Signpost =		id(ObjPtr_Signpost)		; 0D
 ObjID_IntroStars =		id(ObjPtr_IntroStars)		; 0E
 ObjID_TitleMenu =		id(ObjPtr_TitleMenu)		; 0F
-ObjID_TailsSS =			id(ObjPtr_TailsSS)		; 10
+ObjID_SidekickSS =			id(ObjPtr_TailsSS)		; 10
 ObjID_Bridge =			id(ObjPtr_Bridge)		; 11
 ObjID_HPZEmerald =		id(ObjPtr_HPZEmerald)		; 12
 ObjID_HPZWaterfall =		id(ObjPtr_HPZWaterfall)		; 13
@@ -1607,9 +1607,9 @@ SlotMachine_Slot3Rout:	ds.b	1
 CutSceneFlag:			ds.b	1	; for WFZ cutscene
 Play_mode:				ds.b	1
 Sec_playerOpt			ds.b	1
-Sec_player:				ds.b	1
+Player_Sidekick:				ds.b	1
 Main_playerOpt			ds.b	1
-Main_player:			ds.b	1
+Player_MainChar:			ds.b	1
 Player_mode:			ds.w	1	; 0 = Sonic and Tails, 1 = Sonic, 2 = Tails
 Player_option:			ds.w	1	; 0 = Sonic and Tails, 1 = Sonic, 2 = Tails
 

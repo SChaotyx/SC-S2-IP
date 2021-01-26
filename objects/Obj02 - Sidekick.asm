@@ -26,7 +26,7 @@ Obj02_Init:
 	bsr.w	SetPlayer_Radius
     bsr.w   SetPlayer_Mappings
 	move.b	#2,priority(a0)
-	cmpi.b	#2,(Main_player).w
+	cmpi.b	#2,(Player_MainChar).w
 	bne.s	+
 	addi.b	#1,priority(a0)
 +
@@ -69,7 +69,7 @@ Obj02_Init_Continued:
 	move.w	#0,(Tails_CPU_routine).w	; set AI state to TailsCPU_Init
 	move.w	#0,(Tails_control_counter).w
 	move.w	#0,(Tails_respawn_counter).w
-	cmpi.b	#2,(Sec_player).w
+	cmpi.b	#2,(Player_Sidekick).w
 	bne.s	+
 	move.b	#ObjID_TailsTails,(Tails_Tails+id).w ; load Obj05 (Tails' Tails) at $FFFFD000
 	move.w	a0,(Tails_Tails+parent).w ; set its parent object to this
@@ -243,7 +243,7 @@ TailsCPU_Spawning:
 	bne.s	return_1BB88
 	tst.b	obj_control(a1)
 	bne.s	return_1BB88
-	cmpi.b	#2,(Sec_player).w
+	cmpi.b	#2,(Player_Sidekick).w
 	beq.s	TailsCPU_Respawn
 	move.b	status(a1),d0
 	andi.b	#$D2,d0
@@ -334,12 +334,12 @@ loc_1BC50:
 	add.w	d2,x_pos(a0)
 
 loc_1BC54:
-	cmpi.b	#1,(Sec_player).w	; if Sonic a Sidekick
+	cmpi.b	#1,(Player_Sidekick).w	; if Sonic a Sidekick
 	beq.w	CPU_Comeback ; if yes, branch Sonic can´t fly xddd
 	tst.b	(Water_flag).w
 	beq.s	++
 	move.w	(Water_Level_1).w,d0
-	cmpi.b	#2,(Sec_player).w
+	cmpi.b	#2,(Player_Sidekick).w
 	bne.s	+
 	move.b	#AniIDTailsAni_Fly,anim(a0)
 	cmp.w	y_pos(a0),d0
@@ -467,7 +467,7 @@ CPU_BacktoNormal_Continue:
 	move.l	a1,-(sp)		; Backup a1
 	move.b	#9,x_radius(a0)
 	move.b	#$13,y_radius(a0) ; this sets Sonic's collision height (2*pixels)
-    cmpi.b  #2,(Sec_player).w
+    cmpi.b  #2,(Player_Sidekick).w
     bne.s   +
 	move.b	#$F,y_radius(a0) ; this sets Sonic's collision height (2*pixels)
 +
@@ -1006,7 +1006,7 @@ Sidekick_BalanceOnObjLeft:
 
 Sidekick_BalanceDone:
 	move.b	#AniIDSonAni_Balance,anim(a0)
-	cmpi.b	#1,(Sec_player).w
+	cmpi.b	#1,(Player_Sidekick).w
 	bne.w	Obj02_ResetScr
 	move.w	x_pos(a0),d3
 	btst	#0,status(a0)
@@ -1028,7 +1028,7 @@ Sidekick_BalanceDone:
 
 Sidekick_BalanceonObjDone:
 	move.b	#AniIDSonAni_Balance,anim(a0)
-	cmpi.b	#1,(Sec_player).w
+	cmpi.b	#1,(Player_Sidekick).w
 	bne.w	Obj02_ResetScr
 	btst	#0,status(a0)
 	bne.s	+
@@ -1349,7 +1349,7 @@ Tails_CheckRollStop:
 	bne.s	Tails_KeepRolling
 	bclr	#2,status(a0)
 	move.b	#$13,y_radius(a0)
-	cmpi.b	#2,(Sec_player).w
+	cmpi.b	#2,(Player_Sidekick).w
 	bne.s	+
 	move.b	#$F,y_radius(a0) ; sets standing height to only slightly higher than rolling height, unlike Sonic
 +
@@ -1649,7 +1649,7 @@ Tails_Jump:
 	beq.s	+
 	move.w	#$380,d2	; set lower jump speed if underwater
 +
-	cmpi.b	#3,(Sec_player).w
+	cmpi.b	#3,(Player_Sidekick).w
 	bne.s	+
 	subi.w	#$80,d2
 +
@@ -2250,18 +2250,18 @@ return_1CB4E:
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
 Sidekick_ResetOnFloor:
-	cmpi.b	#1,(Sec_player).w
+	cmpi.b	#1,(Player_Sidekick).w
 	beq.w	Sonic_ResetOnFloor
-	cmpi.b	#2,(Sec_player).w
+	cmpi.b	#2,(Player_Sidekick).w
 	beq.w	Tails_ResetOnFloor
-	cmpi.b	#3,(Sec_player).w
+	cmpi.b	#3,(Player_Sidekick).w
 	beq.w	Knuckles_ResetOnFloor
 Sidekick_ResetOnFloor_Part2:
-	cmpi.b	#1,(Sec_player).w
+	cmpi.b	#1,(Player_Sidekick).w
 	beq.w	Sonic_ResetOnFloor_Part2
-	cmpi.b	#2,(Sec_player).w
+	cmpi.b	#2,(Player_Sidekick).w
 	beq.w	Tails_ResetOnFloor_Part2
-	cmpi.b	#3,(Sec_player).w
+	cmpi.b	#3,(Player_Sidekick).w
 	beq.w	Knuckles_ResetOnFloor_Part2
 	rts
 ; End of subroutine Sidekick_ResetOnFloor
@@ -2331,7 +2331,7 @@ Obj02_Dead:
 
 ; loc_1CC6C:
 Obj02_CheckGameOver:
-	;cmpi.b	#2,(Main_player).w	; is it a Tails Alone game?
+	;cmpi.b	#2,(Player_MainChar).w	; is it a Tails Alone game?
 	;beq.w	CheckGameOver		; if yes, branch... goodness, code reuse
 	move.b	#1,(Scroll_lock_P2).w
 	move.b	#0,spindash_flag(a0)

@@ -54,7 +54,7 @@ Obj01_Init_Continued:
 	move.b	#4,flip_speed(a0)
 	move.b	#0,(Super_Sonic_flag).w
 	move.b	#$1E,air_left(a0)
-    cmpi.b  #2,(Main_player).w
+    cmpi.b  #2,(Player_MainChar).w
     bne.s   +
     move.b	#ObjID_TailsTails,(Tails_Tails+id).w ; load Obj05 (Tails' Tails) at $FFFFD000
 	move.w	a0,(Tails_Tails+parent).w ; set its parent object to this
@@ -439,7 +439,7 @@ MainPlayer_BalanceOnObjLeft:
 
 MainPlayer_BalanceDone:
 	move.b	#AniIDSonAni_Balance,anim(a0)
-	cmpi.b	#1,(Main_player).w
+	cmpi.b	#1,(Player_MainChar).w
 	bne.w	Obj01_ResetScr
 	move.w	x_pos(a0),d3
 	btst	#0,status(a0)
@@ -461,7 +461,7 @@ MainPlayer_BalanceDone:
 
 MainPlayer_BalanceonObjDone:
 	move.b	#AniIDSonAni_Balance,anim(a0)
-	cmpi.b	#1,(Main_player).w
+	cmpi.b	#1,(Player_MainChar).w
 	bne.w	Obj01_ResetScr
 	btst	#0,status(a0)
 	bne.s	+
@@ -782,7 +782,7 @@ Sonic_CheckRollStop:
 	bne.s	Sonic_KeepRolling
 	bclr	#2,status(a0)
 	move.b	#$13,y_radius(a0)
-	cmpi.b	#2,(Main_player).w
+	cmpi.b	#2,(Player_MainChar).w
 	bne.s	+
 	move.b	#$F,y_radius(a0)
 +
@@ -1086,7 +1086,7 @@ Sonic_Jump:
 	beq.s	+
 	move.w	#$380,d2	; set lower jump speed if under
 +
-	cmpi.b	#3,(Main_player).w
+	cmpi.b	#3,(Player_MainChar).w
 	bne.s	+
 	subi.w	#$80,d2
 +
@@ -1153,7 +1153,7 @@ Sonic_JumpHeight:
 	bne.s	+		; if yes, branch
 	move.w	d1,y_vel(a0)	; immediately reduce Sonic's upward speed to d1
 +
-	cmpi.b	#1,(Main_player).w
+	cmpi.b	#1,(Player_MainChar).w
 	bne.s	+
 	tst.b	y_vel(a0)		; is Sonic exactly at the height of his jump?
 	beq.s	Sonic_CheckGoSuper	; if yes, test for turning into Super Sonic
@@ -1194,7 +1194,7 @@ Sonic_CheckGoSuper:
 	move.b	#1,(Super_Sonic_palette).w
 	move.b	#$F,(Palette_timer).w
 	move.b	#1,(Super_Sonic_flag).w
-	cmpi.b  #1,(Main_player).w
+	cmpi.b  #1,(Player_MainChar).w
     bne.s   +
 	move.l	#Mapunc_SuperSonic,mappings(a0)
 +
@@ -1256,7 +1256,7 @@ Sonic_RevertToNormal:
 	move.w	#1,invincibility_time(a0)	; Remove invincibility
 	lea	(Sonic_top_speed).w,a2	; Load Sonic_top_speed into a2
 	bsr.w	ApplySpeedSettings	; Fetch Speed settings
-	cmpi.b  #1,(Main_player).w
+	cmpi.b  #1,(Player_MainChar).w
     bne.s   +
 	move.l	#Mapunc_Sonic,mappings(a0)
 +
@@ -1801,18 +1801,18 @@ return_1B09E:
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
 Player_ResetOnFloor:
-	cmpi.b	#1,(Main_player).w
+	cmpi.b	#1,(Player_MainChar).w
 	beq.w	Sonic_ResetOnFloor
-	cmpi.b	#2,(Main_player).w
+	cmpi.b	#2,(Player_MainChar).w
 	beq.w	Tails_ResetOnFloor
-	cmpi.b	#3,(Main_player).w
+	cmpi.b	#3,(Player_MainChar).w
 	beq.w	Knuckles_ResetOnFloor
 Player_ResetOnFloor_Part2:
-	cmpi.b	#1,(Main_player).w
+	cmpi.b	#1,(Player_MainChar).w
 	beq.w	Sonic_ResetOnFloor_Part2
-	cmpi.b	#2,(Main_player).w
+	cmpi.b	#2,(Player_MainChar).w
 	beq.w	Tails_ResetOnFloor_Part2
-	cmpi.b	#3,(Main_player).w
+	cmpi.b	#3,(Player_MainChar).w
 	beq.w	Knuckles_ResetOnFloor_Part2
 	rts
 ; End of subroutine Player_ResetOnFloor

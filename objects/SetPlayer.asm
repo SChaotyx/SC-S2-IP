@@ -5,19 +5,19 @@
 ; ===========================================================================
 
     ; a0 = object
-    ; d0 = Main_player or Sec_player if Obj02 use it
-    ; d0 = Sec_player or Main_player if Obj02 use it
+    ; d0 = Player_MainChar or Player_Sidekick if Obj02 use it
+    ; d0 = Player_Sidekick or Player_MainChar if Obj02 use it
 
 ; ---------------------------------------------------------------------------
 ; detect object
 ; ---------------------------------------------------------------------------
 DetectObj_Player:
-    move.b  (Main_player).w,d0
-    move.b  (Sec_player).w,d1
-    _cmpi.b	#ObjID_Sonic,id(a0)	; is this object ID Main_Player (obj01)?
-	beq.s	+   ; if not, define Sec_player on d0
-    move.b  (Sec_player).w,d0
-    move.b  (Main_player).w,d1
+    move.b  (Player_MainChar).w,d0
+    move.b  (Player_Sidekick).w,d1
+    _cmpi.b	#ObjID_MainPlayer,id(a0)	; is this object ID Player_MainChar (obj01)?
+	beq.s	+   ; if not, define Player_Sidekick on d0
+    move.b  (Player_Sidekick).w,d0
+    move.b  (Player_MainChar).w,d1
 +   rts
 
 ; ---------------------------------------------------------------------------
@@ -26,8 +26,8 @@ DetectObj_Player:
 DetectPlayerCtrl:
 	move.b	(Ctrl_1_Press_Logical).w,(Ctrl_Press_Logical).w
 	move.b	(Ctrl_1_Held_Logical).w,(Ctrl_Held_Logical).w
-	_cmpi.b	#ObjID_Sonic,id(a0)	; is this object ID Main_Player (obj01)?
-	beq.s	+   ; if not, define Sec_player on d0
+	_cmpi.b	#ObjID_MainPlayer,id(a0)	; is this object ID Player_MainChar (obj01)?
+	beq.s	+   ; if not, define Player_Sidekick on d0
 	move.b	(Ctrl_2_Press_Logical).w,(Ctrl_Press_Logical).w
 	move.b	(Ctrl_2_Held_Logical).w,(Ctrl_Held_Logical).w
 +	rts
