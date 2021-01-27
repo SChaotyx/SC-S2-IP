@@ -11675,6 +11675,8 @@ OptionScreen_Choices:
 	dc.l (4-1)<<24|(Sec_playerOpt&$FFFFFF)
 	dc.l (2-1)<<24|(Two_player_items&$FFFFFF)
 	dc.l ($80-1)<<24|(Sound_test_sound&$FFFFFF)
+	dc.l (0-0)<<24|($FFFFFFFF&$FFFFFF)
+	dc.l (0-0)<<24|($FFFFFFFF&$FFFFFF)
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
 
@@ -11810,10 +11812,10 @@ OptionScreen_DrawSelected:
 	lea	(OptScrBoxData).l,a3
 	lea	(a3,d1.w),a3
 	move.w	#palette_line_3,d0
-	lea	(Chunk_Table+$30).l,a2
+	lea	(Chunk_Table+$3A).l,a2
 	movea.l	(a3)+,a1
 	bsr.w	MenuScreenTextToRAM
-	lea	(Chunk_Table+$8A).l,a2
+	lea	(Chunk_Table+$3A+34).l,a2
 	moveq	#0,d1
 	cmpi.b	#3,(Options_menu_box).w
 	beq.s	+
@@ -11828,13 +11830,13 @@ OptionScreen_DrawSelected:
 	bsr.w	MenuScreenTextToRAM
 	cmpi.b	#3,(Options_menu_box).w
 	bne.s	+
-	lea	(Chunk_Table+$96).l,a2
+	lea	(Chunk_Table+$3A+34).l,a2
 	bsr.w	OptionScreen_HexDumpSoundTest
 +
 	lea	(Chunk_Table).l,a1
 	move.l	(a3)+,d0
-	moveq	#$15,d1
-	moveq	#5,d2
+	moveq	#27,d1
+	moveq	#3,d2
 	jmpto	(PlaneMapToVRAM_H40).l, JmpTo_PlaneMapToVRAM_H40
 ; ===========================================================================
 
@@ -11847,10 +11849,10 @@ OptionScreen_DrawUnselected:
 	lea	(OptScrBoxData).l,a3
 	lea	(a3,d1.w),a3
 	moveq	#palette_line_0,d0
-	lea	(Chunk_Table+$190).l,a2
+	lea	(Chunk_Table+$19A).l,a2
 	movea.l	(a3)+,a1
 	bsr.w	MenuScreenTextToRAM
-	lea	(Chunk_Table+$1EA).l,a2
+	lea	(Chunk_Table+$19A+34).l,a2
 	moveq	#0,d1
 	cmpi.b	#3,(Options_menu_box).w
 	beq.s	+
@@ -11866,14 +11868,14 @@ OptionScreen_DrawUnselected:
 	bsr.w	MenuScreenTextToRAM
 	cmpi.b	#3,(Options_menu_box).w
 	bne.s	+
-	lea	(Chunk_Table+$1F6).l,a2
+	lea	(Chunk_Table+$19A+34).l,a2
 	bsr.w	OptionScreen_HexDumpSoundTest
 
 +
 	lea	(Chunk_Table+$160).l,a1
 	move.l	(a3)+,d0
-	moveq	#$15,d1
-	moveq	#5,d2
+	moveq	#27,d1
+	moveq	#3,d2
 	jmpto	(PlaneMapToVRAM_H40).l, JmpTo_PlaneMapToVRAM_H40
 ; ===========================================================================
 
@@ -11926,10 +11928,12 @@ boxData macro txtlabel,vramAddr
 	dc.l txtlabel, vdpComm(vramAddr,VRAM,WRITE)
     endm
 
-	boxData	TextOptScr_PlayerSelect,VRAM_Plane_A_Name_Table+planeLocH40(9,2)
-	boxData	TextOptScr_SidekickSelect,VRAM_Plane_A_Name_Table+planeLocH40(9,8)
-	boxData	TextOptScr_VsModeItems,VRAM_Plane_A_Name_Table+planeLocH40(9,14)
-	boxData	TextOptScr_SoundTest,VRAM_Plane_A_Name_Table+planeLocH40(9,20 )
+	boxData	TextOptScr_PlayerSelect,VRAM_Plane_A_Name_Table+planeLocH40(6,6)
+	boxData	TextOptScr_SidekickSelect,VRAM_Plane_A_Name_Table+planeLocH40(6,10)
+	boxData	TextOptScr_VsModeItems,VRAM_Plane_A_Name_Table+planeLocH40(6,14)
+	boxData	TextOptScr_SoundTest,VRAM_Plane_A_Name_Table+planeLocH40(6,18)
+	boxData	TextOptScr_PlayerSelect,VRAM_Plane_A_Name_Table+planeLocH40(6,16)
+	boxData	TextOptScr_PlayerSelect,VRAM_Plane_A_Name_Table+planeLocH40(6,20)
 
 Character_SelectOpt:
 	dc.l TextOptScr_None
@@ -12495,14 +12499,20 @@ super_sonic_cheat:	dc.b   4,   1,   2,   6,   0	; Book of Genesis, 41:26
 
 	; options screen menu text
 
-TextOptScr_PlayerSelect:		menutxt	"*PLAYER 1 SELECT*"	; byte_97CA:
-TextOptScr_SidekickSelect:		menutxt	"*PLAYER 2 SELECT*" 
+TextOptScr_PlayerSelect:		menutxt	"PLAYER SELECT:  "	; byte_97CA:
+TextOptScr_SidekickSelect:		menutxt	"SIDEKICK SELECT:" 
+TextOptScr_VsModeItems:			menutxt	"VS MODE ITEMS:  "	; byte_982C:
+TextOptScr_SoundTest:			menutxt	"SOUND TEST:     "	; byte_985E:
 
-TextOptScr_None:				menutxt	"     NONE      "	
-TextOptScr_CharSonic:			menutxt	"     SONIC     "	
-TextOptScr_CharTails:			menutxt	"     TAILS     "	
-TextOptScr_CharKnuckles:		menutxt	"    KNUCKLES   "	
-TextOptScr_CharMiles:			menutxt	"     MILES     "	
+TextOptScr_None:				menutxt	"NONE    "	
+TextOptScr_CharSonic:			menutxt	"SONIC   "	
+TextOptScr_CharTails:			menutxt	"TAILS   "	
+TextOptScr_CharKnuckles:		menutxt	"KNUCKLES"	
+TextOptScr_CharMiles:			menutxt	"MILES   "	
+
+TextOptScr_AllKindsItems:		menutxt	"ALL     "	; byte_983E:
+TextOptScr_TeleportOnly:		menutxt	"TELEPORT"	; byte_984E:
+TextOptScr_0:					menutxt	"00      "	; byte_9870:
 
 ; old text options
 ; ---------------------------------------------------------------------------
@@ -12522,12 +12532,6 @@ TextOptScr_MilesAndSonic:		menutxt	"MILES AND SONIC"	; byte_981C:
 TextOptScr_MilesAndKnuckles:	menutxt	"MILES AND K.T.E"	; byte_981C:
 TextOptScr_KnucklesAndMiles:	menutxt	"K.T.E AND MILES"	; byte_981C:
 ; ---------------------------------------------------------------------------
-
-TextOptScr_VsModeItems:			menutxt	"* VS MODE ITEMS *"	; byte_982C:
-TextOptScr_AllKindsItems:		menutxt	"ALL KINDS ITEMS"	; byte_983E:
-TextOptScr_TeleportOnly:		menutxt	"TELEPORT ONLY  "	; byte_984E:
-TextOptScr_SoundTest:			menutxt	"*  SOUND TEST   *"	; byte_985E:
-TextOptScr_0:					menutxt	"      00       "	; byte_9870:
 
 	charset ; reset character set
 
