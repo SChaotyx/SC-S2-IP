@@ -82435,10 +82435,6 @@ Level_ARZ2:	BINCLUDE	"level/layout/ARZ_2.bin"
 ; SCZ level layout (Kosinski compression)
 Level_SCZ:	BINCLUDE	"level/layout/SCZ.bin"
 	even
-
-
-
-
 ;---------------------------------------------------------------------------------------
 ; Uncompressed art
 ; Animated flowers in EHZ and HTZ ; ArtUnc_49714: ArtUnc_49794: ArtUnc_49814: ArtUnc_49894:
@@ -82508,66 +82504,6 @@ ArtUnc_CPZAnimBack:	BINCLUDE	"art/uncompressed/Animated background section (CPZ 
 ArtUnc_Waterfall1:	BINCLUDE	"art/uncompressed/ARZ waterfall patterns - 1.bin"
 ArtUnc_Waterfall2:	BINCLUDE	"art/uncompressed/ARZ waterfall patterns - 2.bin"
 ArtUnc_Waterfall3:	BINCLUDE	"art/uncompressed/ARZ waterfall patterns - 3.bin"
-;---------------------------------------------------------------------------------------
-; Uncompressed art
-; Patterns for Sonic  ; ArtUnc_50000:
-;---------------------------------------------------------------------------------------
-	align $20
-ArtUnc_Sonic:	BINCLUDE	"objects/characters/Char01 - Sonic/Art/Sonic Art.bin"
-	align $20
-ArtUnc_SuperSonic:	BINCLUDE	"objects/characters/Char01 - Sonic/Art/SuperSonic Art.bin"
-;---------------------------------------------------------------------------------------
-; Uncompressed art
-; Patterns for Tails  ; ArtUnc_64320:
-;---------------------------------------------------------------------------------------
-	align $20
-;ArtUnc_Tails:	BINCLUDE	"art/uncompressed/Tails's art.bin"
-ArtUnc_Tails:	BINCLUDE	"objects/characters/Char02 - Tails/Art/Tails Art.bin"
-;---------------------------------------------------------------------------------------
-; Uncompressed art
-; Patterns for Tails  ; ArtUnc_64320:
-;---------------------------------------------------------------------------------------
-	align $20
-;ArtUnc_Tails:	BINCLUDE	"art/uncompressed/Tails's art.bin"
-ArtUnc_TailsTails:	BINCLUDE	"objects/characters/Char02 - Tails/Art/Tails Tails Art.bin"
-;--------------------------------------------------------------------------------------
-; Uncompressed art
-; Patterns for Knuckles
-;---------------------------------------------------------------------------------------
-	align $20
-ArtUnc_Knuckles:	BINCLUDE	"objects/characters/Char03 - Knuckles/Art/Knuckles Art.bin"
-;---------------------------------------------------------------------------------------
-; Sprite Mappings
-; Sonic			; MapUnc_6FBE0: SprTbl_Sonic:
-;--------------------------------------------------------------------------------------
-Mapunc_Sonic:	BINCLUDE	"mappings/sprite/Sonic.bin"
-Mapunc_SuperSonic:	BINCLUDE	"mappings/sprite/SonicSuper.bin"
-;--------------------------------------------------------------------------------------
-; Sprite Dynamic Pattern Reloading
-; Sonic DPLCs   		; MapRUnc_714E0:
-;--------------------------------------------------------------------------------------
-; WARNING: the build script needs editing if you rename this label
-;          or if you move Sonic's running frame to somewhere else than frame $2D
-MapRUnc_Sonic:	BINCLUDE	"mappings/spriteDPLC/Sonic.bin"
-MapRUnc_SuperSonic:	BINCLUDE	"mappings/spriteDPLC/SonicSuper.bin"
-;--------------------------------------------------------------------------------------
-; Sonic Art and Mappings for Special Stage
-MapUnc_SonicSS:			BINCLUDE "mappings/sprite/SonicSS.bin"
-MapRUnc_SonicSS:		BINCLUDE "mappings/spriteDPLC/SonicSS.bin"
-	align $20
-ArtUnc_SSSonic:			BINCLUDE "objects/characters/Char01 - Sonic/Art/Sonic Art SS.bin"
-;--------------------------------------------------------------------------------------
-; Tails Art and Mappings for Special Stage
-MapUnc_TailsSS:		BINCLUDE "mappings/sprite/TailsSS.bin"
-MapRUnc_TailsSS:	BINCLUDE "mappings/spriteDPLC/TailsSS.bin"
-	align $20
-ArtUnc_SSTails:		BINCLUDE "objects/characters/Char02 - Tails/Art/Tails Art SS.bin"
-;--------------------------------------------------------------------------------------
-; Knuckles Art and Mappings for Special Stage
-MapUnc_KnucklesSS:		BINCLUDE "mappings/sprite/KnucklesSS.bin"
-MapRUnc_KnucklesSS:		BINCLUDE "mappings/spriteDPLC/KnucklesSS.bin"
-	align $20
-ArtUnc_SSKnuckles:		BINCLUDE "objects/characters/Char03 - Knuckles/Art/Knuckles Art SS.bin"
 ;--------------------------------------------------------------------------------------
 ; Nemesis compressed art (32 blocks)
 ; Shield			; ArtNem_71D8E:
@@ -82587,28 +82523,6 @@ ArtUnc_SplashAndDust:	BINCLUDE	"art/uncompressed/Splash and skid dust.bin"
 ; Supersonic stars		; ArtNem_7393C:
 ArtNem_SuperSonic_stars:	BINCLUDE	"art/nemesis/Super Sonic stars.bin"
 	even
-;--------------------------------------------------------------------------------------
-; Sprite Mappings
-; Tails			; MapUnc_739E2:
-;--------------------------------------------------------------------------------------
-MapUnc_Tails:	BINCLUDE	"mappings/sprite/Tails.bin"
-MapUnc_TailsTails:	BINCLUDE	"mappings/sprite/Tails Tails.bin"
-;--------------------------------------------------------------------------------------
-; Sprite Dynamic Pattern Reloading
-; Tails DPLCs	; MapRUnc_7446C:
-;--------------------------------------------------------------------------------------
-MapRUnc_Tails:	BINCLUDE	"mappings/spriteDPLC/Tails.bin"
-MapRUnc_TailsTails:	BINCLUDE	"mappings/spriteDPLC/Tails Tails.bin"
-;-------------------------------------------------------------------------------------
-; Sprite Mappings
-; Knuckles		
-;--------------------------------------------------------------------------------------
-MapUnc_Knuckles:	BINCLUDE	"mappings/sprite/Knuckles.bin"
-;--------------------------------------------------------------------------------------
-; Sprite Dynamic Pattern Reloading
-; Knuckles DPLCs
-;--------------------------------------------------------------------------------------
-MapRUnc_Knuckles:	BINCLUDE	"mappings/spriteDPLC/Knuckles.bin"
 ;-------------------------------------------------------------------------------------
 ; Nemesis compressed art (127 blocks)
 ; "SEGA" Patterns	; ArtNem_74876:
@@ -86638,6 +86552,9 @@ Sound70:	dc.w $0000,$0101
 
 
 	finishBank
+
+	include  "objects/characters/Characters include.asm"
+
 	binclude "blank.bin"
 
 ; end of 'ROM'
