@@ -12119,7 +12119,7 @@ LevelSelect_Return:
 ;Misc_9454:
 LevelSelect_Order:
 	dc.w	green_hill_zone_act_1
-	dc.w	emerald_hill_zone_act_2	; 1
+	dc.w	green_hill_zone_act_2	; 1
 	dc.w	chemical_plant_zone_act_1	; 2
 	dc.w	chemical_plant_zone_act_2	; 3
 	dc.w	aquatic_ruin_zone_act_1	; 4
