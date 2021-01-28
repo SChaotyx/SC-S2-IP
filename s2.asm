@@ -4855,6 +4855,7 @@ WaterHeight: zoneOrderedTable 2,2
 	zoneTableEntry.w  $600, $600	; DEZ
 	zoneTableEntry.w  $410, $510	; ARZ
 	zoneTableEntry.w  $600, $600	; SCZ
+	zoneTableEntry.w  $600, $600	; GHZ
     zoneTableEnd
     else
 ; word_4584:
@@ -4933,6 +4934,8 @@ Dynamic_water_routine_table: zoneOrderedOffsetTable 2,2
 	zoneOffsetTableEntry.w DynamicWaterNull ; ARZ 2
 	zoneOffsetTableEntry.w DynamicWaterNull ; SCZ 1
 	zoneOffsetTableEntry.w DynamicWaterNull ; SCZ 2
+	zoneOffsetTableEntry.w DynamicWaterNull ; GHZ 1
+	zoneOffsetTableEntry.w DynamicWaterNull ; GHZ 2
     zoneTableEnd
     else
 ; off_45D8:
@@ -25690,12 +25693,12 @@ titlecardobjdata macro routine,frame,width,duration,xstart,xstop,y
     endm
 ; word_13CD4:
 Obj34_TitleCardData:
-	titlecardobjdata  8,   0, $80, $1B, $240, $120, $B8	; zone name
-	titlecardobjdata $A, $11, $40, $1C,  $28, $148, $D0	; "ZONE"
-	titlecardobjdata $C, $12, $18, $1C,  $68, $188, $D0	; act number
-	titlecardobjdata  2,   0,   0,   0,    0,    0,   0	; blue background
-	titlecardobjdata  4, $15, $48,   8, $2A8, $168,$120	; bottom yellow part
-	titlecardobjdata  6, $16,   8, $15,  $80,  $F0, $F0	; left red part
+	titlecardobjdata  8,   0,	      $80, $1B, $240, $120, $B8	; zone name
+	titlecardobjdata $A, no_of_zones, $40, $1C,  $28, $148, $D0	; "ZONE"
+	titlecardobjdata $C, no_of_zones+1, $18, $1C,  $68, $188, $D0	; act number
+	titlecardobjdata  2,   0,		0,   0,    0,    0,   0	; blue background
+	titlecardobjdata  4, no_of_zones+4, $48,   8, $2A8, $168,$120	; bottom yellow part
+	titlecardobjdata  6, no_of_zones+5,	8, $15,  $80,  $F0, $F0	; left red part
 Obj34_TitleCardData_End:
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
@@ -25804,10 +25807,10 @@ Obj34_ActNumber:	; the act number, coming in
 	cmpi.b	#death_egg_zone,d0	; is it Death Egg Zone?
 	beq.s	BranchTo9_DeleteObject	; if yes, branch
 	move.b	(Current_Act).w,d1	; get the current act
-	addi.b	#$12,d1			; add $12 to it (this is the index of the "1" frame in the mappings)
+	addi.b	#no_of_zones+1,d1	; Act number mappings (Act 1)
 	cmpi.b	#metropolis_zone_2,d0	; are we in Metropolis Zone Act 3?
 	bne.s	+			; if not, branch
-	moveq	#$14,d1			; use the "3" frame instead
+	moveq	#no_of_zones+3,d1	; Act number mappings (Act 3).  Used for drawing MTZ (0x05) titlecard only
 +
 	move.b	d1,mapping_frame(a0)	; set the mapping frame
 
@@ -26842,191 +26845,272 @@ byte_14752:
 	results_screen_object  $340, $120, $118, $16,  $D		; Sonic Rings
 	results_screen_object  $350, $120, $128, $18,  $E		; Miles Rings
 	results_screen_object  $360, $120, $138, $1A, $10		; Gems Bonus
+
+word_14BC8: ;keep this line to prevent errors
+	dc.w 4 ; number of letters
+	dc.w 5, $858C, $82C6,     0 ;Z
+	dc.w 5, $8588, $82C4,   $10 ;O
+	dc.w 5, $8584, $82C2,   $20 ;N
+	dc.w 5, $8580, $82C0,   $30 ;E
+word_14BEA: ;keep this line to prevent errors
+	dc.w $1 ; number of digits
+	dc.w 7, $A590, $A2C8,     0 ;1
+word_14BF4: ;keep this line to prevent errors
+	dc.w $1 ; number of digits
+	dc.w $B, $A598, $A2CC,    0 ;2
+word_14BFE: ;keep this line to prevent errors
+	dc.w $1 ; number of digits
+	dc.w $B, $A5A4, $A2D2,    0 ;3
 ; -------------------------------------------------------------------------------
 ; sprite mappings
 ; -------------------------------------------------------------------------------
 Obj34_MapUnc_147BA:	offsetTable
-	offsetTableEntry.w word_147E8
-	offsetTableEntry.w word_147E8
-	offsetTableEntry.w word_147E8
-	offsetTableEntry.w word_147E8
-	offsetTableEntry.w word_14842
-	offsetTableEntry.w word_14842
-	offsetTableEntry.w word_14B24
-	offsetTableEntry.w word_14894
-	offsetTableEntry.w word_148CE
-	offsetTableEntry.w word_147E8
-	offsetTableEntry.w word_14930
-	offsetTableEntry.w word_14972
-	offsetTableEntry.w word_149C4
-	offsetTableEntry.w word_14A1E
-	offsetTableEntry.w word_14B86
-	offsetTableEntry.w word_14A88
-	offsetTableEntry.w word_14AE2
-	offsetTableEntry.w word_14BC8
-	offsetTableEntry.w word_14BEA
-	offsetTableEntry.w word_14BF4
-	offsetTableEntry.w word_14BFE
-	offsetTableEntry.w word_14C08
-	offsetTableEntry.w word_14C32
-word_147E8:	dc.w $B
-	dc.w 5,	$8580, $82C0, $FFC3
-	dc.w 9,	$85DE, $82EF, $FFD0
-	dc.w 5,	$8580, $82C0, $FFE8
-	dc.w 5,	$85E4, $82F2, $FFF8
-	dc.w 5,	$85E8, $82F4, 8
-	dc.w 5,	$85EC, $82F6, $18
-	dc.w 5,	$85F0, $82F8, $28
-	dc.w 5,	$85F4, $82FA, $48
-	dc.w 1,	$85F8, $82FC, $58
-	dc.w 5,	$85EC, $82F6, $60
-	dc.w 5,	$85EC, $82F6, $70
-word_14842:	dc.w $A
-	dc.w 9,	$85DE, $82EF, $FFE0
-	dc.w 5,	$8580, $82C0, $FFF8
-	dc.w 5,	$85E4, $82F2, 8
-	dc.w 5,	$85E8, $82F4, $18
-	dc.w 5,	$8588, $82C4, $28
-	dc.w 5,	$85EC, $82F6, $38
-	dc.w 5,	$8588, $82C4, $48
-	dc.w 5,	$85F0, $82F8, $58
-	dc.w 1,	$85F4, $82FA, $68
-	dc.w 5,	$85F6, $82FB, $70
-word_14894:	dc.w 7
-	dc.w 5,	$85DE, $82EF, 8
-	dc.w 1,	$85E2, $82F1, $18
-	dc.w 5,	$85E4, $82F2, $20
-	dc.w 5,	$85E4, $82F2, $30
-	dc.w 5,	$85E8, $82F4, $51
-	dc.w 5,	$8588, $82C4, $60
-	dc.w 5,	$85EC, $82F6, $70
-word_148CE:	dc.w $C
-	dc.w 5,	$85DE, $82EF, $FFB8
-	dc.w 1,	$85E2, $82F1, $FFC8
-	dc.w 5,	$85E4, $82F2, $FFD0
-	dc.w 5,	$85E4, $82F2, $FFE0
-	dc.w 5,	$8580, $82C0, $FFF0
-	dc.w 5,	$8584, $82C2, 0
-	dc.w 5,	$85E8, $82F4, $20
-	dc.w 5,	$85EC, $82F6, $30
-	dc.w 5,	$85F0, $82F8, $40
-	dc.w 5,	$85EC, $82F6, $50
-	dc.w 5,	$85F4, $82FA, $60
-	dc.w 5,	$8580, $82C0, $70
-word_14930:	dc.w 8
-	dc.w 5,	$8588, $82C4, $FFFB
-	dc.w 1,	$85DE, $82EF, $B
-	dc.w 5,	$85E0, $82F0, $13
-	dc.w 5,	$8588, $82C4, $33
-	dc.w 5,	$85E4, $82F2, $43
-	dc.w 5,	$8580, $82C0, $53
-	dc.w 5,	$85E8, $82F4, $60
-	dc.w 5,	$8584, $82C2, $70
-word_14972:	dc.w $A
-	dc.w 9,	$85DE, $82EF, $FFD0
-	dc.w 5,	$85E4, $82F2, $FFE8
-	dc.w 5,	$85E8, $82F4, $FFF8
-	dc.w 5,	$85EC, $82F6, 8
-	dc.w 1,	$85F0, $82F8, $18
-	dc.w 5,	$85F2, $82F9, $20
-	dc.w 5,	$85F2, $82F9, $41
-	dc.w 5,	$85F6, $82FB, $50
-	dc.w 5,	$85FA, $82FD, $60
-	dc.w 5,	$8580, $82C0, $70
-word_149C4:	dc.w $B
-	dc.w 5,	$85DE, $82EF, $FFD1
-	dc.w 5,	$85E2, $82F1, $FFE0
-	dc.w 5,	$85E6, $82F3, $FFF0
-	dc.w 1,	$85EA, $82F5, 0
-	dc.w 5,	$8584, $82C2, 8
-	dc.w 5,	$8588, $82C4, $18
-	dc.w 5,	$8584, $82C2, $38
-	dc.w 1,	$85EA, $82F5, $48
-	dc.w 5,	$85EC, $82F6, $50
-	dc.w 5,	$85F0, $82F8, $60
-	dc.w 5,	$85F4, $82FA, $70
-word_14A1E:	dc.w $D
-	dc.w 5,	$85DE, $82EF, $FFA4
-	dc.w 5,	$85E2, $82F1, $FFB4
-	dc.w 5,	$8580, $82C0, $FFC4
-	dc.w 9,	$85E6, $82F3, $FFD1
-	dc.w 1,	$85EC, $82F6, $FFE9
-	dc.w 5,	$85DE, $82EF, $FFF1
-	dc.w 5,	$85EE, $82F7, 0
-	dc.w 5,	$85F2, $82F9, $10
-	dc.w 5,	$85F6, $82FB, $31
-	dc.w 5,	$85F2, $82F9, $41
-	dc.w 5,	$85EE, $82F7, $50
-	dc.w 5,	$8584, $82C2, $60
-	dc.w 5,	$85FA, $82FD, $70
-word_14A88:	dc.w $B
-	dc.w 5,	$85DE, $82EF, $FFD2
-	dc.w 5,	$85E2, $82F1, $FFE2
-	dc.w 5,	$85E6, $82F3, $FFF2
-	dc.w 5,	$85DE, $82EF, 0
-	dc.w 5,	$85EA, $82F5, $10
-	dc.w 1,	$85EE, $82F7, $20
-	dc.w 5,	$85F0, $82F8, $28
-	dc.w 5,	$85F4, $82FA, $48
-	dc.w 5,	$85E6, $82F3, $58
-	dc.w 1,	$85EE, $82F7, $68
-	dc.w 5,	$8584, $82C2, $70
-word_14AE2:	dc.w 8
-	dc.w 5,	$85DE, $82EF, $FFF0
-	dc.w 5,	$85E2, $82F1, 0
-	dc.w 5,	$85E6, $82F3, $10
-	dc.w 5,	$85EA, $82F5, $30
-	dc.w 5,	$85EE, $82F7, $40
-	dc.w 5,	$85F2, $82F9, $50
-	dc.w 5,	$85DE, $82EF, $60
-	dc.w 5,	$8580, $82C0, $70
-word_14B24:	dc.w $C
-	dc.w 9,	$85DE, $82EF, $FFB1
-	dc.w 1,	$85E4, $82F2, $FFC8
-	dc.w 5,	$8584, $82C2, $FFD0
-	dc.w 5,	$85E6, $82F3, $FFE0
-	dc.w 5,	$85EA, $82F5, 1
-	dc.w 5,	$8588, $82C4, $10
-	dc.w 5,	$85EE, $82F7, $20
-	dc.w 5,	$85F2, $82F9, $30
-	dc.w 5,	$85EE, $82F7, $40
-	dc.w 5,	$8580, $82C0, $50
-	dc.w 5,	$85F6, $82FB, $5F
-	dc.w 5,	$85F6, $82FB, $6F
-word_14B86:	dc.w 8
-	dc.w 5,	$85DE, $82EF, $FFF2
-	dc.w 5,	$8580, $82C0, 2
-	dc.w 5,	$85E2, $82F1, $10
-	dc.w 5,	$85E6, $82F3, $20
-	dc.w 5,	$85EA, $82F5, $30
-	dc.w 5,	$8580, $82C0, $51
-	dc.w 5,	$85EE, $82F7, $60
-	dc.w 5,	$85EE, $82F7, $70
-word_14BC8:	dc.w 4
-	dc.w 5,	$858C, $82C6, 1
-	dc.w 5,	$8588, $82C4, $10
-	dc.w 5,	$8584, $82C2, $20
-	dc.w 5,	$8580, $82C0, $30
-word_14BEA:	dc.w 1
-	dc.w 7,	$A590, $A2C8, 0
-word_14BF4:	dc.w 1
-	dc.w $B, $A598,	$A2CC, 0
-word_14BFE:	dc.w 1
-	dc.w $B, $A5A4,	$A2D2, 0
-word_14C08:	dc.w 5
-	dc.w $D, $85B0,	$82D8, $FFB8
-	dc.w $D, $85B8,	$82DC, $FFD8
-	dc.w $D, $85C0,	$82E0, $FFF8
-	dc.w $D, $85C8,	$82E4, $18
-	dc.w 5,	$85D0, $82E8, $38
-word_14C32:	dc.w 7
-	dc.w $9003, $85D4, $82EA, 0
-	dc.w $B003, $85D4, $82EA, 0
-	dc.w $D003, $85D4, $82EA, 0
-	dc.w $F003, $85D4, $82EA, 0
-	dc.w $1003, $85D4, $82EA, 0
-	dc.w $3003, $85D4, $82EA, 0
-	dc.w $5003, $85D4, $82EA, 0
+	offsetTableEntry.w TitleCard_EHZ ; EHZ 00 
+	offsetTableEntry.w TitleCard_EHZ ; EHZ 01 
+	offsetTableEntry.w TitleCard_EHZ ; EHZ 02 
+	offsetTableEntry.w TitleCard_EHZ ; EHZ 03 
+	offsetTableEntry.w TitleCard_MTZ ; MTZ 04
+	offsetTableEntry.w TitleCard_MTZ ; MTZ 05
+	offsetTableEntry.w TitleCard_WFZ ; WFZ 06
+	offsetTableEntry.w TitleCard_HTZ ; HTZ 07
+	offsetTableEntry.w TitleCard_HPZ ; HPZ 08
+	offsetTableEntry.w TitleCard_EHZ ; EHZ 09 
+	offsetTableEntry.w TitleCard_OOZ ; OOZ 0A
+	offsetTableEntry.w TitleCard_MCZ ; MCZ 0B
+	offsetTableEntry.w TitleCard_CNZ ; CNZ 0C
+	offsetTableEntry.w TitleCard_CPZ ; CPZ 0D
+	offsetTableEntry.w TitleCard_DEZ ; DEZ 0E
+	offsetTableEntry.w TitleCard_ARZ ; ARZ 0F
+	offsetTableEntry.w TitleCard_SCZ ; SCZ 10
+	offsetTableEntry.w TitleCard_GHZ ; GHZ 11
+	offsetTableEntry.w T_ZONE	 ; "ZONE"
+	offsetTableEntry.w T_ACT1	 ; "1"
+	offsetTableEntry.w T_ACT2	 ; "2"
+	offsetTableEntry.w T_ACT3	 ; "3"
+	offsetTableEntry.w T_STH	 ; "SONIC THE HEDGEHOG"
+	offsetTableEntry.w T_STRIPEDGE	 ; ">"
+
+
+TitleCard_GHZ:
+	dc.w $9				; GREEN HILL
+	dc.w $0005, $85DE, $82EF, $FFE8	; G
+	dc.w $0005, $85E2, $82F1, $FFF8	; R
+	dc.w $0005, $8580, $82C0, $0008	; E
+	dc.w $0005, $8580, $82C0, $0018	; E
+	dc.w $0005, $8584, $82C2, $0028	; N
+
+	dc.w $0005, $85E6, $82F3, $0048	; H
+	dc.w $0001, $85EA, $82F5, $0058	; I
+	dc.w $0005, $85EC, $82F6, $0060	; L
+	dc.w $0005, $85EC, $82F6, $0070	; L
+
+
+TitleCard_EHZ:
+	dc.w 11 ; number of letters
+	dc.w 5,	$8580, $82C0, $FFC3 ;E
+	dc.w 9,	$85DE, $82EF, $FFD0 ;M
+	dc.w 5, $8580, $82C0, $FFE8 ;E
+	dc.w 5, $85E4, $82F2, $FFF8 ;R
+	dc.w 5, $85E8, $82F4,     8 ;A
+	dc.w 5, $85EC, $82F6,   $18 ;L
+	dc.w 5, $85F0, $82F8,   $28 ;D
+ 
+	dc.w 5, $85F4, $82FA,   $48 ;H
+	dc.w 1, $85F8, $82F2,   $58 ;I
+	dc.w 5, $85EC, $82F6,   $60 ;L
+	dc.w 5, $85EC, $82F6,   $70 ;L
+ 
+ 
+TitleCard_MTZ:
+	dc.w 10 ; number of letters
+	dc.w 9, $85DE, $82EF, $FFE0 ;M
+	dc.w 5, $8580, $82C0, $FFF8 ;E
+	dc.w 5, $85E4, $82F2,     8 ;T
+	dc.w 5, $85E8, $82F4,   $18 ;R
+	dc.w 5, $8588, $82C4,   $28 ;O
+	dc.w 5, $85EC, $82F6,   $38 ;P
+	dc.w 5, $8588, $82C4,   $48 ;O
+	dc.w 5, $85F0, $82F8,   $58 ;L
+	dc.w 1, $85F4, $82FA,   $68 ;I
+	dc.w 5, $85F6, $82FB,   $70 ;S
+ 
+TitleCard_WFZ:
+	dc.w 12 ; number of letters
+	dc.w 9, $85DE, $82EF, $FFB0 ;W
+	dc.w 1, $85E4, $82F2, $FFC8 ;I
+	dc.w 5, $8584, $82C2, $FFD0 ;N
+	dc.w 5, $85E6, $82F3, $FFE0 ;G
+ 
+	dc.w 5, $85EA, $82F5,     0 ;F
+	dc.w 5, $8588, $82C4,   $10 ;O
+	dc.w 5, $85EE, $82F7,   $20 ;R
+	dc.w 5, $85F2, $82F9,   $30 ;T
+	dc.w 5, $85EE, $82F7,   $40 ;R
+	dc.w 5, $8580, $82C0,   $50 ;E
+	dc.w 5, $85F6, $82FB,   $60 ;S
+	dc.w 5, $85F6, $82FB,   $70 ;S
+ 
+TitleCard_HTZ:
+	dc.w 7 ; number of letters
+	dc.w 5, $85DE, $82EF,     8 ;H
+	dc.w 1, $85E2, $82F1,   $18 ;I
+	dc.w 5, $85E4, $82F2,   $20 ;L
+	dc.w 5, $85E4, $82F2,   $30 ;L
+ 
+	dc.w 5, $85E8, $82F4,   $50 ;T
+	dc.w 5, $8588, $82C4,   $60 ;O
+	dc.w 5, $85EC, $82F6,   $70 ;P
+ 
+TitleCard_HPZ:
+	dc.w 12 ; number of letters
+	dc.w 5, $85DE, $82EF, $FFB8 ;H
+	dc.w 1, $85E2, $82F1, $FFC8 ;I
+	dc.w 5, $85E4, $82F2, $FFD0 ;D
+	dc.w 5, $85E4, $82F2, $FFE0 ;D
+	dc.w 5, $8580, $82C0, $FFF0 ;E
+	dc.w 5, $8584, $82C4,     0 ;N
+ 
+	dc.w 5, $85E8, $82F4,   $20 ;P
+	dc.w 5, $85EC, $82F6,   $30 ;A
+	dc.w 5, $85F0, $82F8,   $40 ;L
+	dc.w 5, $85EC, $82F6,   $50 ;A
+	dc.w 5, $85F4, $82FA,   $60 ;C
+	dc.w 5, $8580, $82C0,   $70 ;E
+ 
+TitleCard_OOZ:
+	dc.w 8 ; number of letters
+	dc.w 5, $8588, $82C4, $FFF8 ;O
+	dc.w 1, $85DE, $82EF,     8 ;I
+	dc.w 5, $85E0, $82F0,   $10 ;L
+ 
+	dc.w 5, $8588, $82C4,   $30 ;O
+	dc.w 5, $85E4, $82F2,   $40 ;C
+	dc.w 5, $8580, $82C0,   $50 ;E
+	dc.w 5, $85E8, $82F4,   $60 ;A
+	dc.w 5, $8584, $82C2,   $70 ;N
+ 
+TitleCard_MCZ:
+	dc.w 10 ; number of letters
+	dc.w 9, $85DE, $82EF, $FFD0 ;M
+	dc.w 5, $85E4, $82F2, $FFE8 ;Y
+	dc.w 5, $85E8, $82F4, $FFF8 ;S
+	dc.w 5, $85EC, $82F6,     8 ;T
+	dc.w 1, $85F0, $82F8,   $18 ;I
+	dc.w 5, $85F2, $82F9,   $20 ;C
+ 
+	dc.w 5, $85F2, $82F9,   $40 ;C
+	dc.w 5, $85F6, $82FB,   $50 ;A
+	dc.w 5, $85FA, $82FD,   $60 ;V
+	dc.w 5, $8580, $82C0,   $70 ;E
+ 
+TitleCard_CNZ:
+	dc.w 11 ; number of letters
+	dc.w 5, $85DE, $82EF, $FFD0 ;C
+	dc.w 5, $85E2, $82F1, $FFE0 ;A
+	dc.w 5, $85E6, $82F3, $FFF0 ;S
+	dc.w 1, $85EA, $82F5,     0 ;I
+	dc.w 5, $8584, $82C2,     8 ;N
+	dc.w 5, $8588, $82C4,   $18 ;O
+ 
+	dc.w 5, $8584, $82C2,   $38 ;N
+	dc.w 1, $85EA, $82F5,   $48 ;I
+	dc.w 5, $85EC, $82F6,   $50 ;G
+	dc.w 5, $85F0, $82F8,   $60 ;H
+	dc.w 5, $85F4, $82FA,   $70 ;T
+ 
+TitleCard_CPZ:
+	dc.w 13 ; number of letters
+	dc.w 5, $85DE, $82EF, $FFA0 ;C
+	dc.w 5, $85E2, $82F1, $FFB0 ;H
+	dc.w 5, $8580, $82C0, $FFC0 ;E
+	dc.w 9, $85E6, $82F3, $FFD0 ;M
+	dc.w 1, $85EC, $82F6, $FFE8 ;I
+	dc.w 5, $85DE, $82EF, $FFF0 ;C
+	dc.w 5, $85EE, $82F7,     0 ;A
+	dc.w 5, $85F2, $82F9,   $10 ;L
+ 
+	dc.w 5, $85F6, $82FB,   $30 ;P
+	dc.w 5, $85F2, $82F9,   $40 ;L
+	dc.w 5, $85EE, $82F7,   $50 ;A
+	dc.w 5, $8584, $82C2,   $60 ;N
+	dc.w 5, $85FA, $82FD,   $70 ;T
+ 
+TitleCard_DEZ:
+	dc.w 8 ; number of letters
+	dc.w 5, $85DE, $82EF, $FFF0 ;D
+	dc.w 5, $8580, $82C0,     0 ;E
+	dc.w 5, $85E2, $82F1,   $10 ;A
+	dc.w 5, $85E6, $82F3,   $20 ;T
+	dc.w 5, $85EA, $82F5,   $30 ;H
+ 
+	dc.w 5, $8580, $82C0,   $50 ;E
+	dc.w 5, $85EE, $82F7,   $60 ;G
+	dc.w 5, $85EE, $82F7,   $70 ;G
+ 
+TitleCard_ARZ:
+	dc.w 11 ; number of letters
+	dc.w 5, $85DE, $82EF, $FFD0 ;A
+	dc.w 5, $85E2, $82F1, $FFE0 ;Q
+	dc.w 5, $85E6, $82F3, $FFF0 ;U
+	dc.w 5, $85DE, $82EF,     0 ;A
+	dc.w 5, $85EA, $82F5,   $10 ;T
+	dc.w 1, $85EE, $82F7,   $20 ;I
+	dc.w 5, $85F0, $82F8,   $28 ;C
+ 
+	dc.w 5, $85F4, $82FA,   $48 ;R
+	dc.w 5, $85E6, $82F3,   $58 ;U
+	dc.w 1, $85EE, $82F7,   $68 ;I
+	dc.w 5, $8584, $82C2,   $70 ;N
+ 
+TitleCard_SCZ:
+	dc.w 8 ; number of letters
+	dc.w 5, $85DE, $82EF, $FFF0 ;S
+	dc.w 5, $85E2, $82F1,     0 ;K
+	dc.w 5, $85E6, $82F3,   $10 ;Y
+ 
+	dc.w 5, $85EA, $82F5,   $30 ;C
+	dc.w 5, $85EE, $82F7,   $40 ;H
+	dc.w 5, $85F2, $82F7,   $50 ;A
+	dc.w 5, $85DE, $82EF,   $60 ;S
+	dc.w 5, $8580, $82C0,   $70 ;E
+ 
+T_ZONE:
+	dc.w 4 ; number of letters
+	dc.w 5, $858C, $82C6,     0 ;Z
+	dc.w 5, $8588, $82C4,   $10 ;O
+	dc.w 5, $8584, $82C2,   $20 ;N
+	dc.w 5, $8580, $82C0,   $30 ;E
+ 
+T_ACT1:
+	dc.w $1 ; number of digits
+	dc.w 7, $A590, $A2C8,     0 ;1
+ 
+T_ACT2:
+	dc.w $1 ; number of digits
+	dc.w $B, $A598, $A2CC,    0 ;2
+ 
+T_ACT3:
+	dc.w $1 ; number of digits
+	dc.w $B, $A5A4, $A2D2,    0 ;3
+ 
+T_STH:
+	dc.w $5 ; number of tiles (what they say is below)
+	dc.w $D, $85B0, $82DE, $FFB8 ;SONI
+	dc.w $D, $85B8, $82DC, $FFD8 ;C TH
+	dc.w $D, $85C0, $82E0, $FFF8 ;E HE
+	dc.w $D, $85C8, $82E4,   $18 ;DGEH
+	dc.w $5, $85D0, $82E8,   $38 ;OG
+ 
+T_STRIPEDGE:
+	dc.w $7 ; number of tiles (to display strip edge)
+	dc.w $9003, $85D4, $82EA, 0 ;>
+	dc.w $B003, $85D4, $82EA, 0 ;>
+	dc.w $D003, $85D4, $82EA, 0 ;>
+	dc.w $F003, $85D4, $82EA, 0 ;>
+	dc.w $1003, $85D4, $82EA, 0 ;>
+	dc.w $3003, $85D4, $82EA, 0 ;>
+	dc.w $5003, $85D4, $82EA, 0 ;>
+; ==================================================================
 ; -------------------------------------------------------------------------------
 ; sprite mappings
 ; -------------------------------------------------------------------------------
@@ -27414,9 +27498,9 @@ LoadTitleCard:
 	bsr.s	LoadTitleCard0
 	moveq	#0,d0
 	move.b	(Current_Zone).w,d0
-	move.b	Off_TitleCardLetters(pc,d0.w),d0
-	lea	TitleCardLetters(pc),a0
-	lea	(a0,d0.w),a0
+	add.w	d0,d0
+	move.w	Off_TitleCardLetters(pc,d0.w),d0
+	lea	Off_TitleCardLetters(pc,d0.w),a0
 	move.l	#vdpComm(tiles_to_bytes(ArtTile_LevelName),VRAM,WRITE),d0
 
 loc_157EC:
@@ -27446,26 +27530,26 @@ loc_1581A:
 	move	#$2300,sr
 	rts
 ; ===========================================================================
-; byte_15820:
-Off_TitleCardLetters:
-	dc.b TitleCardLetters_EHZ - TitleCardLetters	; 0
-	dc.b TitleCardLetters_EHZ - TitleCardLetters	; 1
-	dc.b TitleCardLetters_EHZ - TitleCardLetters	; 2
-	dc.b TitleCardLetters_EHZ - TitleCardLetters	; 3
-	dc.b TitleCardLetters_MTZ - TitleCardLetters	; 4
-	dc.b TitleCardLetters_MTZ - TitleCardLetters	; 5
-	dc.b TitleCardLetters_WFZ - TitleCardLetters	; 6
-	dc.b TitleCardLetters_HTZ - TitleCardLetters	; 7
-	dc.b TitleCardLetters_HPZ - TitleCardLetters	; 8
-	dc.b TitleCardLetters_EHZ - TitleCardLetters	; 9
-	dc.b TitleCardLetters_OOZ - TitleCardLetters	; A
-	dc.b TitleCardLetters_MCZ - TitleCardLetters	; B
-	dc.b TitleCardLetters_CNZ - TitleCardLetters	; C
-	dc.b TitleCardLetters_CPZ - TitleCardLetters	; D
-	dc.b TitleCardLetters_DEZ - TitleCardLetters	; E
-	dc.b TitleCardLetters_ARZ - TitleCardLetters	; F
-	dc.b TitleCardLetters_SCZ - TitleCardLetters	; 10
-	even
+;byte_15820
+Off_TitleCardLetters:	offsetTable
+	offsetTableEntry.w TitleCardLetters_EHZ ; EHZ Titlecard 00
+	offsetTableEntry.w TitleCardLetters_EHZ ; EHZ Titlecard 01
+	offsetTableEntry.w TitleCardLetters_EHZ ; EHZ Titlecard 02
+	offsetTableEntry.w TitleCardLetters_EHZ ; EHZ Titlecard 03
+	offsetTableEntry.w TitleCardLetters_MTZ ; MTZ Titlecard 04
+	offsetTableEntry.w TitleCardLetters_MTZ ; MTZ Titlecard 05
+	offsetTableEntry.w TitleCardLetters_WFZ ; WFZ Titlecard 06
+	offsetTableEntry.w TitleCardLetters_HTZ ; HTZ Titlecard 07
+	offsetTableEntry.w TitleCardLetters_HPZ ; HPZ Titlecard 08
+	offsetTableEntry.w TitleCardLetters_EHZ ; EHZ Titlecard 09
+	offsetTableEntry.w TitleCardLetters_OOZ ; OOZ Titlecard 0A
+	offsetTableEntry.w TitleCardLetters_MCZ ; MCZ Titlecard 0B
+	offsetTableEntry.w TitleCardLetters_CNZ ; CNZ Titlecard 0C
+	offsetTableEntry.w TitleCardLetters_CPZ ; CPZ Titlecard 0D
+	offsetTableEntry.w TitleCardLetters_DEZ ; DEZ Titlecard 0E
+	offsetTableEntry.w TitleCardLetters_ARZ ; ARZ Titlecard 0F
+	offsetTableEntry.w TitleCardLetters_SCZ ; SCZ Titlecard 10
+	offsetTableEntry.w TitleCardLetters_GHZ ; EHZ Titlecard 11
 
  ; temporarily remap characters to title card letter format
  ; Characters are encoded as Aa, Bb, Cc, etc. through a macro
@@ -27506,6 +27590,8 @@ TitleCardLetters_WFZ:
 	titleLetters	"WING FORTRESS"
 TitleCardLetters_DEZ:
 	titleLetters	"DEATH EGG"
+TitleCardLetters_GHZ:
+	titleLetters	"GREEN HILL"
 
  charset ; revert character set
 
@@ -81241,7 +81327,7 @@ LevelArtPointers:
 	levartptrs PLCID_Dez1,     PLCID_Dez2,      PalID_DEZ,  ArtKos_CPZ, BM16_CPZ, BM128_CPZ ;  $E ; DEZ  ; DEATH EGG ZONE
 	levartptrs PLCID_Arz1,     PLCID_Arz2,      PalID_ARZ,  ArtKos_ARZ, BM16_ARZ, BM128_ARZ ;  $F ; ARZ  ; AQUATIC RUIN ZONE
 	levartptrs PLCID_Scz1,     PLCID_Scz2,      PalID_SCZ,  ArtKos_SCZ, BM16_WFZ, BM128_WFZ ; $10 ; SCZ  ; SKY CHASE ZONE
-	levartptrs PLCID_Ehz1,     PLCID_Ehz2,      PalID_GHZ,  ArtKos_GHZ, BM16_GHZ, BM128_GHZ ;   0 ; EHZ  ; EMERALD HILL ZONE
+	levartptrs PLCID_Ehz1,     PLCID_Ehz2,      PalID_GHZ,  ArtKos_GHZ, BM16_GHZ, BM128_GHZ ; $11 ; GHZ  ; GREEN HILL ZONE
 
     if (cur_zone_id<>no_of_zones)&&(MOMPASS=1)
 	message "Warning: Table LevelArtPointers has \{cur_zone_id/1.0} entries, but it should have \{no_of_zones/1.0} entries"
@@ -86692,6 +86778,7 @@ Sound70:	dc.w $0000,$0101
 
 
 	finishBank
+	
 
 	include  "objects/characters/Characters include.asm"
 
