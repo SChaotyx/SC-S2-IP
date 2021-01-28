@@ -283,6 +283,7 @@ chemical_plant_zone zoneID	$0D
 death_egg_zone zoneID		$0E
 aquatic_ruin_zone zoneID	$0F
 sky_chase_zone zoneID		$10
+green_hill_zone zoneID		$11
 
 ; NOTE: If you want to shift IDs around, set useFullWaterTables to 1 in the assembly options
 
@@ -315,7 +316,8 @@ wood_zone_act_1 =		(wood_zone<<8)|$00
 wood_zone_act_2 =		(wood_zone<<8)|$01
 hidden_palace_zone_act_1 =	(hidden_palace_zone<<8)|$00
 hidden_palace_zone_act_2 =	(hidden_palace_zone<<8)|$01
-
+green_hill_zone_act_1 =	(green_hill_zone<<8)|$00
+green_hill_zone_act_2 =	(green_hill_zone<<8)|$01
 ; ---------------------------------------------------------------------------
 ; some variables and functions to help define those constants (redefined before a new set of IDs)
 offset :=	0		; this is the start of the pointer table
@@ -415,6 +417,7 @@ PalID_KnucklesSS =	id(PalPtr_KnucklesSS) ; 2A
 PalID_SonicSS2 =	id(PalPtr_SonicSS2) ; 2B
 PalID_TailsSS2 =	id(PalPtr_TailsSS2) ; 2C
 PalID_KnucklesSS2 =	id(PalPtr_KnucklesSS2) ; 2D
+PalID_GHZ =	id(PalPtr_GHZ) ; 4
 
 ; PLC IDs
 offset :=	ArtLoadCues

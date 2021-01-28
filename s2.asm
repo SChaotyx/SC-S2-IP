@@ -2424,6 +2424,7 @@ PalCycle: zoneOrderedOffsetTable 2,1
 	zoneOffsetTableEntry.w PalCycle_CPZ	; 14
 	zoneOffsetTableEntry.w PalCycle_ARZ	; 15
 	zoneOffsetTableEntry.w PalCycle_WFZ	; 16
+	zoneOffsetTableEntry.w PalCycle_Null ; 17 ; $11 ; Green Hill Zone
     zoneTableEnd
 
 ; ===========================================================================
@@ -3528,6 +3529,7 @@ PalPtr_KnucklesSS:	palptr Pal_KnucklesSS,    1
 PalPtr_SonicSS2:	palptr Pal_SonicSS,    2
 PalPtr_TailsSS2:	palptr Pal_TailsSS,    2
 PalPtr_KnucklesSS2:	palptr Pal_KnucklesSS,    2
+PalPtr_GHZ:	palptr Pal_GHZ,   1
 
 ; ----------------------------------------------------------------------------
 ; This macro defines Pal_ABC and Pal_ABC_End, so palptr can compute the size of
@@ -3581,6 +3583,7 @@ Pal_Result:palette Special Stage Results Screen.bin ; Special Stage Results Scre
 Pal_SonicSS:    palette Special Stage Sonic.bin ; Special Stage palette for knuckles
 Pal_TailsSS:    palette Special Stage Tails.bin ; Special Stage palette for knuckles
 Pal_KnucklesSS:	palette	Special Stage Knuckles.bin
+Pal_GHZ:   palette GHZ.bin ; Green Hill Zone palette
 ; ===========================================================================
 
     if gameRevision<2
@@ -4249,6 +4252,7 @@ MusicList: zoneOrderedTable 1,1
 	zoneTableEntry.b MusID_DEZ	; 14 ; DEZ
 	zoneTableEntry.b MusID_ARZ	; 15 ; ARZ
 	zoneTableEntry.b MusID_SCZ	; 16 ; SCZ
+	zoneTableEntry.b MusID_EHZ	; 17 ; $11 GHZ
     zoneTableEnd
 	even
 ;----------------------------------------------------------------------------
@@ -4273,6 +4277,7 @@ MusicList2: zoneOrderedTable 1,1
 	zoneTableEntry.b MusID_DEZ	; 14
 	zoneTableEntry.b MusID_ARZ	; 15
 	zoneTableEntry.b MusID_SCZ	; 16
+	zoneTableEntry.b MusID_EHZ	; 17 ; $11 ; Green Hill Zone
     zoneTableEnd
 	even
 ; ===========================================================================
@@ -5315,6 +5320,7 @@ DemoScriptPointers: zoneOrderedTable 4,1
 	zoneTableEntry.l Demo_EHZ	; $0E
 	zoneTableEntry.l Demo_ARZ	; $0F
 	zoneTableEntry.l Demo_EHZ	; $10
+	zoneTableEntry.l Demo_EHZ	; $11 Green Hill Zone
     zoneTableEnd
 ; ---------------------------------------------------------------------------
 ; dword_498C:
@@ -5380,6 +5386,7 @@ Off_ColP: zoneOrderedTable 4,1
 	zoneTableEntry.l ColP_CPZDEZ	; 14
 	zoneTableEntry.l ColP_ARZ	; 15
 	zoneTableEntry.l ColP_WFZSCZ	; 16
+	zoneTableEntry.l ColP_GHZ ; 17 ; $11 ; Green Hill Zone
     zoneTableEnd
 
 ; ---------------------------------------------------------------------------
@@ -5407,6 +5414,7 @@ Off_ColS: zoneOrderedTable 4,1
 	zoneTableEntry.l ColS_CPZDEZ	; 14
 	zoneTableEntry.l ColS_ARZ	; 15
 	zoneTableEntry.l ColS_WFZSCZ	; 16
+	zoneTableEntry.l ColS_GHZ ; 17 ; $11 ; Green Hill Zone
     zoneTableEnd
 
 
@@ -12107,7 +12115,7 @@ LevelSelect_Return:
 ; -----------------------------------------------------------------------------
 ;Misc_9454:
 LevelSelect_Order:
-	dc.w	emerald_hill_zone_act_1
+	dc.w	green_hill_zone_act_1
 	dc.w	emerald_hill_zone_act_2	; 1
 	dc.w	chemical_plant_zone_act_1	; 2
 	dc.w	chemical_plant_zone_act_2	; 3
@@ -14477,6 +14485,8 @@ LevelSize: zoneOrderedTable 2,8	; WrdArr_LvlSize
 	zoneTableEntry.w	$0,	$3FFF,	$180,	$710	; ARZ act 2
 	zoneTableEntry.w	$0,	$3FFF,	$0,	$000	; SCZ
 	zoneTableEntry.w	$0,	$3FFF,	$0,	$720
+	zoneTableEntry.w	$0,	$3FFF,	$0,	$720	; $01
+	zoneTableEntry.w	$0,	$3FFF,	$0,	$720	; $01
     zoneTableEnd
 
 ; ===========================================================================
@@ -14567,6 +14577,8 @@ StartLocations: zoneOrderedTable 2,4	; WrdArr_StartLoc
 	zoneTableBinEntry	2, "startpos/ARZ_2.bin"
 	zoneTableBinEntry	2, "startpos/SCZ.bin"	; $10
 	zoneTableEntry.w	$140,	$70
+	zoneTableBinEntry	2, "startpos/GHZ_1.bin"	; $00
+	zoneTableBinEntry	2, "startpos/GHZ_2.bin"
     zoneTableEnd
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
@@ -14613,6 +14625,7 @@ InitCam_Index: zoneOrderedOffsetTable 2,1
 	zoneOffsetTableEntry.w InitCam_Null3	; 14
 	zoneOffsetTableEntry.w InitCam_ARZ	; 15
 	zoneOffsetTableEntry.w InitCam_SCZ	; 16
+	zoneOffsetTableEntry.w InitCam_Std	; 17 GHZ
     zoneTableEnd
 ; ===========================================================================
 ;loc_C2B8:
@@ -14906,8 +14919,30 @@ SwScrl_Index: zoneOrderedOffsetTable 2,1	; JmpTbl_SwScrlMgr
 	zoneOffsetTableEntry.w SwScrl_DEZ	; $0E
 	zoneOffsetTableEntry.w SwScrl_ARZ	; $0F
 	zoneOffsetTableEntry.w SwScrl_SCZ	; $10
+	zoneOffsetTableEntry.w SwScrl_Minimal	; $
     zoneTableEnd
 ; ===========================================================================
+
+SwScrl_GHZ:
+    
+	move.w	(Camera_Y_pos_diff).w,d5
+	ext.l	d5
+	asl.l	#6,d5
+	bsr.w	SetHorizVertiScrollFlagsBG
+	move.w	(Camera_BG_Y_pos).w,(Vscroll_Factor_BG).w
+	lea	(Horiz_Scroll_Buf).w,a1
+	move.w	#bytesToLcnt($380),d1
+	move.w	(Camera_X_pos).w,d0
+	neg.w	d0
+	swap	d0
+	move.w	(Camera_BG_X_pos).w,d0
+	neg.w	d0
+
+-	move.l	d0,(a1)+
+	dbf	d1,-
+
+	rts
+
 ; loc_C51E:
 SwScrl_Title:
 	move.w	(Camera_BG_Y_pos).w,(Vscroll_Factor_BG).w
@@ -18843,6 +18878,7 @@ DynamicLevelEventIndex: zoneOrderedOffsetTable 2,1
 	zoneOffsetTableEntry.w LevEvents_DEZ	;  $E ; DEZ
 	zoneOffsetTableEntry.w LevEvents_ARZ	;  $F ; ARZ
 	zoneOffsetTableEntry.w LevEvents_SCZ	; $10 ; SCZ
+	zoneOffsetTableEntry.w LevEvents_009	; $11 ; LEV9
     zoneTableEnd
 ; ===========================================================================
 ; loc_E658:
@@ -22856,6 +22892,7 @@ zoneAnimals macro first,second
 	zoneAnimals.b Pig,	Chicken	; DEZ
 	zoneAnimals.b Penguin,	Bird	; ARZ
 	zoneAnimals.b Turtle,	Chicken	; SCZ
+	zoneAnimals.b Squirrel,	Bird	; GHZ
     zoneTableEnd
 
 ; word_118F0:
@@ -25938,6 +25975,7 @@ Animal_PLCTable: zoneOrderedTable 1,1
 	zoneTableEntry.b PLCID_DezAnimals	; $E
 	zoneTableEntry.b PLCID_ArzAnimals	; $F
 	zoneTableEntry.b PLCID_SczAnimals	; $10
+	zoneTableEntry.b PLCID_EhzAnimals	; $11
     zoneTableEnd
 
 	dc.b PLCID_SczAnimals	; level slot $11 (non-existent), not part of main table
@@ -26356,6 +26394,8 @@ LevelOrder: zoneOrderedTable 2,2	; WrdArr_LevelOrder
 	zoneTableEntry.w  casino_night_zone_act_1	; 31
 	zoneTableEntry.w  wing_fortress_zone_act_1 	; 32
 	zoneTableEntry.w  emerald_hill_zone_act_1	; 33
+	zoneTableEntry.w  green_hill_zone_act_1	; 34
+	zoneTableEntry.w  green_hill_zone_act_2	; 35
     zoneTableEnd
 
 ;word_1433C:
@@ -26394,6 +26434,8 @@ LevelOrder_2P: zoneOrderedTable 2,2	; WrdArr_LevelOrder_2P
 	zoneTableEntry.w  casino_night_zone_act_1	; 31
 	zoneTableEntry.w  wing_fortress_zone_act_1 	; 32
 	zoneTableEntry.w  emerald_hill_zone_act_1	; 33
+	zoneTableEntry.w  green_hill_zone_act_1	; 34
+	zoneTableEntry.w  green_hill_zone_act_2	; 35
     zoneTableEnd
 
 byte_14380:
@@ -35225,6 +35267,10 @@ loc_1E7F0:	; block has some solidity
 	andi.w	#$FF,d0
 	beq.s	loc_1E7E2
 	lea	(ColCurveMap).l,a2
+	cmpi.b	#green_hill_zone,(Current_Zone).w
+	blt.s	+
+	lea	(ColCurveMapS1).l,a2
++
 	move.b	(a2,d0.w),(a4)	; get angle from AngleMap --> (a4)
 	lsl.w	#4,d0
 	move.w	d3,d1	; x_pos
@@ -35242,6 +35288,10 @@ loc_1E7F0:	; block has some solidity
 	andi.w	#$F,d1	; x_pos (mod 16)
 	add.w	d0,d1	; d0 = 16*blockID -> offset in ColArray to look up
 	lea	(ColArray).l,a2
+	cmpi.b	#green_hill_zone,(Current_Zone).w
+	blt.s	+
+	lea	(ColArrayS1).l,a2
++
 	move.b	(a2,d1.w),d0	; heigth from ColArray
 	ext.w	d0
 	eor.w	d6,d4
@@ -35313,6 +35363,10 @@ loc_1E898:
 	andi.w	#$FF,d0
 	beq.s	loc_1E88A
 	lea	(ColCurveMap).l,a2
+	cmpi.b	#green_hill_zone,(Current_Zone).w
+	blt.s	+
+	lea	(ColCurveMapS1).l,a2
++
 	move.b	(a2,d0.w),(a4)
 	lsl.w	#4,d0
 	move.w	d3,d1
@@ -35330,6 +35384,10 @@ loc_1E898:
 	andi.w	#$F,d1
 	add.w	d0,d1
 	lea	(ColArray).l,a2
+	cmpi.b	#green_hill_zone,(Current_Zone).w
+	blt.s	+
+	lea	(ColArrayS1).l,a2
++
 	move.b	(a2,d1.w),d0
 	ext.w	d0
 	eor.w	d6,d4
@@ -35389,6 +35447,10 @@ loc_1E928:
 	andi.w	#$FF,d0
 	beq.s	loc_1E922
 	lea	(ColCurveMap).l,a2
+	cmpi.b	#green_hill_zone,(Current_Zone).w
+	blt.s	+
+	lea	(ColCurveMapS1).l,a2
++
 	move.b	(a2,d0.w),(a4)
 	lsl.w	#4,d0
 	move.w	d3,d1
@@ -35406,6 +35468,10 @@ loc_1E928:
 	andi.w	#$F,d1
 	add.w	d0,d1
 	lea	(ColArray).l,a2
+	cmpi.b	#green_hill_zone,(Current_Zone).w
+	blt.s	+
+	lea	(ColArrayS1).l,a2
++
 	move.b	(a2,d1.w),d0
 	ext.w	d0
 	eor.w	d6,d4
@@ -35477,6 +35543,10 @@ loc_1E9D0:
 	andi.w	#$FF,d0	; relevant collisionArrayEntry
 	beq.s	loc_1E9C2
 	lea	(ColCurveMap).l,a2
+	cmpi.b	#green_hill_zone,(Current_Zone).w
+	blt.s	+
+	lea	(ColCurveMapS1).l,a2
++
 	move.b	(a2,d0.w),(a4)
 	lsl.w	#4,d0	; offset in collision array
 	move.w	d2,d1	; y
@@ -35494,6 +35564,10 @@ loc_1E9D0:
 	andi.w	#$F,d1	; y
 	add.w	d0,d1	; line to look up
 	lea	(ColArray2).l,a2	; rotated collision array
+	cmpi.b	#green_hill_zone,(Current_Zone).w
+	blt.s	+
+	lea	(ColArray2S1).l,a2
++
 	move.b	(a2,d1.w),d0	; collision value
 	ext.w	d0
 	eor.w	d6,d4	; set x-flip flag if from the right
@@ -35565,6 +35639,10 @@ loc_1EA78:
 	andi.w	#$FF,d0
 	beq.s	loc_1EA6A
 	lea	(ColCurveMap).l,a2
+	cmpi.b	#green_hill_zone,(Current_Zone).w
+	blt.s	+
+	lea	(ColCurveMapS1).l,a2
++
 	move.b	(a2,d0.w),(a4)
 	lsl.w	#4,d0
 	move.w	d2,d1
@@ -35582,6 +35660,10 @@ loc_1EA78:
 	andi.w	#$F,d1
 	add.w	d0,d1
 	lea	(ColArray2).l,a2
+	cmpi.b	#green_hill_zone,(Current_Zone).w
+	blt.s	+
+	lea	(ColArray2S1).l,a2
++
 	move.b	(a2,d1.w),d0
 	ext.w	d0
 	eor.w	d6,d4
@@ -35627,6 +35709,11 @@ ConvertCollisionArray:
 ; ---------------------------------------------------------------------------
 	lea	(ColArray).l,a1	; Source location of 'raw' collision array
 	lea	(ColArray).l,a2	; Destinatation of converted collision array (overwrites the original)
+	cmpi.b	#green_hill_zone,(Current_Zone).w
+	blt.s	+
+	lea	(ColArrayS1).l,a1
+	lea	(ColArrayS1).l,a2
++
 
 	move.w	#$100-1,d3	; Number of blocks in collision array
 .blockLoop:
@@ -35656,12 +35743,22 @@ ConvertCollisionArray:
 
 	lea	(ColArray).l,a1
 	lea	(ColArray2).l,a2	; Write converted collision array to location of rotated collison array
-	bsr.s	.convertArrayToStandardFormat
+	cmpi.b	#green_hill_zone,(Current_Zone).w
+	blt.s	+
+	lea	(ColArrayS1).l,a1
+	lea	(ColArray2S1).l,a2
++
+	bsr.s	convertArrayToStandardFormat
 	lea	(ColArray).l,a1
 	lea	(ColArray).l,a2		; Write converted collision array to location of normal collison array
+	cmpi.b	#green_hill_zone,(Current_Zone).w
+	blt.s	+
+	lea	(ColArrayS1).l,a1
+	lea	(ColArrayS1).l,a2
++
 
 ; loc_1EB46: FloorLog_Unk2:
-.convertArrayToStandardFormat:
+convertArrayToStandardFormat:
 	move.w	#$1000-1,d3	; Size of the collision array
 
 .processCollisionArrayLoop:
@@ -77953,6 +78050,9 @@ PLC_DYNANM: zoneOrderedOffsetTable 2,2		; Zone ID
 
 	zoneOffsetTableEntry.w Dynamic_Null	; $10
 	zoneOffsetTableEntry.w Animated_Null
+
+	zoneOffsetTableEntry.w Dynamic_Null	; $11
+	zoneOffsetTableEntry.w Animated_Null
     zoneTableEnd
 ; ===========================================================================
 
@@ -78673,6 +78773,7 @@ AnimPatMaps: zoneOrderedOffsetTable 2,1
 	zoneOffsetTableEntry.w APM_DEZ		; $E
 	zoneOffsetTableEntry.w APM_ARZ		; $F
 	zoneOffsetTableEntry.w APM_Null		;$10
+	zoneOffsetTableEntry.w APM_Null		;$11
     zoneTableEnd
 
 begin_animpat macro {INTLABEL}
@@ -80654,6 +80755,7 @@ JmpTbl_DbgObjLists: zoneOrderedOffsetTable 2,1
 	zoneOffsetTableEntry.w DbgObjList_Def	; $E
 	zoneOffsetTableEntry.w DbgObjList_ARZ	; $F
 	zoneOffsetTableEntry.w DbgObjList_SCZ	; $10
+	zoneOffsetTableEntry.w DbgObjList_Def	; $11
     zoneTableEnd
 
 ; macro for a debug object list header
@@ -81139,6 +81241,7 @@ LevelArtPointers:
 	levartptrs PLCID_Dez1,     PLCID_Dez2,      PalID_DEZ,  ArtKos_CPZ, BM16_CPZ, BM128_CPZ ;  $E ; DEZ  ; DEATH EGG ZONE
 	levartptrs PLCID_Arz1,     PLCID_Arz2,      PalID_ARZ,  ArtKos_ARZ, BM16_ARZ, BM128_ARZ ;  $F ; ARZ  ; AQUATIC RUIN ZONE
 	levartptrs PLCID_Scz1,     PLCID_Scz2,      PalID_SCZ,  ArtKos_SCZ, BM16_WFZ, BM128_WFZ ; $10 ; SCZ  ; SKY CHASE ZONE
+	levartptrs PLCID_Ehz1,     PLCID_Ehz2,      PalID_GHZ,  ArtKos_GHZ, BM16_GHZ, BM128_GHZ ;   0 ; EHZ  ; EMERALD HILL ZONE
 
     if (cur_zone_id<>no_of_zones)&&(MOMPASS=1)
 	message "Warning: Table LevelArtPointers has \{cur_zone_id/1.0} entries, but it should have \{no_of_zones/1.0} entries"
@@ -82240,11 +82343,22 @@ PlrList_ResultsTails_Dup_End
 ;---------------------------------------------------------------------------------------
 ColCurveMap:	BINCLUDE	"collision/Curve and resistance mapping.bin"
 	even
+ColCurveMapS1:	BINCLUDE	"collision/Curve and resistance mapping S1.bin"
+	even
 ;--------------------------------------------------------------------------------------
 ; Collision arrays
 ;--------------------------------------------------------------------------------------
 ColArray:	BINCLUDE	"collision/Collision array 1.bin"
 ColArray2:	BINCLUDE	"collision/Collision array 2.bin"
+	even
+ColArrayS1:	 BINCLUDE	"collision/Collision array S1 1.bin"
+ColArray2S1: BINCLUDE	"collision/Collision array S1 2.bin"
+	even
+;---------------------------------------------------------------------------------------
+; GHZ primary 16x16 collision index (Kosinski compression)
+ColP_GHZ:	BINCLUDE	"collision/GHZ primary 16x16 collision index.bin"
+	even
+ColS_GHZ:	BINCLUDE	"collision/GHZ secondary 16x16 collision index.bin"
 	even
 ;---------------------------------------------------------------------------------------
 ; EHZ and HTZ primary 16x16 collision index (Kosinski compression)
@@ -82353,7 +82467,17 @@ Off_Level: zoneOrderedOffsetTable 2,2
 	zoneOffsetTableEntry.w Level_ARZ2	; 31
 	zoneOffsetTableEntry.w Level_SCZ	; 32
 	zoneOffsetTableEntry.w Level_SCZ	; 33
+	zoneOffsetTableEntry.w Level_GHZ1	; 34
+	zoneOffsetTableEntry.w Level_GHZ2	; 35
     zoneTableEnd
+;---------------------------------------------------------------------------------------
+; GHZ act 1 level layout (Kosinski compression)
+Level_GHZ1:	BINCLUDE	"level/layout/GHZ_1.bin"
+	even
+;---------------------------------------------------------------------------------------
+; GHZ act 1 level layout (Kosinski compression)
+Level_GHZ2:	BINCLUDE	"level/layout/GHZ_2.bin"
+	even
 ;---------------------------------------------------------------------------------------
 ; EHZ act 1 level layout (Kosinski compression)
 Level_EHZ1:	BINCLUDE	"level/layout/EHZ_1.bin"
@@ -83575,7 +83699,9 @@ ArtNem_EndingKnuckles:	BINCLUDE	"art/nemesis/Small pictures of Knuckles and fina
 ; blocks or 64 cells.
 ; As noted earlier, each element of the table provides 'i' for blockMapTable[i][j].
 ; */
-
+ArtKos_GHZ:	BINCLUDE	"art/kosinski/GHZ.bin"
+BM16_GHZ:	BINCLUDE	"mappings/16x16/GHZ.bin"
+BM128_GHZ:	BINCLUDE	"mappings/128x128/GHZ.bin"
 ;----------------------------------------------------------------------------------
 ; EHZ 16x16 block mappings (Kosinski compression) ; was: (Kozinski compression)
 BM16_EHZ:	BINCLUDE	"mappings/16x16/EHZ.bin"
@@ -84033,8 +84159,12 @@ Off_Rings: zoneOrderedOffsetTable 2,2
 	zoneOffsetTableEntry.w  Rings_ARZ_2	; 31
 	zoneOffsetTableEntry.w  Rings_SCZ_1	; 32 $10
 	zoneOffsetTableEntry.w  Rings_SCZ_2	; 33
+	zoneOffsetTableEntry.w  Rings_GHZ_1	; 0  $00
+	zoneOffsetTableEntry.w  Rings_GHZ_2	; 1
     zoneTableEnd
 
+Rings_GHZ_1:	BINCLUDE	"level/rings/GHZ_1.bin"
+Rings_GHZ_2:	BINCLUDE	"level/rings/GHZ_2.bin"
 Rings_EHZ_1:	BINCLUDE	"level/rings/EHZ_1.bin"
 Rings_EHZ_2:	BINCLUDE	"level/rings/EHZ_2.bin"
 Rings_Lev1_1:	BINCLUDE	"level/rings/01_1.bin"
@@ -84113,9 +84243,15 @@ Off_Objects: zoneOrderedOffsetTable 2,2
 	zoneOffsetTableEntry.w  Objects_ARZ_2	; 31
 	zoneOffsetTableEntry.w  Objects_SCZ_1	; 32 $10
 	zoneOffsetTableEntry.w  Objects_SCZ_2	; 33
+	zoneOffsetTableEntry.w  Objects_GHZ_1	; 0  $11
+	zoneOffsetTableEntry.w  Objects_GHZ_2	; 1
     zoneTableEnd
 
 	; These things act as boundaries for the object layout parser, so it doesn't read past the end/beginning of the file
+	ObjectLayoutBoundary
+Objects_GHZ_1:	BINCLUDE	"level/objects/GHZ_1.bin"
+	ObjectLayoutBoundary
+Objects_GHZ_2:	BINCLUDE	"level/objects/GHZ_2.bin"
 	ObjectLayoutBoundary
 Objects_EHZ_1:	BINCLUDE	"level/objects/EHZ_1.bin"
 	ObjectLayoutBoundary
