@@ -284,6 +284,7 @@ death_egg_zone zoneID		$0E
 aquatic_ruin_zone zoneID	$0F
 sky_chase_zone zoneID		$10
 green_hill_zone zoneID		$11
+green_hill_zone_2 zoneID	$12
 
 ; NOTE: If you want to shift IDs around, set useFullWaterTables to 1 in the assembly options
 
@@ -318,6 +319,7 @@ hidden_palace_zone_act_1 =	(hidden_palace_zone<<8)|$00
 hidden_palace_zone_act_2 =	(hidden_palace_zone<<8)|$01
 green_hill_zone_act_1 =	(green_hill_zone<<8)|$00
 green_hill_zone_act_2 =	(green_hill_zone<<8)|$01
+green_hill_zone_act_3 =	(green_hill_zone_2<<8)|$00
 ; ---------------------------------------------------------------------------
 ; some variables and functions to help define those constants (redefined before a new set of IDs)
 offset :=	0		; this is the start of the pointer table

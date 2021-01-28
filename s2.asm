@@ -2424,7 +2424,8 @@ PalCycle: zoneOrderedOffsetTable 2,1
 	zoneOffsetTableEntry.w PalCycle_CPZ	; 14
 	zoneOffsetTableEntry.w PalCycle_ARZ	; 15
 	zoneOffsetTableEntry.w PalCycle_WFZ	; 16
-	zoneOffsetTableEntry.w PalCycle_Null ; 17 ; $11 ; Green Hill Zone
+	zoneOffsetTableEntry.w PalCycle_Null ; 17
+	zoneOffsetTableEntry.w PalCycle_Null ; 18
     zoneTableEnd
 
 ; ===========================================================================
@@ -4252,7 +4253,8 @@ MusicList: zoneOrderedTable 1,1
 	zoneTableEntry.b MusID_DEZ	; 14 ; DEZ
 	zoneTableEntry.b MusID_ARZ	; 15 ; ARZ
 	zoneTableEntry.b MusID_SCZ	; 16 ; SCZ
-	zoneTableEntry.b MusID_EHZ	; 17 ; $11 GHZ
+	zoneTableEntry.b MusID_EHZ	; 17 ; GHZ1,2
+	zoneTableEntry.b MusID_EHZ	; 18 ; GHZ3
     zoneTableEnd
 	even
 ;----------------------------------------------------------------------------
@@ -4277,7 +4279,8 @@ MusicList2: zoneOrderedTable 1,1
 	zoneTableEntry.b MusID_DEZ	; 14
 	zoneTableEntry.b MusID_ARZ	; 15
 	zoneTableEntry.b MusID_SCZ	; 16
-	zoneTableEntry.b MusID_EHZ	; 17 ; $11 ; Green Hill Zone
+	zoneTableEntry.b MusID_EHZ	; 17
+	zoneTableEntry.b MusID_EHZ	; 18
     zoneTableEnd
 	even
 ; ===========================================================================
@@ -5323,7 +5326,8 @@ DemoScriptPointers: zoneOrderedTable 4,1
 	zoneTableEntry.l Demo_EHZ	; $0E
 	zoneTableEntry.l Demo_ARZ	; $0F
 	zoneTableEntry.l Demo_EHZ	; $10
-	zoneTableEntry.l Demo_EHZ	; $11 Green Hill Zone
+	zoneTableEntry.l Demo_EHZ	; $11
+	zoneTableEntry.l Demo_EHZ	; $12
     zoneTableEnd
 ; ---------------------------------------------------------------------------
 ; dword_498C:
@@ -5389,7 +5393,8 @@ Off_ColP: zoneOrderedTable 4,1
 	zoneTableEntry.l ColP_CPZDEZ	; 14
 	zoneTableEntry.l ColP_ARZ	; 15
 	zoneTableEntry.l ColP_WFZSCZ	; 16
-	zoneTableEntry.l ColP_GHZ ; 17 ; $11 ; Green Hill Zone
+	zoneTableEntry.l ColP_GHZ ; 17
+	zoneTableEntry.l ColP_GHZ ; 18
     zoneTableEnd
 
 ; ---------------------------------------------------------------------------
@@ -5417,7 +5422,8 @@ Off_ColS: zoneOrderedTable 4,1
 	zoneTableEntry.l ColS_CPZDEZ	; 14
 	zoneTableEntry.l ColS_ARZ	; 15
 	zoneTableEntry.l ColS_WFZSCZ	; 16
-	zoneTableEntry.l ColS_GHZ ; 17 ; $11 ; Green Hill Zone
+	zoneTableEntry.l ColS_GHZ ; 17
+	zoneTableEntry.l ColS_GHZ ; 18
     zoneTableEnd
 
 
@@ -12120,7 +12126,7 @@ LevelSelect_Return:
 LevelSelect_Order:
 	dc.w	green_hill_zone_act_1
 	dc.w	green_hill_zone_act_2	; 1
-	dc.w	chemical_plant_zone_act_1	; 2
+	dc.w	green_hill_zone_act_3	; 1
 	dc.w	chemical_plant_zone_act_2	; 3
 	dc.w	aquatic_ruin_zone_act_1	; 4
 	dc.w	aquatic_ruin_zone_act_2	; 5
@@ -14488,8 +14494,10 @@ LevelSize: zoneOrderedTable 2,8	; WrdArr_LvlSize
 	zoneTableEntry.w	$0,	$3FFF,	$180,	$710	; ARZ act 2
 	zoneTableEntry.w	$0,	$3FFF,	$0,	$000	; SCZ
 	zoneTableEntry.w	$0,	$3FFF,	$0,	$720
-	zoneTableEntry.w	$0,	$3FFF,	$0,	$720	; $01
-	zoneTableEntry.w	$0,	$3FFF,	$0,	$720	; $01
+	zoneTableEntry.w	$0,	$29A0,	$0,	$320	; GHZ act 1
+	zoneTableEntry.w	$0,	$2940,	$0,	$420	; GHZ act 2
+	zoneTableEntry.w	$0,	$2940,	$0,	$420	; GHZ act 3
+	zoneTableEntry.w	$0,	$2940,	$0,	$420	; GHZ unused
     zoneTableEnd
 
 ; ===========================================================================
@@ -14582,6 +14590,8 @@ StartLocations: zoneOrderedTable 2,4	; WrdArr_StartLoc
 	zoneTableEntry.w	$140,	$70
 	zoneTableBinEntry	2, "startpos/GHZ_1.bin"	; $00
 	zoneTableBinEntry	2, "startpos/GHZ_2.bin"
+	zoneTableBinEntry	2, "startpos/GHZ_3.bin"
+	zoneTableEntry.w	$140,	$70
     zoneTableEnd
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
@@ -14629,6 +14639,7 @@ InitCam_Index: zoneOrderedOffsetTable 2,1
 	zoneOffsetTableEntry.w InitCam_ARZ	; 15
 	zoneOffsetTableEntry.w InitCam_SCZ	; 16
 	zoneOffsetTableEntry.w InitCam_Std	; 17 GHZ
+	zoneOffsetTableEntry.w InitCam_Std	; 18 GHZ3
     zoneTableEnd
 ; ===========================================================================
 ;loc_C2B8:
@@ -14922,7 +14933,8 @@ SwScrl_Index: zoneOrderedOffsetTable 2,1	; JmpTbl_SwScrlMgr
 	zoneOffsetTableEntry.w SwScrl_DEZ	; $0E
 	zoneOffsetTableEntry.w SwScrl_ARZ	; $0F
 	zoneOffsetTableEntry.w SwScrl_SCZ	; $10
-	zoneOffsetTableEntry.w SwScrl_Minimal	; $
+	zoneOffsetTableEntry.w SwScrl_Minimal	; $11
+	zoneOffsetTableEntry.w SwScrl_Minimal	; $12
     zoneTableEnd
 ; ===========================================================================
 
@@ -18881,7 +18893,8 @@ DynamicLevelEventIndex: zoneOrderedOffsetTable 2,1
 	zoneOffsetTableEntry.w LevEvents_DEZ	;  $E ; DEZ
 	zoneOffsetTableEntry.w LevEvents_ARZ	;  $F ; ARZ
 	zoneOffsetTableEntry.w LevEvents_SCZ	; $10 ; SCZ
-	zoneOffsetTableEntry.w LevEvents_009	; $11 ; LEV9
+	zoneOffsetTableEntry.w LevEvents_009	; $11 ; GHZ
+	zoneOffsetTableEntry.w LevEvents_009	; $12 ; GHZ
     zoneTableEnd
 ; ===========================================================================
 ; loc_E658:
@@ -22896,6 +22909,7 @@ zoneAnimals macro first,second
 	zoneAnimals.b Penguin,	Bird	; ARZ
 	zoneAnimals.b Turtle,	Chicken	; SCZ
 	zoneAnimals.b Squirrel,	Bird	; GHZ
+	zoneAnimals.b Squirrel,	Bird	; GHZ
     zoneTableEnd
 
 ; word_118F0:
@@ -25812,6 +25826,10 @@ Obj34_ActNumber:	; the act number, coming in
 	bne.s	+			; if not, branch
 	moveq	#no_of_zones+3,d1	; Act number mappings (Act 3).  Used for drawing MTZ (0x05) titlecard only
 +
+	cmpi.b	#green_hill_zone_2,d0	; are we in Green Hill Zone Act 3?
+	bne.s	+			; if not, branch
+	moveq	#no_of_zones+3,d1	; Act number mappings (Act 3).  Used for drawing MTZ (0x05) titlecard only
++
 	move.b	d1,mapping_frame(a0)	; set the mapping frame
 
 ; ||||||||||||||| S U B R O U T I N E |||||||||||||||||||||||||||||||||||||||
@@ -25979,6 +25997,7 @@ Animal_PLCTable: zoneOrderedTable 1,1
 	zoneTableEntry.b PLCID_ArzAnimals	; $F
 	zoneTableEntry.b PLCID_SczAnimals	; $10
 	zoneTableEntry.b PLCID_EhzAnimals	; $11
+	zoneTableEntry.b PLCID_EhzAnimals	; $12
     zoneTableEnd
 
 	dc.b PLCID_SczAnimals	; level slot $11 (non-existent), not part of main table
@@ -26399,6 +26418,8 @@ LevelOrder: zoneOrderedTable 2,2	; WrdArr_LevelOrder
 	zoneTableEntry.w  emerald_hill_zone_act_1	; 33
 	zoneTableEntry.w  green_hill_zone_act_1	; 34
 	zoneTableEntry.w  green_hill_zone_act_2	; 35
+	zoneTableEntry.w  green_hill_zone_act_3	; 36
+	zoneTableEntry.w  green_hill_zone_act_3	; 37
     zoneTableEnd
 
 ;word_1433C:
@@ -26439,6 +26460,8 @@ LevelOrder_2P: zoneOrderedTable 2,2	; WrdArr_LevelOrder_2P
 	zoneTableEntry.w  emerald_hill_zone_act_1	; 33
 	zoneTableEntry.w  green_hill_zone_act_1	; 34
 	zoneTableEntry.w  green_hill_zone_act_2	; 35
+	zoneTableEntry.w  green_hill_zone_act_3	; 36
+	zoneTableEntry.w  green_hill_zone_act_3	; 37
     zoneTableEnd
 
 byte_14380:
@@ -26883,6 +26906,7 @@ Obj34_MapUnc_147BA:	offsetTable
 	offsetTableEntry.w TitleCard_ARZ ; ARZ 0F
 	offsetTableEntry.w TitleCard_SCZ ; SCZ 10
 	offsetTableEntry.w TitleCard_GHZ ; GHZ 11
+	offsetTableEntry.w TitleCard_GHZ ; GHZ 12
 	offsetTableEntry.w T_ZONE	 ; "ZONE"
 	offsetTableEntry.w T_ACT1	 ; "1"
 	offsetTableEntry.w T_ACT2	 ; "2"
@@ -27549,7 +27573,8 @@ Off_TitleCardLetters:	offsetTable
 	offsetTableEntry.w TitleCardLetters_DEZ ; DEZ Titlecard 0E
 	offsetTableEntry.w TitleCardLetters_ARZ ; ARZ Titlecard 0F
 	offsetTableEntry.w TitleCardLetters_SCZ ; SCZ Titlecard 10
-	offsetTableEntry.w TitleCardLetters_GHZ ; EHZ Titlecard 11
+	offsetTableEntry.w TitleCardLetters_GHZ ; GHZ Titlecard 11
+	offsetTableEntry.w TitleCardLetters_GHZ ; GHZ Titlecard 12
 
  ; temporarily remap characters to title card letter format
  ; Characters are encoded as Aa, Bb, Cc, etc. through a macro
@@ -78139,6 +78164,9 @@ PLC_DYNANM: zoneOrderedOffsetTable 2,2		; Zone ID
 
 	zoneOffsetTableEntry.w Dynamic_Null	; $11
 	zoneOffsetTableEntry.w Animated_Null
+
+	zoneOffsetTableEntry.w Dynamic_Null	; $12
+	zoneOffsetTableEntry.w Animated_Null
     zoneTableEnd
 ; ===========================================================================
 
@@ -78860,6 +78888,7 @@ AnimPatMaps: zoneOrderedOffsetTable 2,1
 	zoneOffsetTableEntry.w APM_ARZ		; $F
 	zoneOffsetTableEntry.w APM_Null		;$10
 	zoneOffsetTableEntry.w APM_Null		;$11
+	zoneOffsetTableEntry.w APM_Null		;$12
     zoneTableEnd
 
 begin_animpat macro {INTLABEL}
@@ -80842,6 +80871,7 @@ JmpTbl_DbgObjLists: zoneOrderedOffsetTable 2,1
 	zoneOffsetTableEntry.w DbgObjList_ARZ	; $F
 	zoneOffsetTableEntry.w DbgObjList_SCZ	; $10
 	zoneOffsetTableEntry.w DbgObjList_Def	; $11
+	zoneOffsetTableEntry.w DbgObjList_Def	; $12
     zoneTableEnd
 
 ; macro for a debug object list header
@@ -81327,7 +81357,8 @@ LevelArtPointers:
 	levartptrs PLCID_Dez1,     PLCID_Dez2,      PalID_DEZ,  ArtKos_CPZ, BM16_CPZ, BM128_CPZ ;  $E ; DEZ  ; DEATH EGG ZONE
 	levartptrs PLCID_Arz1,     PLCID_Arz2,      PalID_ARZ,  ArtKos_ARZ, BM16_ARZ, BM128_ARZ ;  $F ; ARZ  ; AQUATIC RUIN ZONE
 	levartptrs PLCID_Scz1,     PLCID_Scz2,      PalID_SCZ,  ArtKos_SCZ, BM16_WFZ, BM128_WFZ ; $10 ; SCZ  ; SKY CHASE ZONE
-	levartptrs PLCID_Ehz1,     PLCID_Ehz2,      PalID_GHZ,  ArtKos_GHZ, BM16_GHZ, BM128_GHZ ; $11 ; GHZ  ; GREEN HILL ZONE
+	levartptrs PLCID_Ehz1,     PLCID_Ehz2,      PalID_GHZ,  ArtKos_GHZ, BM16_GHZ, BM128_GHZ ; $11 ; GHZ  ; GREEN HILL ZONE ACTS 1 & 2
+	levartptrs PLCID_Ehz1,     PLCID_Ehz2,      PalID_GHZ,  ArtKos_GHZ, BM16_GHZ, BM128_GHZ ; $11 ; GHZ3 ; GREEN HILL ZONE ACT 3
 
     if (cur_zone_id<>no_of_zones)&&(MOMPASS=1)
 	message "Warning: Table LevelArtPointers has \{cur_zone_id/1.0} entries, but it should have \{no_of_zones/1.0} entries"
@@ -82555,14 +82586,20 @@ Off_Level: zoneOrderedOffsetTable 2,2
 	zoneOffsetTableEntry.w Level_SCZ	; 33
 	zoneOffsetTableEntry.w Level_GHZ1	; 34
 	zoneOffsetTableEntry.w Level_GHZ2	; 35
+	zoneOffsetTableEntry.w Level_GHZ3	; 36
+	zoneOffsetTableEntry.w Level_GHZ1	; 37
     zoneTableEnd
 ;---------------------------------------------------------------------------------------
 ; GHZ act 1 level layout (Kosinski compression)
 Level_GHZ1:	BINCLUDE	"level/layout/GHZ_1.bin"
 	even
 ;---------------------------------------------------------------------------------------
-; GHZ act 1 level layout (Kosinski compression)
+; GHZ act 2 level layout (Kosinski compression)
 Level_GHZ2:	BINCLUDE	"level/layout/GHZ_2.bin"
+	even
+;---------------------------------------------------------------------------------------
+; GHZ act 3 level layout (Kosinski compression)
+Level_GHZ3:	BINCLUDE	"level/layout/GHZ_3.bin"
 	even
 ;---------------------------------------------------------------------------------------
 ; EHZ act 1 level layout (Kosinski compression)
@@ -84245,12 +84282,15 @@ Off_Rings: zoneOrderedOffsetTable 2,2
 	zoneOffsetTableEntry.w  Rings_ARZ_2	; 31
 	zoneOffsetTableEntry.w  Rings_SCZ_1	; 32 $10
 	zoneOffsetTableEntry.w  Rings_SCZ_2	; 33
-	zoneOffsetTableEntry.w  Rings_GHZ_1	; 0  $00
-	zoneOffsetTableEntry.w  Rings_GHZ_2	; 1
+	zoneOffsetTableEntry.w  Rings_GHZ_1	; 34 $11
+	zoneOffsetTableEntry.w  Rings_GHZ_2	; 35
+	zoneOffsetTableEntry.w  Rings_GHZ_3	; 36 $11
+	zoneOffsetTableEntry.w  Rings_GHZ_1	; 37
     zoneTableEnd
 
 Rings_GHZ_1:	BINCLUDE	"level/rings/GHZ_1.bin"
 Rings_GHZ_2:	BINCLUDE	"level/rings/GHZ_2.bin"
+Rings_GHZ_3:	BINCLUDE	"level/rings/GHZ_3.bin"
 Rings_EHZ_1:	BINCLUDE	"level/rings/EHZ_1.bin"
 Rings_EHZ_2:	BINCLUDE	"level/rings/EHZ_2.bin"
 Rings_Lev1_1:	BINCLUDE	"level/rings/01_1.bin"
@@ -84329,8 +84369,10 @@ Off_Objects: zoneOrderedOffsetTable 2,2
 	zoneOffsetTableEntry.w  Objects_ARZ_2	; 31
 	zoneOffsetTableEntry.w  Objects_SCZ_1	; 32 $10
 	zoneOffsetTableEntry.w  Objects_SCZ_2	; 33
-	zoneOffsetTableEntry.w  Objects_GHZ_1	; 0  $11
-	zoneOffsetTableEntry.w  Objects_GHZ_2	; 1
+	zoneOffsetTableEntry.w  Objects_GHZ_1	; 34  $11
+	zoneOffsetTableEntry.w  Objects_GHZ_2	; 35
+	zoneOffsetTableEntry.w  Objects_GHZ_3	; 36  $12
+	zoneOffsetTableEntry.w  Objects_GHZ_1	; 37 
     zoneTableEnd
 
 	; These things act as boundaries for the object layout parser, so it doesn't read past the end/beginning of the file
@@ -84338,6 +84380,8 @@ Off_Objects: zoneOrderedOffsetTable 2,2
 Objects_GHZ_1:	BINCLUDE	"level/objects/GHZ_1.bin"
 	ObjectLayoutBoundary
 Objects_GHZ_2:	BINCLUDE	"level/objects/GHZ_2.bin"
+	ObjectLayoutBoundary
+Objects_GHZ_3:	BINCLUDE	"level/objects/GHZ_3.bin"
 	ObjectLayoutBoundary
 Objects_EHZ_1:	BINCLUDE	"level/objects/EHZ_1.bin"
 	ObjectLayoutBoundary
