@@ -14494,10 +14494,10 @@ LevelSize: zoneOrderedTable 2,8	; WrdArr_LvlSize
 	zoneTableEntry.w	$0,	$3FFF,	$180,	$710	; ARZ act 2
 	zoneTableEntry.w	$0,	$3FFF,	$0,	$000	; SCZ
 	zoneTableEntry.w	$0,	$3FFF,	$0,	$720
-	zoneTableEntry.w	$0,	$29A0,	$0,	$320	; GHZ act 1
-	zoneTableEntry.w	$0,	$2940,	$0,	$420	; GHZ act 2
-	zoneTableEntry.w	$0,	$2940,	$0,	$420	; GHZ act 3
-	zoneTableEntry.w	$0,	$2940,	$0,	$420	; GHZ unused
+	zoneTableEntry.w	$0,	$3FFF,	$0,	$720	; GHZ act 1
+	zoneTableEntry.w	$0,	$3FFF,	$0,	$720	; GHZ act 2
+	zoneTableEntry.w	$0,	$3FFF,	$0,	$720	; GHZ act 3
+	zoneTableEntry.w	$0,	$3FFF,	$0,	$720	; GHZ unused
     zoneTableEnd
 
 ; ===========================================================================
@@ -26382,44 +26382,44 @@ loc_142E2:
 ; -------------------------------------------------------------------------------
 ;word_142F8:
 LevelOrder: zoneOrderedTable 2,2	; WrdArr_LevelOrder
-	zoneTableEntry.w  emerald_hill_zone_act_2
-	zoneTableEntry.w  chemical_plant_zone_act_1	; 1
-	zoneTableEntry.w  emerald_hill_zone_act_1	; 2
-	zoneTableEntry.w  emerald_hill_zone_act_1	; 3
-	zoneTableEntry.w  wood_zone_act_2		; 4
-	zoneTableEntry.w  metropolis_zone_act_1		; 5
-	zoneTableEntry.w  emerald_hill_zone_act_1	; 6
-	zoneTableEntry.w  emerald_hill_zone_act_1	; 7
-	zoneTableEntry.w  metropolis_zone_act_2		; 8
-	zoneTableEntry.w  metropolis_zone_act_3		; 9
-	zoneTableEntry.w  sky_chase_zone_act_1		; 10
-	zoneTableEntry.w  emerald_hill_zone_act_1	; 11
-	zoneTableEntry.w  death_egg_zone_act_1		; 12
-	zoneTableEntry.w  emerald_hill_zone_act_1	; 13
-	zoneTableEntry.w  hill_top_zone_act_2		; 14
-	zoneTableEntry.w  mystic_cave_zone_act_1	; 15
-	zoneTableEntry.w  hidden_palace_zone_act_2 	; 16
-	zoneTableEntry.w  oil_ocean_zone_act_1		; 17
-	zoneTableEntry.w  emerald_hill_zone_act_1	; 18
-	zoneTableEntry.w  emerald_hill_zone_act_1	; 19
-	zoneTableEntry.w  oil_ocean_zone_act_2		; 20
-	zoneTableEntry.w  metropolis_zone_act_1		; 21
-	zoneTableEntry.w  mystic_cave_zone_act_2	; 22
-	zoneTableEntry.w  oil_ocean_zone_act_1		; 23
-	zoneTableEntry.w  casino_night_zone_act_2	; 24
-	zoneTableEntry.w  hill_top_zone_act_1		; 25
-	zoneTableEntry.w  chemical_plant_zone_act_2	; 26
-	zoneTableEntry.w  aquatic_ruin_zone_act_1	; 27
-	zoneTableEntry.w  $FFFF				; 28
-	zoneTableEntry.w  emerald_hill_zone_act_1	; 29
-	zoneTableEntry.w  aquatic_ruin_zone_act_2	; 30
-	zoneTableEntry.w  casino_night_zone_act_1	; 31
-	zoneTableEntry.w  wing_fortress_zone_act_1 	; 32
-	zoneTableEntry.w  emerald_hill_zone_act_1	; 33
-	zoneTableEntry.w  green_hill_zone_act_1	; 34
-	zoneTableEntry.w  green_hill_zone_act_2	; 35
-	zoneTableEntry.w  green_hill_zone_act_3	; 36
-	zoneTableEntry.w  green_hill_zone_act_3	; 37
+	zoneTableEntry.w  emerald_hill_zone_act_2	; 0		; Emerald Hill Zone Act 1
+	zoneTableEntry.w  chemical_plant_zone_act_1	; 1		; Emerald Hill Zone Act 2
+	zoneTableEntry.w  emerald_hill_zone_act_1	; 2		; Unused (Zone 01 Act 1)
+	zoneTableEntry.w  emerald_hill_zone_act_1	; 3		; Unused (Zone 01 Act 2)
+	zoneTableEntry.w  wood_zone_act_2			; 4		; Unused (Wood Zone Act 1)
+	zoneTableEntry.w  metropolis_zone_act_1		; 5		; Unused (Wood Zone Act 2)
+	zoneTableEntry.w  emerald_hill_zone_act_1	; 6		; Unused (Zone 03 Act 1)
+	zoneTableEntry.w  emerald_hill_zone_act_1	; 7		; Unused (Zone 03 Act 2)
+	zoneTableEntry.w  metropolis_zone_act_2		; 8		; Metropolis Zone Act 1
+	zoneTableEntry.w  metropolis_zone_act_3		; 9		; Metropolis Zone Act 2
+	zoneTableEntry.w  sky_chase_zone_act_1		; 10	; Metropolis Zone Act 3
+	zoneTableEntry.w  emerald_hill_zone_act_1	; 11	; Unused (Metropolis Zone Act 4)
+	zoneTableEntry.w  death_egg_zone_act_1		; 12	; Wing Fortress Zone
+	zoneTableEntry.w  emerald_hill_zone_act_1	; 13	; Unused (Wing Fortress Zone)
+	zoneTableEntry.w  hill_top_zone_act_2		; 14	; Hill Top Zone Act 1
+	zoneTableEntry.w  mystic_cave_zone_act_1	; 15	; Hill Top Zone Act 2
+	zoneTableEntry.w  hidden_palace_zone_act_2 	; 16	; Unused (Hidden Palace Zone Act 1)
+	zoneTableEntry.w  oil_ocean_zone_act_1		; 17	; Unuded (Hidden Palace Zone Act 2)
+	zoneTableEntry.w  emerald_hill_zone_act_1	; 18	; Unused (Zone 09 Act 1)
+	zoneTableEntry.w  emerald_hill_zone_act_1	; 19	; Unused (Zone 09 Act 2)
+	zoneTableEntry.w  oil_ocean_zone_act_2		; 20	; Oil Ocean Zone Act 1
+	zoneTableEntry.w  metropolis_zone_act_1		; 21	; Oil Ocean Zone Act 2
+	zoneTableEntry.w  mystic_cave_zone_act_2	; 22	; Mystic Cave Zone Act 1
+	zoneTableEntry.w  oil_ocean_zone_act_1		; 23	; Mystic Cave Zone Act 2
+	zoneTableEntry.w  casino_night_zone_act_2	; 24	; Casino Night Zone Act 1
+	zoneTableEntry.w  hill_top_zone_act_1		; 25	; Casino Night Zone Act 2
+	zoneTableEntry.w  chemical_plant_zone_act_2	; 26	; Chemical Plant Zone Act 1
+	zoneTableEntry.w  aquatic_ruin_zone_act_1	; 27	; Chemical Plant Zone Act 2
+	zoneTableEntry.w  $FFFF						; 28	; Death Egg Zone
+	zoneTableEntry.w  emerald_hill_zone_act_1	; 29	; Unused (Death Egg Zone act 2)
+	zoneTableEntry.w  aquatic_ruin_zone_act_2	; 30	; Aquatic Ruin Zone Act 1
+	zoneTableEntry.w  casino_night_zone_act_1	; 31	; Aquatic Ruin Zone Act 2
+	zoneTableEntry.w  wing_fortress_zone_act_1 	; 32	; Sky Chase Zone
+	zoneTableEntry.w  emerald_hill_zone_act_1	; 33	; Unused (Sky Chase Zone Act 2)
+	zoneTableEntry.w  green_hill_zone_act_2		; 34	; Green Hill Zone Act 1
+	zoneTableEntry.w  green_hill_zone_act_3		; 35	; Green Hill Zone Act 2
+	zoneTableEntry.w  emerald_hill_zone_act_1	; 36	; Green Hill Zone Act 3
+	zoneTableEntry.w  green_hill_zone_act_3		; 37	; Unused (Green Hill Zone Act 4)
     zoneTableEnd
 
 ;word_1433C:
