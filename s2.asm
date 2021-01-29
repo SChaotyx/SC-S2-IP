@@ -14494,9 +14494,9 @@ LevelSize: zoneOrderedTable 2,8	; WrdArr_LvlSize
 	zoneTableEntry.w	$0,	$3FFF,	$180,	$710	; ARZ act 2
 	zoneTableEntry.w	$0,	$3FFF,	$0,	$000	; SCZ
 	zoneTableEntry.w	$0,	$3FFF,	$0,	$720
-	zoneTableEntry.w	$0,	$3FFF,	$0,	$720	; GHZ act 1
-	zoneTableEntry.w	$0,	$3FFF,	$0,	$720	; GHZ act 2
-	zoneTableEntry.w	$0,	$3FFF,	$0,	$720	; GHZ act 3
+	zoneTableEntry.w	$0,	$24BF,	$0,	$300	; GHZ act 1
+	zoneTableEntry.w	$0,	$24BF,	$0,	$300	; GHZ act 2
+	zoneTableEntry.w	$0,	$24BF,	$0,	$300	; GHZ act 3
 	zoneTableEntry.w	$0,	$3FFF,	$0,	$720	; GHZ unused
     zoneTableEnd
 
@@ -14638,8 +14638,8 @@ InitCam_Index: zoneOrderedOffsetTable 2,1
 	zoneOffsetTableEntry.w InitCam_Null3	; 14
 	zoneOffsetTableEntry.w InitCam_ARZ	; 15
 	zoneOffsetTableEntry.w InitCam_SCZ	; 16
-	zoneOffsetTableEntry.w InitCam_Std	; 17 GHZ
-	zoneOffsetTableEntry.w InitCam_Std	; 18 GHZ3
+	zoneOffsetTableEntry.w InitCam_EHZ	; 17 GHZ
+	zoneOffsetTableEntry.w InitCam_EHZ	; 18 GHZ3
     zoneTableEnd
 ; ===========================================================================
 ;loc_C2B8:
@@ -14933,30 +14933,12 @@ SwScrl_Index: zoneOrderedOffsetTable 2,1	; JmpTbl_SwScrlMgr
 	zoneOffsetTableEntry.w SwScrl_DEZ	; $0E
 	zoneOffsetTableEntry.w SwScrl_ARZ	; $0F
 	zoneOffsetTableEntry.w SwScrl_SCZ	; $10
-	zoneOffsetTableEntry.w SwScrl_Minimal	; $11
-	zoneOffsetTableEntry.w SwScrl_Minimal	; $12
+	zoneOffsetTableEntry.w SwScrl_GHZ	; $11
+	zoneOffsetTableEntry.w SwScrl_GHZ	; $12
     zoneTableEnd
 ; ===========================================================================
 
-SwScrl_GHZ:
-    
-	move.w	(Camera_Y_pos_diff).w,d5
-	ext.l	d5
-	asl.l	#6,d5
-	bsr.w	SetHorizVertiScrollFlagsBG
-	move.w	(Camera_BG_Y_pos).w,(Vscroll_Factor_BG).w
-	lea	(Horiz_Scroll_Buf).w,a1
-	move.w	#bytesToLcnt($380),d1
-	move.w	(Camera_X_pos).w,d0
-	neg.w	d0
-	swap	d0
-	move.w	(Camera_BG_X_pos).w,d0
-	neg.w	d0
-
--	move.l	d0,(a1)+
-	dbf	d1,-
-
-	rts
+	include	"level/Deform Layers.asm"
 
 ; loc_C51E:
 SwScrl_Title:
@@ -17379,7 +17361,7 @@ SetHorizScrollFlagsBG2:	; only used by CPZ
 
 ; ===========================================================================
 ; some apparently unused code
-;SetHorizScrollFlagsBG3:
+SetHorizScrollFlagsBG3:
 	move.l	(Camera_BG3_X_pos).w,d2
 	move.l	d2,d0
 	add.l	d4,d0

@@ -2449,3 +2449,28 @@ ArtTile_ArtNem_EndPoints              = $04B6
 ArtTile_ArtNem_BreakWall              = $0590
 ArtTile_ArtNem_GHZ_Purple_Rock        = $06C0
 
+
+; ---------------------------------------------------------------------------
+; Sonic 1 equivalent constants
+; ---------------------------------------------------------------------------
+
+v_hscrolltablebuffer:   equ Horiz_Scroll_Buf
+v_bgscroll_buffer:      equ TempArray_LayerDef
+v_screenposy:           equ Camera_Y_pos
+v_screenposx:           equ Camera_X_pos
+v_bgscreenposy:         equ Camera_BG_Y_pos
+v_bgscreenposx:         equ Camera_BG_X_pos
+v_bg2screenposy:        equ Camera_BG2_Y_pos
+v_bg2screenposx:        equ Camera_BG2_X_pos
+v_bg3screenposy:        equ Camera_BG3_Y_pos
+v_bg3screenposx:        equ Camera_BG3_X_pos
+v_bgscrposy_dup:        equ Vscroll_Factor_BG
+v_bg1_scroll_flags:     equ Scroll_flags_BG
+v_bg2_scroll_flags:     equ Scroll_flags_BG2
+v_bg3_scroll_flags:     equ Scroll_flags_BG3
+v_scrshiftx:            equ Camera_X_pos_diff
+v_scrshifty:            equ Camera_Y_pos_diff
+v_bg1_yblock:           equ Verti_block_crossed_flag_BG
+v_bg1_xblock:           equ Horiz_block_crossed_flag_BG
+v_bg2_xblock:           equ Horiz_block_crossed_flag_BG2
+v_bg3_xblock:           equ Horiz_block_crossed_flag_BG3
