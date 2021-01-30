@@ -14495,8 +14495,8 @@ LevelSize: zoneOrderedTable 2,8	; WrdArr_LvlSize
 	zoneTableEntry.w	$0,	$3FFF,	$0,	$000	; SCZ
 	zoneTableEntry.w	$0,	$3FFF,	$0,	$720
 	zoneTableEntry.w	$0,	$24BF,	$0,	$300	; GHZ act 1
-	zoneTableEntry.w	$0,	$24BF,	$0,	$300	; GHZ act 2
-	zoneTableEntry.w	$0,	$24BF,	$0,	$300	; GHZ act 3
+	zoneTableEntry.w	$0,	$1EBF,	$0,	$300	; GHZ act 2
+	zoneTableEntry.w	$0,	$2960,	$0,	$300	; GHZ act 3
 	zoneTableEntry.w	$0,	$3FFF,	$0,	$720	; GHZ unused
     zoneTableEnd
 
@@ -18875,9 +18875,12 @@ DynamicLevelEventIndex: zoneOrderedOffsetTable 2,1
 	zoneOffsetTableEntry.w LevEvents_DEZ	;  $E ; DEZ
 	zoneOffsetTableEntry.w LevEvents_ARZ	;  $F ; ARZ
 	zoneOffsetTableEntry.w LevEvents_SCZ	; $10 ; SCZ
-	zoneOffsetTableEntry.w LevEvents_009	; $11 ; GHZ
-	zoneOffsetTableEntry.w LevEvents_009	; $12 ; GHZ
+	zoneOffsetTableEntry.w LevEvents_GHZ	; $11 ; GHZ
+	zoneOffsetTableEntry.w LevEvents_GHZ	; $12 ; GHZ
     zoneTableEnd
+
+	include "level/Dynamic Level Events.asm"
+
 ; ===========================================================================
 ; loc_E658:
 LevEvents_EHZ:

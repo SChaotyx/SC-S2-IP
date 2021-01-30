@@ -2474,3 +2474,17 @@ v_bg1_yblock:           equ Verti_block_crossed_flag_BG
 v_bg1_xblock:           equ Horiz_block_crossed_flag_BG
 v_bg2_xblock:           equ Horiz_block_crossed_flag_BG2
 v_bg3_xblock:           equ Horiz_block_crossed_flag_BG3
+
+v_act:					equ Current_Act
+
+v_limitbtm1:			equ Camera_Max_Y_pos
+v_limitbtm2:			equ Camera_Max_Y_pos_now
+v_limittop1:			equ Camera_Min_Y_pos
+v_limittop2:			equ Camera_Min_Y_pos
+
+v_limitleft1:			equ Camera_Min_X_pos
+v_limitleft2:			equ Camera_Min_X_pos
+v_limitright1:			equ Camera_Max_X_pos
+v_limitright2:			equ Camera_Max_X_pos
+
+v_dle_routine:			equ	Dynamic_Resize_Routine
