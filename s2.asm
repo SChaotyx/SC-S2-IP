@@ -2424,14 +2424,34 @@ PalCycle: zoneOrderedOffsetTable 2,1
 	zoneOffsetTableEntry.w PalCycle_CPZ	; 14
 	zoneOffsetTableEntry.w PalCycle_ARZ	; 15
 	zoneOffsetTableEntry.w PalCycle_WFZ	; 16
-	zoneOffsetTableEntry.w PalCycle_Null ; 17
-	zoneOffsetTableEntry.w PalCycle_Null ; 18
+	zoneOffsetTableEntry.w PalCycle_GHZ ; 17
+	zoneOffsetTableEntry.w PalCycle_GHZ ; 18
     zoneTableEnd
 
 ; ===========================================================================
 ; return_1A16:
 PalCycle_Null:
 	rts
+; ===========================================================================
+
+PalCycle_GHZ:
+	lea	(CyclingPal_GHZ).l,a0
+	subq.w	#1,(v_pcyc_time).w ; decrement timer
+	bpl.s	PCycGHZ_Skip	; if time remains, branch
+
+	move.w	#5,(v_pcyc_time).w ; reset timer to 5 frames
+	move.w	(v_pcyc_num).w,d0 ; get cycle number
+	addq.w	#1,(v_pcyc_num).w ; increment cycle number
+	andi.w	#3,d0		; if cycle > 3, reset to 0
+	lsl.w	#3,d0
+	lea	(v_pal_dry+$50).w,a1
+	move.l	(a0,d0.w),(a1)+
+	move.l	4(a0,d0.w),(a1)	; copy palette data to RAM
+
+PCycGHZ_Skip:
+	rts	
+; End of function PCycle_GHZ
+
 ; ===========================================================================
 
 PalCycle_EHZ:
@@ -2797,6 +2817,8 @@ CyclingPal_WFZ1:
 ; word_2126:
 CyclingPal_WFZ2:
 	BINCLUDE "art/palettes/WFZ Cycle 2.bin"; Wing Fortress Flashing Light Cycle 2
+CyclingPal_GHZ:
+	BINCLUDE "art/palettes/GHZ Cycle 1.bin"; Green Hill Zone Water Cycle
 ; ----------------------------------------------------------------------------
 
 
@@ -32546,6 +32568,9 @@ loc_19208:
 	beq.s	loc_1921E
 	tst.b	(Current_Act).w
 	beq.s	loc_1921E
+	; this is because the end of level signpost disappeared in acts 2
+	cmpi.w	#green_hill_zone,(Current_Zone).w
+	bge.s	loc_1921E
 	move.w	#0,x_pos(a0)
 	rts
 ; ---------------------------------------------------------------------------

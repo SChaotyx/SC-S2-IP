@@ -2488,3 +2488,7 @@ v_limitright1:			equ Camera_Max_X_pos
 v_limitright2:			equ Camera_Max_X_pos
 
 v_dle_routine:			equ	Dynamic_Resize_Routine
+
+v_pcyc_time:			equ PalCycle_Timer
+v_pcyc_num:				equ PalCycle_Frame
+v_pal_dry:				equ Normal_palette

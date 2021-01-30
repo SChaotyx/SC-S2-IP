@@ -20,6 +20,8 @@ GHZACT1:
 		cmpi.w	#$1780,(Camera_X_pos).w ; has the camera reached $1780 on x-axis?
 		bcs.s	+	; if not, branch
 		move.w	#$400,(Camera_Max_Y_pos).w ; set lower y-boundary
+		move.w	#$400,(Camera_Max_Y_pos_now).w ; set lower y-boundary
+		move.w	#$400,(Tails_Max_Y_pos).w ; set lower y-boundary
 +
 		rts	
 ; ===========================================================================
