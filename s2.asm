@@ -16,7 +16,7 @@
 
 ; >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 ; ASSEMBLY OPTIONS:
-devmode = 1
+devmode = 0
 ;
     ifndef gameRevision
 gameRevision = 2
