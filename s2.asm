@@ -80770,31 +80770,21 @@ Debug_ExitDebugMode:
 	move.w	d0,(Debug_placement_mode).w
 	lea	(MainCharacter).w,a1 ; a1=character
 	cmpi.b	#1,(Player_MainChar).w
-	bne.s	++
+	bne.s	+
 	move.l	#Mapunc_Sonic,mappings(a1)
 	tst.b	(Super_Sonic_flag).w	; Ignore this code if not Super Sonic
 	beq.w	+
 	move.l	#Mapunc_SuperSonic,mappings(a1)
 +
-	move.w	#make_art_tile(ArtTile_ArtUnc_Sonic,0,0),art_tile(a1)
-+
 	cmpi.b	#2,(Player_MainChar).w
 	bne.s	+
 	move.l	#MapUnc_Tails,mappings(a1)
-	move.w	#make_art_tile(ArtTile_ArtUnc_Tails,0,0),art_tile(a1)
 +
 	cmpi.b	#3,(Player_MainChar).w
-	bne.s	++
+	bne.s	+
 	move.l	#MapUnc_Knuckles,mappings(a1)
-	cmpi.b	#1,(Player_MainChar).w
-	beq.s	+
-	cmpi.b	#1,(Player_Sidekick).w
-	beq.s	+
++
 	move.w	#make_art_tile(ArtTile_ArtUnc_Sonic,0,0),art_tile(a1)
-	bra.s	++
-+
-	move.w	#make_art_tile(ArtTile_ArtUnc_Tails,0,0),art_tile(a1)
-+
 	;tst.w	(Two_player_mode).w
 	;beq.s	.notTwoPlayerMode
 	;move.w	#make_art_tile_2p(ArtTile_ArtUnc_Sonic,0,0),art_tile(a1)
@@ -83035,6 +83025,11 @@ byte_33B1F0:	dc.b  $16, $66,	$66, $66, $16, $66, $66, $66, $16, $66;	0 ; ...
 		dc.b  $61, $66,	$61, $66,-$7A, $66, $61, $66, $66, $66;	460
 		dc.b  $61, $66,	$66, $66, $61	  ; 470
 ;---------------------------------------------------------------------------------------
+; Uncompressed art
+; Sonic/Miles animated background patterns	; ArtUnc_7CD2C:
+	even
+ArtUnc_MenuBack:	BINCLUDE	"art/uncompressed/Sonic and Miles animated background.bin"
+;---------------------------------------------------------------------------------------
 ; Nemesis compressed art (88 blocks)
 ; Standard font		; ArtNem_7C43A:
 	even
@@ -83049,11 +83044,6 @@ ArtNem_1P2PWins:	BINCLUDE	"art/nemesis/1P and 2P wins text from 2P mode.bin"
 ; Sonic/Miles animated background mappings	; MapEng_7CB80:
 	even
 MapEng_MenuBack:	BINCLUDE	"mappings/misc/Sonic and Miles animated background.bin"
-;---------------------------------------------------------------------------------------
-; Uncompressed art
-; Sonic/Miles animated background patterns	; ArtUnc_7CD2C:
-	even
-ArtUnc_MenuBack:	BINCLUDE	"art/uncompressed/Sonic and Miles animated background.bin"
 ;---------------------------------------------------------------------------------------
 ; Nemesis compressed art (94 blocks)
 ; Title card patterns		; ArtNem_7D22C:
